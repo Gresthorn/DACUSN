@@ -7,30 +7,21 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    reciever rcvr(SYNTHETIC);
+    // create settings object filled with default values
+    settings = new uwbSettings();
+    // creating protector mutex for settings
+    settingsMutex = new QMutex;
 
-    qDebug() << rcvr.check_status_message();
-    qDebug() << rcvr.calibration_status();
+    dataStack = new QList<rawData * >;
+    dataStackMutex = new QMutex;
 
-    //int counter = 0;
 
-    /*if(rcvr.calibration_status())
-    {
-        rawData * rd_data;
-        while(rd_data!=NULL)
-        {
-            counter++;
-            //if(counter==70) rcvr.set_new_method_code(UNDEFINED);
 
-            rd_data = rcvr.listen();
+    /* ---------------------------------- THREADS ------------------------------------- */
 
-            if(rd_data!=NULL) qDebug() << rd_data->getSyntheticTime();
-            else { qDebug() << rcvr.check_status_message(); break; }
-
-            delete rd_data;
-
-        }
-    }*/
+    dataInput = new dataInputThread(this, dataStack, dataStackMutex, settings, settingsMutex);
+    // setting the maximum priority to ensure that data will not be lost because of processing the old one
+    dataInput->start(QThread::TimeCriticalPriority);
 
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));
 }
