@@ -55,18 +55,31 @@ public:
      * @brief Function sets new upper limit for maximum tolerable error count for reciever.
      * @param[in] error_count Specifies the new error count.
      */
-    void setMaximumRecieverErrorCount(int error_count) { maximumRecieverErrorCount = error_count; }
+    void setMaximumRecieverErrorCount(unsigned int error_count) { maximumRecieverErrorCount = error_count; }
 
     /**
      * @brief Is method used by higher classes to find out, what upper limit for maximum tolerable error count for reciever is used.
      * @return Returns the maximum tolerable error count value.
      */
-    int getMaximumRecieverErrorCount(void) { return maximumRecieverErrorCount; }
+    unsigned int getMaximumRecieverErrorCount(void) { return maximumRecieverErrorCount; }
+
+    /**
+     * @brief This method can be used to set new idle time value for reciever in miliseconds.
+     * @param[in] idleTime Parameter carrying the idle time value.
+     */
+    void setRecieverIdleTime(unsigned int idleTime) { recieverIdleTime = idleTime; }
+
+    /**
+     * @brief This method is used to find out what idle time in miliseconds is currently used.
+     * @return The return value is the idle time value for reciever in miliseconds.
+     */
+    unsigned int getRecieverIdleTime(void) { return recieverIdleTime; }
 
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
-    int maximumRecieverErrorCount; ///< Determines how much errors one after another are tolerable
+    unsigned int maximumRecieverErrorCount; ///< Determines how much errors one after another are tolerable
+    unsigned int recieverIdleTime; ///< Determines how long to wait in miliseconds if the reciever is forwarded to idle state
 };
 
 #endif // UWBSETTINGS_H

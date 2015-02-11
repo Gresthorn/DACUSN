@@ -15,6 +15,8 @@ reciever::reciever(reciever_method recieveMethod) : maximum_pipe_size(512)
 reciever::~reciever()
 {
     if(statusMsg != NULL) delete statusMsg;
+
+    cancel_previous_method();
 }
 
 void reciever::set_msg(const char *msg)

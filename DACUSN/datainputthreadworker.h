@@ -1,9 +1,10 @@
 #ifndef DATAINPUTTHREAD_H
 #define DATAINPUTTHREAD_H
 
-#include <QThread>
+#include <QObject>
 #include <QList>
 #include <QMutex>
+#include <QWaitCondition>
 
 #include <QDebug>
 
@@ -20,25 +21,21 @@
  *
  * @section DESCRIPTION
  *
- * The dataInputThread class inherits a QThread class so it is able to run as a
- * separate thread which purpose is to obtain new data from UWB radar network
+ * The dataInputThread class inherits a QObject class so it is able to run as a 'worker' object
+ * in a separate thread which purpose is to obtain new data from UWB radar network
  * and push the data on the stack and wait for another data. This thread has the
  * highest priority because we require no data loss. It uses the 'reciever' class
- * for obtaining data by the correct way. Any interaction from the user side as
- * changing settings for example are managed by slots. Signals from the class are
- * then routed to slots of mainWindow object. Messages are sent by signal-slot
- * mechanism to mainWindow object.
+ * for obtaining data by the correct way.
  */
 
-class dataInputThread : public QThread
+class dataInputThreadWorker : public QObject
 {
     Q_OBJECT
 
 public:
 
     /**
-     * @brief Constructor ensures correct initial setup for thread and save the pointers of mutex and stack
-     * @param[in] parent Pointer to parent object
+     * @brief Constructor ensures correct initial setup for worker object and save the pointers of mutex and stack
      * @param[in] raw_data_stack Is pointer to stack where all objects containing data are stored
      * @param[in] raw_data_stack_mutex Is pointer to mutex protecting the stack from being accessed by multiple threads at one time
      * @param[in] setts Is pointer to basic object with all software presets, defaults and current settings
@@ -49,10 +46,30 @@ public:
      * recieving, prepares 'reciever' object etc. After the constructor is finished, the 'run' method can be
      * started.
      */
-    dataInputThread(QObject * parent, QList<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, uwbSettings * setts, QMutex * settings_mutex);
+    dataInputThreadWorker(QList<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, uwbSettings * setts, QMutex * settings_mutex);
 
-    ~dataInputThread();
+    ~dataInputThreadWorker();
 
+    /**
+     * @brief Main function of worker class, which will start the basic inifite cycle for data returning
+     */
+    Q_INVOKABLE void runWorker(void);
+
+    /**
+     * @brief This function will change the current pause state from one to another
+     */
+    void switchPauseState(void);
+
+    /**
+     * @brief Checks if the infinite loop was cancelled
+     * @return The return value is boolean value, true if infinite loop was cancelled, false in another case.
+     */
+    bool checkStoppedStatus(void);
+
+    /**
+     * @brief This function will only set the boolean 'stopped' value to true, what leads in break of infinite loop
+     */
+    void stopWorker(void);
 private:
 
     QList<rawData * > * rawDataStack; ///< Pointer to stack with all objects containing recieved data
@@ -65,12 +82,17 @@ private:
 
     reciever * recieverHandler; ///< The main reciever object responsible for correct data obtaining
 
+    QWaitCondition * pause; ///< Condition object for thread pausing
+    QMutex * pauseMutex; ///< Lock mutex for pause condition object
+    bool pauseState; ///< Boolean value determinig wether switch into the pause mode [true] or not [false]
+
     int errorCounter; ///< Error counter is incremented every time if error during recieving data occures and is set to zero if data are recieved successfully.
     int errorCounterGlobal; ///< ErrorCounterGlobal is incremented every time when error occures during data recieving.
 
-protected:
-    void run();
-
+    bool stopped; ///< If set to true, the infinite cycle is broken and connection is closed
+    bool stoppedCheck; ///< In contructor set to false. Set to true after the main function really stops.
+    QMutex * stoppedMutex; ///< Lock mutex for stopped condition.
+    QMutex * stoppedCheckMutex; ///< Lock mutex for check boolean value.
 };
 
 #endif // DATAINPUTTHREAD_H

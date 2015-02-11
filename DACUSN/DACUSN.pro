@@ -16,14 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     reciever.cpp \
     rawdata.cpp \
-    datainputthread.cpp \
-    uwbsettings.cpp
+    uwbsettings.cpp \
+    datainputthreadworker.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
     rawdata.h \
     stddefs.h \
-    datainputthread.h \
-    uwbsettings.h
+    uwbsettings.h \
+    datainputthreadworker.h
 
 FORMS    += mainwindow.ui
