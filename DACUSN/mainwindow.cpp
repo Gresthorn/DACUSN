@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // creating protector mutex for settings
     settingsMutex = new QMutex;
 
-    dataStack = new QList<rawData * >;
+    dataStack = new QVector<rawData * >;
     dataStackMutex = new QMutex;
 
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));

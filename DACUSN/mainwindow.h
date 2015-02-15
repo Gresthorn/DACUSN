@@ -28,7 +28,7 @@ public:
     uwbSettings * settings; ///< All application settings are stored here
     QMutex * settingsMutex; ///< Mutex protecting settings object
 
-    QList<rawData * > * dataStack; ///< Stack for data recieved by sensor network
+    QVector<rawData * > * dataStack; ///< Stack for data recieved by sensor network
     QMutex * dataStackMutex; ///< Mutex protecting dataStack object
 
 

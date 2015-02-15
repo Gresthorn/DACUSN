@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include "stddefs.h"
+
 /**
  * @file rawdata.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -31,6 +33,16 @@ public:
      */
     rawData();  
     ~rawData();
+
+    /**
+     * @brief This function serves higher classes to find out, what method was used for the particular data
+     * @return The return value is the 'reciever_method' structure.
+     *
+     * As far as the user may change the data input source when the application is running, the data recieved
+     * may require some special treatment in some cases. Also higher classes must know what set of methods they
+     * should to use. In all situations this method remains the same so the 'reciever_method' check is convinient.
+     */
+    reciever_method getRecieverMethod(void);
 
     /**
      * @brief Returns radar id if the value is availible else -1.
@@ -105,6 +117,8 @@ public:
     void setSyntheticToas(double * toas);
 
 private:
+
+    reciever_method method;
 
     /**
      * @brief Method for allocating memory and initialization of 'syntheticData' structure

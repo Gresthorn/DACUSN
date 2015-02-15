@@ -1,6 +1,6 @@
 #include "datainputthreadworker.h"
 
-dataInputThreadWorker::dataInputThreadWorker(QList<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, uwbSettings *setts, QMutex *settings_mutex)
+dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, uwbSettings *setts, QMutex *settings_mutex)
     : QObject()
 {
     errorCounterGlobal = errorCounter = 0;
@@ -100,7 +100,10 @@ void dataInputThreadWorker::runWorker()
         }
         else
         {
-            qDebug() << dataTempPointer->getSyntheticTargetsCount();
+            // everything is OK, we can now get new data
+            rawDataStackMutex->lock();
+            rawDataStack->append(dataTempPointer);
+            rawDataStackMutex->unlock();
             errorCounter = 0;
         }
     }

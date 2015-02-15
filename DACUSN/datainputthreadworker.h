@@ -46,7 +46,7 @@ public:
      * recieving, prepares 'reciever' object etc. After the constructor is finished, the 'run' method can be
      * started.
      */
-    dataInputThreadWorker(QList<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, uwbSettings * setts, QMutex * settings_mutex);
+    dataInputThreadWorker(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, uwbSettings * setts, QMutex * settings_mutex);
 
     ~dataInputThreadWorker();
 
@@ -81,7 +81,7 @@ public:
 
 private:
 
-    QList<rawData * > * rawDataStack; ///< Pointer to stack with all objects containing recieved data
+    QVector<rawData * > * rawDataStack; ///< Pointer to stack with all objects containing recieved data
 
     QMutex * rawDataStackMutex; ///< Pointer to stack mutex required to avoid conflicts with another threads
 
