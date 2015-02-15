@@ -47,23 +47,12 @@ public slots:
     void restartDataInputSlot(void);
 
     /**
-     * @brief This slot will terminate the running thread.
-     */
-    void stopDataInputSlot(void);
-
-private:
-    Ui::MainWindow *ui;
-
-    dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
-    QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
-
-    /**
      * @brief This private function establishes the data reciever thread.
      *
      * This function is used internally to create new objects for threads and data input worker. After thread creation
      * it ensures that all settings and priority is correctly passed and the thread is started.
      */
-    void establishDataInputThread(void);
+    void establishDataInputThreadSlot(void);
 
     /**
      * @brief This private function stops and deletes all objects connected with the data recieving thread.
@@ -71,7 +60,13 @@ private:
      * This function is used internally, but may be directly be evoked by signal from user by 'stopDataInputSlot'.
      * It removes and deletes all objects connected with main input data thread and stops data recieving.
      */
-    void destroyDataInputThread(void);
+    void destroyDataInputThreadSlot(void);
+
+private:
+    Ui::MainWindow *ui;
+
+    dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
+    QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
 
 };
 

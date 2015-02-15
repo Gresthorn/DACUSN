@@ -70,6 +70,15 @@ public:
      * @brief This function will only set the boolean 'stopped' value to true, what leads in break of infinite loop
      */
     void stopWorker(void);
+
+    /**
+     * @brief This function will check for 'pauseState' mutex lock and if true, it will unlock it to continue the thread
+     *
+     * This function is merely used for stopping the thread if it is in pause state. This will automatically continue the
+     * thread running and check for 'stopped' boolean value.
+     */
+    void releaseIfInPauseState(void);
+
 private:
 
     QList<rawData * > * rawDataStack; ///< Pointer to stack with all objects containing recieved data

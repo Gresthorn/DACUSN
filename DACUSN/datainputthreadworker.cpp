@@ -56,6 +56,16 @@ void dataInputThreadWorker::runWorker()
         {
             // pausing thread
             pause->wait(pauseMutex);
+            stoppedMutex->lock();
+            if(stopped)
+            {
+                stoppedMutex->unlock();
+                // we have to unlock pause as well because if from some reason the thread will not be stopped
+                // correctly by higher classes, the user will have no chance to run back into this thread
+                pauseMutex->unlock();
+                break;
+            }
+            stoppedMutex->unlock();
         }
         pauseMutex->unlock();
 
@@ -132,5 +142,17 @@ void dataInputThreadWorker::stopWorker()
     stoppedMutex->lock();
     stopped = true;
     stoppedMutex->unlock();
+}
+
+void dataInputThreadWorker::releaseIfInPauseState()
+{
+    pauseMutex->lock();
+    if(pauseState==true)
+    {
+        // change the pause and wake up the thread
+        pauseState = false;
+        pause->wakeAll();
+    }
+    pauseMutex->unlock();
 }
 
