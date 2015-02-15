@@ -5,6 +5,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -62,9 +63,16 @@ public slots:
      */
     void destroyDataInputThreadSlot(void);
 
+    /**
+     * @brief This slot is called if 'pauseBlinkEffect' timer signal is emitted to change the button style to warn youser about pause state.
+     */
+    void changeDataInputPauseButtonSlot(void);
+
 private:
     Ui::MainWindow *ui;
 
+    QTimer * pauseBlinkEffect; ///< Blink effect is used to warn user that the data inpu is paused
+    bool blinker; ///< Boolean value which is changed periodically when 'pauseBlinkEffect' timer emits signal. Used for changing pause action button style.
     dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
     QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
 

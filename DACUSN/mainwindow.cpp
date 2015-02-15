@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->mainToolBar->setContextMenuPolicy(Qt::CustomContextMenu); // Custom context menu is not implemented so no menu will appear (unhidable toolbar)
 
     // create settings object filled with default values
     settings = new uwbSettings();
@@ -23,20 +24,22 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
     dataInputThread = NULL;
     dataInputWorker = NULL;
+    pauseBlinkEffect = NULL;
+    blinker = true;
 
-    connect(ui->pauseUnpause, SIGNAL(clicked()), this, SLOT(pauseDataInputSlot()));
-    connect(ui->stop, SIGNAL(clicked()), this, SLOT(destroyDataInputThreadSlot()));
-    connect(ui->Restart, SIGNAL(clicked()), this, SLOT(restartDataInputSlot()));
-    connect(ui->start, SIGNAL(clicked()), this, SLOT(establishDataInputThreadSlot()));
+    connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(pauseDataInputSlot()));
+    connect(ui->actionRestart, SIGNAL(triggered()), this, SLOT(restartDataInputSlot()));
+    connect(ui->actionStart, SIGNAL(triggered()), this, SLOT(establishDataInputThreadSlot()));
 
     /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
-
-    /* ------------------------------ SIGNALS and SLOTS ------------------------------- */
 
 }
 
 MainWindow::~MainWindow()
 {
+    // if some of data recieving is still runnning, stopping it
+    this->destroyDataInputThreadSlot();
+
     delete ui;
 }
 
@@ -47,7 +50,28 @@ void MainWindow::pauseDataInputSlot()
     {
         qDebug() << "The data recieving thread seems not running. Nothing to pause.";
     }
-    else dataInputWorker->switchPauseState();
+    else
+    {
+        dataInputWorker->switchPauseState();
+
+        if(pauseBlinkEffect==NULL)
+        {
+            // start blink effect
+            pauseBlinkEffect = new QTimer(this);
+            pauseBlinkEffect->setInterval(1000);
+            connect(pauseBlinkEffect, SIGNAL(timeout()), this, SLOT(changeDataInputPauseButtonSlot()));
+            pauseBlinkEffect->start();
+        }
+        else
+        {
+            // stop blink effect
+            pauseBlinkEffect->stop();
+            delete pauseBlinkEffect;
+            pauseBlinkEffect = NULL;
+            blinker = true;
+            ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
+        }
+    }
 }
 
 void MainWindow::restartDataInputSlot()
@@ -70,6 +94,14 @@ void MainWindow::establishDataInputThreadSlot()
         return;
     }
 
+    // change the action icon and connect to stop slot
+    ui->actionStart->setIcon(QIcon(":/mainToolbar/icons/off.png"));
+    connect(ui->actionStart, SIGNAL(triggered()), this, SLOT(destroyDataInputThreadSlot()));
+    disconnect(ui->actionStart, SIGNAL(triggered()), this, SLOT(establishDataInputThreadSlot()));
+    // enabling another management buttons
+    ui->actionPause->setEnabled(true);
+    ui->actionRestart->setEnabled(true);
+
     // create wait for condition object so it will be able to pause thread if needed
     dataInputWorker = new dataInputThreadWorker(dataStack, dataStackMutex, settings, settingsMutex);
     // setting the maximum priority to ensure that data will not be lost because of processing the old one
@@ -91,6 +123,25 @@ void MainWindow::destroyDataInputThreadSlot()
     {
         qDebug() << "The thread does not exist. Nothing to stop.";
         return;
+    }
+
+    // change the action icon and connect to start slot
+    ui->actionStart->setIcon(QIcon(":/mainToolbar/icons/on.png"));
+    connect(ui->actionStart, SIGNAL(triggered()), this, SLOT(establishDataInputThreadSlot()));
+    disconnect(ui->actionStart, SIGNAL(triggered()), this, SLOT(destroyDataInputThreadSlot()));
+    // enabling another management buttons
+    ui->actionPause->setEnabled(false);
+    ui->actionRestart->setEnabled(false);
+
+    // if the method was initiated during pause, need to stop blinker
+    if(pauseBlinkEffect!=NULL)
+    {
+        // stop blink effect
+        pauseBlinkEffect->stop();
+        delete pauseBlinkEffect;
+        pauseBlinkEffect = NULL;
+        blinker = true;
+        ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
     }
 
     // NULL condition is used, just in case
@@ -119,4 +170,11 @@ void MainWindow::destroyDataInputThreadSlot()
     dataInputThread = NULL;
 
     qDebug() << "Data recieving thread canceled...";
+}
+
+void MainWindow::changeDataInputPauseButtonSlot()
+{
+    if(blinker) ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/play.png"));
+    else ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
+    blinker = !blinker; // negate blinker
 }

@@ -27,3 +27,6 @@ HEADERS  += mainwindow.h \
     datainputthreadworker.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    icons.qrc
