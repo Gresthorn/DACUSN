@@ -33,6 +33,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
 
+    /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
+
+    stackManagerThread = NULL;
+    stackManagerWorker = NULL;
+
+    stackManagerThread = new QThread(this);
+    stackManagerWorker = new stackManager(dataStack, dataStackMutex, settings, settingsMutex);
+    stackManagerWorker->moveToThread(stackManagerThread);
+    stackManagerThread->start(QThread::HighestPriority);
+    QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);
+
+    /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
 }
 
 MainWindow::~MainWindow()

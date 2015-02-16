@@ -14,6 +14,7 @@
 #include "stddefs.h"
 #include "uwbsettings.h"
 #include "datainputthreadworker.h"
+#include "stackmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -75,6 +76,9 @@ private:
     bool blinker; ///< Boolean value which is changed periodically when 'pauseBlinkEffect' timer emits signal. Used for changing pause action button style.
     dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
     QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
+
+    stackManager * stackManagerWorker;
+    QThread * stackManagerThread;
 
 };
 

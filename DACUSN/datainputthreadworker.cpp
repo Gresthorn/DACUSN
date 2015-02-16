@@ -45,7 +45,8 @@ void dataInputThreadWorker::runWorker()
     rawData * dataTempPointer;
     unsigned int idle;
     unsigned int maxErrorCount;
-    while(1)
+
+    forever
     {
         stoppedMutex->lock();
         if(stopped) { stoppedMutex->unlock(); break; }
@@ -94,7 +95,7 @@ void dataInputThreadWorker::runWorker()
                 maxErrorCount = settings->getMaximumRecieverErrorCount();
                 idle = settings->getRecieverIdleTime();
                 settingsMutex->unlock();
-                if(errorCounter>=maxErrorCount) Sleep(idle);
+                if(errorCounter>=((int)(maxErrorCount))) Sleep(idle);
 
             }
         }

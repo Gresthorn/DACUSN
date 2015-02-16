@@ -75,11 +75,60 @@ public:
      */
     unsigned int getRecieverIdleTime(void) { return recieverIdleTime; }
 
+    /**
+     * @brief This function is used to retrieve the stack control periodicity value from settings object.
+     * @return The return value is the cycles count of stack reader thread.
+     *
+     * When obtaing data from uwb sensor network, sometimes can stack be filled faster than the program can
+     * process the data from it. In that case, the stack is getting still more memory and may require the
+     * user action. The speed of how stack is filled is periodically controlled after the 'stackControlPeriodicity'
+     * cycles.
+     */
+    unsigned int getStackControlPeriodicity(void) { return stackControlPeriodicity; }
+
+    /**
+     * @brief This function is used to set the stack control periodicity value into settings object.
+     * @param[in] The input value is the cycles count of stack reader thread.
+     *
+     * When obtaing data from uwb sensor network, sometimes can stack be filled faster than the program can
+     * process the data from it. In that case, the stack is getting still more memory and may require the
+     * user action. The speed of how stack is filled is periodically controlled after the 'stackControlPeriodicity'
+     * cycles.
+     */
+    void setStackControlPeriodicity(unsigned int periodicity) { stackControlPeriodicity = periodicity; }
+
+    /**
+     * @brief This function sets the idle time of stack reader thread if stack is empty and saves CPU some of unnecessary processing
+     * @param[in] The idle time in miliseconds.
+     */
+    void setStackIdleTime(unsigned int idleTime) { stackIdleTime = idleTime; }
+
+    /**
+     * @brief This function returns the idle time of stack reader thread if stack is empty and saves CPU some of unnecessary processing
+     * @return The return value is the idle time in miliseconds.
+     */
+    unsigned int getStackIdleTime(void) { return stackIdleTime; }
+
+    /**
+     * @brief This function sets the new value for maximum stack warning counter.
+     * @param[in] The input value is the value that is saved as the new 'maxStackWarningCount'
+     */
+    void setMaxStackWarningCount(unsigned int maxCount) { maxStackWarningCount = maxCount; }
+
+    /**
+     * @brief This function is used by stack control mechanism to check for maximum tolerable warning count.
+     * @return The return value is integer value of maximu tolerable warning count for stack control mechanism.
+     */
+    unsigned int getMaxStackWarningCount(void) { return maxStackWarningCount; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
     unsigned int maximumRecieverErrorCount; ///< Determines how much errors one after another are tolerable
     unsigned int recieverIdleTime; ///< Determines how long to wait in miliseconds if the reciever is forwarded to idle state
+    unsigned int stackControlPeriodicity; ///< Determines the number of cycles of reading data from stack after the control of stack filling speed is checked
+    unsigned int stackIdleTime; ///< Determines how long to wait in miliseconds in stack reader thread if the stack is empty
+    unsigned int maxStackWarningCount; ///< Is the maximum tolarable warning count when doing the speed of stack filling revision
 };
 
 #endif // UWBSETTINGS_H
