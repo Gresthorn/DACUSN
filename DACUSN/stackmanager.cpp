@@ -11,11 +11,21 @@ stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_
     stackControlPeriodicity = 50;
     maxStackWarningCount = 10;
     lastStackCount = 0;
+
+    rescueEnabled = true;
+
+    pauseState = false;
+    pauseMutex = new QMutex;
+    pause = new QWaitCondition;
 }
 
 stackManager::~stackManager()
 {
-    // destructor, no actions needed so far
+    // read all data if are availible in the stack
+    rescue();
+
+    delete pause;
+    delete pauseMutex;
 }
 
 void stackManager::runWorker()
@@ -41,48 +51,18 @@ void stackManager::runWorker()
             // here the data processing is placed
             dataProcessing(tempRawData);
 
-            ++stackControlCounter;
-            settingsMutex->lock();
-            stackControlPeriodicity = settings->getStackControlPeriodicity();
-            settingsMutex->unlock();
-            if(stackControlCounter>=stackControlPeriodicity)
-            {
-                stackControlCounter = 0;
-                // check of stack
-                int stackCount = rawDataStack->count();
-                // compare to last known value
-                if(stackCount>((int)(lastStackCount)))
-                {
-                    // rising tendency - stack is being filled too fast
-                    ++stackWarningCount;
-                    settingsMutex->lock();
-                    maxStackWarningCount = settings->getMaxStackWarningCount();
-                    settingsMutex->unlock();
-                    if(stackWarningCount>=maxStackWarningCount)
-                    {
-                        qDebug() << "The stack is being filled too fast.";
-
-                        // if rescue functionality is enabled, reading all data from stack until it us empty again
-                        // if(rescueEnabled) stackRescue();
-                    }
-                    else
-                    {
-                        qDebug() << "Stack control responds with OBSERVING status.";
-                    }
-
-                    lastStackCount = stackCount;
-                }
-                else
-                {
-                    // falling tendency
-                    lastStackCount = stackCount;
-                    if(stackWarningCount>0) --stackWarningCount;
-                    qDebug() << "Stack control responds with OK status.";
-                }
-            }
+            // stack control functionality
+            stackControl(&stackControlCounter);
         }
         else
         {
+            pauseMutex->lock();
+            if(pauseState)
+            {
+                pause->wait(pauseMutex);
+            }
+            pauseMutex->unlock();
+
             stackControlCounter = 0;
             lastStackCount = 0;
 
@@ -97,9 +77,84 @@ void stackManager::runWorker()
     }
 }
 
-void stackManager::stackControl()
+void stackManager::stackControl(unsigned int * stackControlCounter)
 {
+    ++(*stackControlCounter);
+    settingsMutex->lock();
+    stackControlPeriodicity = settings->getStackControlPeriodicity();
+    settingsMutex->unlock();
+    if(*stackControlCounter>=stackControlPeriodicity)
+    {
+        *stackControlCounter = 0;
+        // check of stack
+        int stackCount = rawDataStack->count();
+        // compare to last known value
+        if(stackCount>((int)(lastStackCount)))
+        {
+            // rising tendency - stack is being filled too fast
+            ++stackWarningCount;
+            settingsMutex->lock();
+            maxStackWarningCount = settings->getMaxStackWarningCount();
+            settingsMutex->unlock();
+            if(stackWarningCount>=maxStackWarningCount)
+            {
+                qDebug() << "The stack is being filled too fast.";
 
+                // if rescue functionality is enabled, reading all data from stack until it us empty again
+                settingsMutex->lock();
+                rescueEnabled = settings->getStackRescueState();
+                settingsMutex->unlock();
+                if(rescueEnabled) rescue();
+            }
+            else
+            {
+                qDebug() << "Stack control responds with OBSERVING status.";
+            }
+
+            lastStackCount = stackCount;
+        }
+        else
+        {
+            // falling tendency
+            lastStackCount = stackCount;
+            if(stackWarningCount>0) --stackWarningCount;
+            qDebug() << "Stack control responds with OK status.";
+        }
+    }
+}
+
+void stackManager::rescue(void)
+{
+    rawDataStackMutex->lock();
+
+        // iterate over the stack until all data are processed
+        qDebug() << "Starting the stack rescue function...";
+        while(!rawDataStack->empty())
+        {
+            dataProcessing(rawDataStack->first());
+            rawDataStack->pop_front();
+        }
+        qDebug() << "The stack rescue function is finished...";
+    rawDataStackMutex->unlock();
+
+    // return warning count to zero again... Stack is safe for now
+    stackWarningCount = 0;
+}
+
+void stackManager::switchPauseState()
+{
+    pauseMutex->lock();
+    if(!pauseState)
+    {
+        // pausing thread
+        pauseState =  true;
+    }
+    else
+    {
+        pauseState = false;
+        pause->wakeAll();
+    }
+    pauseMutex->unlock();
 }
 
 void stackManager::dataProcessing(rawData *data)

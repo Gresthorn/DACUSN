@@ -8,11 +8,13 @@ uwbSettings::uwbSettings()
 
     recieverIdleTime = 2000;
 
-    stackIdleTime = 5000;
+    stackIdleTime = 100;
 
     stackControlPeriodicity = 50;
 
     maxStackWarningCount = 25;
+
+    stackRescueEnable = true;
 }
 
 uwbSettings::uwbSettings(char *config)

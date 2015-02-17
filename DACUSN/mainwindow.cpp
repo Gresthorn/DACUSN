@@ -38,11 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     stackManagerThread = NULL;
     stackManagerWorker = NULL;
 
-    stackManagerThread = new QThread(this);
-    stackManagerWorker = new stackManager(dataStack, dataStackMutex, settings, settingsMutex);
-    stackManagerWorker->moveToThread(stackManagerThread);
-    stackManagerThread->start(QThread::HighestPriority);
-    QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);
+    establishStackManagementThread();
 
     /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
 }
@@ -65,6 +61,7 @@ void MainWindow::pauseDataInputSlot()
     else
     {
         dataInputWorker->switchPauseState();
+        stackManagerWorker->switchPauseState();
 
         if(pauseBlinkEffect==NULL)
         {
@@ -123,6 +120,9 @@ void MainWindow::establishDataInputThreadSlot()
     QMetaObject::invokeMethod(dataInputWorker, "runWorker", Qt::QueuedConnection);
 
     qDebug() << "Data recieving thread started...";
+
+    // starting stack manager thread
+    //establishStackManagementThread();
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -182,6 +182,9 @@ void MainWindow::destroyDataInputThreadSlot()
     dataInputThread = NULL;
 
     qDebug() << "Data recieving thread canceled...";
+
+    // cancel the stack manager thread
+    //destroyStackManagementThread();
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -189,4 +192,28 @@ void MainWindow::changeDataInputPauseButtonSlot()
     if(blinker) ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/play.png"));
     else ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
     blinker = !blinker; // negate blinker
+}
+
+void MainWindow::establishStackManagementThread()
+{
+    qDebug() << "Starting stack management thread...";
+
+    stackManagerThread = new QThread(this);
+    stackManagerWorker = new stackManager(dataStack, dataStackMutex, settings, settingsMutex);
+    stackManagerWorker->moveToThread(stackManagerThread);
+    stackManagerThread->start(QThread::HighestPriority);
+    QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);
+}
+
+void MainWindow::destroyStackManagementThread()
+{
+    qDebug() << "Stack manager thread canceled...";
+
+    // so far this simple -  terminate solution ---> will be changed soon
+    stackManagerThread->terminate();
+    delete stackManagerWorker;
+    delete stackManagerThread;
+
+    stackManagerWorker = NULL;
+    stackManagerThread = NULL;
 }

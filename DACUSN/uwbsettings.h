@@ -121,6 +121,17 @@ public:
      */
     unsigned int getMaxStackWarningCount(void) { return maxStackWarningCount; }
 
+    /**
+     * @brief This function sets the new boolean value for stack rescue algorithm switch.
+     * @param[in] stackRescue The input value is new boolean value for stackRescueEnable.
+     */
+    void setStackRescueState(bool stackRescue) { stackRescueEnable = stackRescue; }
+
+    /**
+     * @brief This function will read the stack rescue state from settings object.
+     * @return The return value is boolean value of stack rescue state.
+     */
+    bool getStackRescueState(void) { return stackRescueEnable; }
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -129,6 +140,8 @@ private:
     unsigned int stackControlPeriodicity; ///< Determines the number of cycles of reading data from stack after the control of stack filling speed is checked
     unsigned int stackIdleTime; ///< Determines how long to wait in miliseconds in stack reader thread if the stack is empty
     unsigned int maxStackWarningCount; ///< Is the maximum tolarable warning count when doing the speed of stack filling revision
+
+    bool stackRescueEnable; ///< Switch to enable or disable stack rescue functionality
 };
 
 #endif // UWBSETTINGS_H

@@ -53,7 +53,7 @@ void dataInputThreadWorker::runWorker()
         stoppedMutex->unlock();
 
         pauseMutex->lock();
-        if(pauseState==true)
+        if(pauseState)
         {
             // pausing thread
             pause->wait(pauseMutex);

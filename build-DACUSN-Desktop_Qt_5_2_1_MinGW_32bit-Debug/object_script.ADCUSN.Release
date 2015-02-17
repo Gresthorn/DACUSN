@@ -1,0 +1,13 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\reciever.o
+./release\rawdata.o
+./release\uwbsettings.o
+./release\datainputthreadworker.o
+./release\stackmanager.o
+./release\qrc_icons.o
+./release\moc_mainwindow.o
+./release\moc_datainputthreadworker.o
+./release\moc_stackmanager.o
+);

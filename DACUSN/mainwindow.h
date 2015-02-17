@@ -69,6 +69,16 @@ public slots:
      */
     void changeDataInputPauseButtonSlot(void);
 
+    /**
+     * @brief Starts the new stack management thread.
+     */
+    void establishStackManagementThread(void);
+
+    /**
+     * @brief Destroys currently running stack management thread but before deleting all data from stack are read first
+     */
+    void destroyStackManagementThread(void);
+
 private:
     Ui::MainWindow *ui;
 
