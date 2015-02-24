@@ -33,14 +33,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
 
-    /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
+    /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
 
     stackManagerThread = NULL;
     stackManagerWorker = NULL;
 
-    establishStackManagementThread();
-
-    /* ------------------------------------------------- DATA RECIEVING ------------------------------------------ */
+    /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
 }
 
 MainWindow::~MainWindow()
@@ -122,7 +120,7 @@ void MainWindow::establishDataInputThreadSlot()
     qDebug() << "Data recieving thread started...";
 
     // starting stack manager thread
-    //establishStackManagementThread();
+    establishStackManagementThread();
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -184,7 +182,7 @@ void MainWindow::destroyDataInputThreadSlot()
     qDebug() << "Data recieving thread canceled...";
 
     // cancel the stack manager thread
-    //destroyStackManagementThread();
+    destroyStackManagementThread();
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -207,13 +205,40 @@ void MainWindow::establishStackManagementThread()
 
 void MainWindow::destroyStackManagementThread()
 {
-    qDebug() << "Stack manager thread canceled...";
+    // Stopping stack management thread is usually done as soon as the data reciever thread is stopped
+    // so no processing is required in background in idle state.
 
-    // so far this simple -  terminate solution ---> will be changed soon
-    stackManagerThread->terminate();
-    delete stackManagerWorker;
-    delete stackManagerThread;
+    if(stackManagerThread==NULL && stackManagerWorker==NULL)
+    {
+        qDebug() << "Stack manager thread seems not runnning. Nothing to stop.";
+        return;
+    }
+
+
+    // NULL condition is used, just in case
+    if(stackManagerWorker!=NULL)
+    {
+        stackManagerWorker->stopWorker(); // change the pauseState boolean value
+        stackManagerWorker->releaseIfInPauseState(); // if in pause, wake up: must be called after stopWorker method if to stop is desired
+
+        // wait until worker is stopped properly
+        while(!stackManagerWorker->checkStoppedStatus())
+        {
+            Sleep(5);
+            continue;
+        }
+    }
+
+    // closing thread
+    if(stackManagerThread!=NULL) stackManagerThread->terminate();
+
+    // deleting objects
+
+    if(stackManagerWorker!=NULL) delete stackManagerWorker;
+    if(stackManagerThread!=NULL) delete stackManagerThread;
 
     stackManagerWorker = NULL;
     stackManagerThread = NULL;
+
+    qDebug() << "Stack manager thread canceled...";
 }

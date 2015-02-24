@@ -63,6 +63,22 @@ public:
      */
     void switchPauseState(void);
 
+    /**
+     * @brief This method will change the stop indicator to true and ensures that in next repetition of the infinite cycle, this will break
+     */
+    void stopWorker(void);
+
+    /**
+     * @brief Checks if the worker is still in infinite cycle.
+     * @return The return value indicates if the infinite cycle is still running
+     */
+    bool checkStoppedStatus(void);
+
+    /**
+     * @brief This method is usually used only when destroying the thread to continue in infinite cycle if worker is paused so it can meet the stop condition.
+     */
+    void releaseIfInPauseState(void);
+
 private:
     QVector<rawData * > * rawDataStack; ///< Pointer to the stack
     QMutex * rawDataStackMutex; ///< Pointer to the mutex locking the stack
@@ -81,6 +97,11 @@ private:
     bool pauseState; ///< Determines if pause state is on/off
     QWaitCondition * pause; ///< The wait condition that ensures the correct pause of worker cycle in stack management thread
 
+    QMutex * stoppedMutex; ///< Mutex protecting the stop variable from being accessed by multiple threads at once
+    bool stopped; ///< If this value is true, the infinite cycle will break
+
+    QMutex * stoppedCheckMutex; ///< Mutex protecting the stopCheck variable from being accessed by multiple threads at once
+    bool stoppedCheck; ///< If this value is set to true, the infinite loop has been finished
 
     /**
      * @brief This function will control the stack situation and its behaviour in time (checks for speed of data input) and prevent the stack from being filled too fastly.

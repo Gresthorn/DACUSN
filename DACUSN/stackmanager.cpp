@@ -17,15 +17,21 @@ stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_
     pauseState = false;
     pauseMutex = new QMutex;
     pause = new QWaitCondition;
+
+    stopped = false;
+    stoppedMutex = new QMutex;
+
+    stoppedCheckMutex = new QMutex;
+    stoppedCheck = false;
 }
 
 stackManager::~stackManager()
 {
-    // read all data if are availible in the stack
-    rescue();
-
     delete pause;
     delete pauseMutex;
+
+    delete stoppedMutex;
+    delete stoppedCheckMutex;
 }
 
 void stackManager::runWorker()
@@ -74,7 +80,25 @@ void stackManager::runWorker()
 
             QThread::msleep(idleTime);
         }
+
+        stoppedMutex->lock();
+        if(stopped)
+        {
+            stoppedMutex->unlock();
+            qDebug() << "Processing remaining data in stack...";
+            rescue(); // process all data in stack if are availible
+            break;
+        }
+        stoppedMutex->unlock();
     }
+
+    qDebug() << "Leaving stack manager worker cycle.";
+
+    // inform higher classes that the loop is finished
+    stoppedCheckMutex->lock();
+    stoppedCheck = true;
+    stoppedCheckMutex->unlock();
+
 }
 
 void stackManager::stackControl(unsigned int * stackControlCounter)
@@ -135,6 +159,7 @@ void stackManager::rescue(void)
             rawDataStack->pop_front();
         }
         qDebug() << "The stack rescue function is finished...";
+
     rawDataStackMutex->unlock();
 
     // return warning count to zero again... Stack is safe for now
@@ -151,6 +176,35 @@ void stackManager::switchPauseState()
     }
     else
     {
+        pauseState = false;
+        pause->wakeAll();
+    }
+    pauseMutex->unlock();
+}
+
+void stackManager::stopWorker()
+{
+    stoppedMutex->lock();
+    stopped = true;
+    stoppedMutex->unlock();
+}
+
+bool stackManager::checkStoppedStatus()
+{
+    bool temp;
+    stoppedCheckMutex->lock();
+    temp = stoppedCheck;
+    stoppedCheckMutex->unlock();
+
+    return temp;
+}
+
+void stackManager::releaseIfInPauseState()
+{
+    pauseMutex->lock();
+    if(pauseState==true)
+    {
+        // change the pause and wake up the thread
         pauseState = false;
         pause->wakeAll();
     }
