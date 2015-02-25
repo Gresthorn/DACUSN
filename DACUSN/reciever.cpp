@@ -244,6 +244,7 @@ rawData * reciever::extract_synthetic(char * msg)
 
     data->setSyntheticCoordinates(coordinates);
     data->setSyntheticToas(toas);
+    data->setRecieverMethod(SYNTHETIC);
 
     return data;
 }

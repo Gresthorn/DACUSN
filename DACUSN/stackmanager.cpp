@@ -1,6 +1,6 @@
 #include "stackmanager.h"
 
-stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, uwbSettings *setts, QMutex *settings_mutex)
+stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex, uwbSettings *setts, QMutex *settings_mutex)
 {
     rawDataStack = raw_data_stack;
     rawDataStackMutex = raw_data_stack_mutex;
@@ -23,6 +23,9 @@ stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_
 
     stoppedCheckMutex = new QMutex;
     stoppedCheck = false;
+
+    radarList = radar_list;
+    radarListMutex = radar_list_mutex;
 }
 
 stackManager::~stackManager()
@@ -213,6 +216,39 @@ void stackManager::releaseIfInPauseState()
 
 void stackManager::dataProcessing(rawData *data)
 {
-    qDebug() << "Radar id: " << data->getSyntheticRadarId() << " Targets count: " << data->getSyntheticTargetsCount() << " Time: " << data->getSyntheticTime();
+    if(data==NULL) return;
+
+    reciever_method method = data->getRecieverMethod();
+    int radar_id = 0;
+    // obtain radar id
+    if(method==SYNTHETIC) radar_id = data->getSyntheticRadarId();
+
+    radarListMutex->lock();
+    // find the correct radarUnit
+    int i = -1;
+    if(!radarList->isEmpty())
+    {
+        for(i = 0; i<radarList->count(); i++)
+        {
+            if(radarList->at(i)->id==radar_id) break;
+        }
+    }
+
+    if(i<0 || i>=radarList->count())
+    {
+        // need to register new radar
+        radar_handler * rd = new radar_handler;
+        rd->id = radar_id;
+        rd->updated = false;
+        rd->radar = new radarUnit(radar_id);
+        radarList->append(rd);
+        i = radarList->count()-1;
+    }
+
+    // in 'i' the correct index should be stored now, we can run
+    radarList->at(i)->radar->processNewData(data);
+
+    // Here another data processing should take place
+    radarListMutex->unlock();
 }
 

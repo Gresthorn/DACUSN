@@ -42,7 +42,17 @@ public:
      * may require some special treatment in some cases. Also higher classes must know what set of methods they
      * should to use. In all situations this method remains the same so the 'reciever_method' check is convinient.
      */
-    reciever_method getRecieverMethod(void);
+    reciever_method getRecieverMethod(void) { return method; }
+
+    /**
+     * @brief This function serves 'reciever' class to save, what method was used for the particular data.
+     * @param[in] recieverMethod Represents the enum identificator of method itself.
+     *
+     * As far as the user may change the data input source when the application is running, the data recieved
+     * may require some special treatment in some cases. Also higher classes must know what set of methods they
+     * should to use. Saving the method what the particular data were recieved is important for higher classes.
+     */
+    void setRecieverMethod(reciever_method recieverMethod) { method = recieverMethod; }
 
     /**
      * @brief Returns radar id if the value is availible else -1.

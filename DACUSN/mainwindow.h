@@ -15,6 +15,8 @@
 #include "uwbsettings.h"
 #include "datainputthreadworker.h"
 #include "stackmanager.h"
+#include "radarunit.h"
+#include "radar_handler.h"
 
 namespace Ui {
 class MainWindow;
@@ -87,9 +89,11 @@ private:
     dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
     QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
 
-    stackManager * stackManagerWorker;
-    QThread * stackManagerThread;
+    stackManager * stackManagerWorker; ///< Object with infinite cycle managing the stack
+    QThread * stackManagerThread; ///< Thread where 'stackManagerWorker' object can run
 
+    QVector<radar_handler * > * radarList; ///< Vector of all availible radars
+    QMutex * radarListMutex; ///< Mutex protecting the 'radarList' from multithread access
 };
 
 #endif // MAINWINDOW_H

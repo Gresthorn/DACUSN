@@ -12,6 +12,7 @@
 #include "rawdata.h"
 #include "stddefs.h"
 #include "uwbsettings.h"
+#include "radar_handler.h"
 
 /**
  * @file reciever.h
@@ -45,12 +46,14 @@ public:
      * @param[in] raw_data_stack_mutex The mutex locking the stack during data processing.
      * @param[in] setts The pointer to basic settings object.
      * @param[in] settings_mutex The mutex locking the settings object during reading some settings value.
+     * @param[in] radar_list Is the list with all radar handler structures that are currently registered by application.
+     * @param[in] radar_list_mutex The mutex locking the radar_list object during reading/writing values or doing some processing on recieved data.
      *
      * This constructor will obtain all pointers and mutex pointers when creating the object from the main
      * application thread. These pointers are saved and a few important values are initialized to their
      * default values (later they are rewritten by settings values if they are specified).
      */
-    stackManager(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, uwbSettings * setts, QMutex * settings_mutex);
+    stackManager(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex, uwbSettings * setts, QMutex * settings_mutex);
     ~stackManager();
 
     /**
@@ -102,6 +105,9 @@ private:
 
     QMutex * stoppedCheckMutex; ///< Mutex protecting the stopCheck variable from being accessed by multiple threads at once
     bool stoppedCheck; ///< If this value is set to true, the infinite loop has been finished
+
+    QVector<radar_handler * > * radarList; ///< Is the list with all radar handler structures that are currently registered by application.
+    QMutex * radarListMutex; ///< The mutex locking the radar_list object during reading/writing values or doing some processing on recieved data.
 
     /**
      * @brief This function will control the stack situation and its behaviour in time (checks for speed of data input) and prevent the stack from being filled too fastly.

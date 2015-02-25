@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     rawdata.cpp \
     uwbsettings.cpp \
     datainputthreadworker.cpp \
-    stackmanager.cpp
+    stackmanager.cpp \
+    radarunit.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -26,7 +27,9 @@ HEADERS  += mainwindow.h \
     stddefs.h \
     uwbsettings.h \
     datainputthreadworker.h \
-    stackmanager.h
+    stackmanager.h \
+    radarunit.h \
+    radar_handler.h
 
 FORMS    += mainwindow.ui
 

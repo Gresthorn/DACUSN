@@ -6,6 +6,7 @@ INPUT(
 ./release\uwbsettings.o
 ./release\datainputthreadworker.o
 ./release\stackmanager.o
+./release\radarunit.o
 ./release\qrc_icons.o
 ./release\moc_mainwindow.o
 ./release\moc_datainputthreadworker.o

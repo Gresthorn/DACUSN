@@ -10,5 +10,6 @@ enum reciever_method
     SYNTHETIC = 1 ///< Is used when the data are read by server application from file and sent throught pipe
 };
 
+
 #endif // STDDEFS
 
