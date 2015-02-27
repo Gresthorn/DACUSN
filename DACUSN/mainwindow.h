@@ -10,6 +10,8 @@
 
 #include <QDebug>
 
+#include "datainputdialog.h"
+
 #include "reciever.h"
 #include "rawdata.h"
 #include "stddefs.h"
@@ -84,6 +86,13 @@ public slots:
      * @brief Destroys currently running stack management thread but before deleting all data from stack are read first
      */
     void destroyStackManagementThread(void);
+
+private slots:
+
+    /**
+     * @brief Opens dialog window for data input method management.
+     */
+    void openDataInputDialog(void);
 
 private:
     Ui::MainWindow *ui;

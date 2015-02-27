@@ -47,6 +47,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
 
+    /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
+
+    connect(ui->actionData_Input_Dialog, SIGNAL(triggered()), this, SLOT(openDataInputDialog()));
+
+    /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
+
     /*for(int a=0; a<150; a++)
     {
         float * coords = new float[6];
@@ -265,4 +271,13 @@ void MainWindow::destroyStackManagementThread()
     stackManagerThread = NULL;
 
     qDebug() << "Stack manager thread canceled...";
+}
+
+/* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
+
+void MainWindow::openDataInputDialog()
+{
+    dataInputDialog dialog(settings, settingsMutex, this);
+
+    dialog.exec();
 }

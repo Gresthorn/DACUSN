@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = ADCUSN
+TARGET = DACUSN
 TEMPLATE = app
 
 
@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     uwbsettings.cpp \
     datainputthreadworker.cpp \
     stackmanager.cpp \
-    radarunit.cpp
+    radarunit.cpp \
+    datainputdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -29,9 +30,11 @@ HEADERS  += mainwindow.h \
     datainputthreadworker.h \
     stackmanager.h \
     radarunit.h \
-    radar_handler.h
+    radar_handler.h \
+    datainputdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    datainputdialog.ui
 
 RESOURCES += \
     icons.qrc

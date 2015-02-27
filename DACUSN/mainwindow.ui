@@ -46,6 +46,8 @@
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionRestart"/>
+   <addaction name="separator"/>
+   <addaction name="actionData_Input_Dialog"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
@@ -90,6 +92,15 @@
    </property>
    <property name="shortcut">
     <string>Alt+R</string>
+   </property>
+  </action>
+  <action name="actionData_Input_Dialog">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/mainToolbar/icons/input.png</normaloff>:/mainToolbar/icons/input.png</iconset>
+   </property>
+   <property name="text">
+    <string>Data Input Dialog</string>
    </property>
   </action>
  </widget>
