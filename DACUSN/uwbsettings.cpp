@@ -10,9 +10,9 @@ uwbSettings::uwbSettings()
 
     stackIdleTime = 100;
 
-    stackControlPeriodicity = 50;
+    stackControlPeriodicity = 10;
 
-    maxStackWarningCount = 25;
+    maxStackWarningCount = 10;
 
     stackRescueEnable = true;
 }

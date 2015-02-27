@@ -76,13 +76,13 @@ public:
      * @brief Returns the pointer to the array where all coordinates are stored if is availible else NULL.
      * @return The return value is the pointer to the array where all coordinates are stored.
      */
-    double * getSyntheticCoordinates(void) { return (syntheticData!=NULL) ? syntheticData->coordinates : NULL; }
+    float * getSyntheticCoordinates(void) { return (syntheticData!=NULL) ? syntheticData->coordinates : NULL; }
 
     /**
      * @brief Returns the pointer to the array where all toas are stored if is availible else NULL.
      * @return The return value is the pointer to the array where all toas are stored.
      */
-    double * getSyntheticToas(void) { return (syntheticData!=NULL) ? syntheticData->toas : NULL; }
+    float * getSyntheticToas(void) { return (syntheticData!=NULL) ? syntheticData->toas : NULL; }
 
     /**
      * @brief Sets new radar ID
@@ -115,7 +115,7 @@ public:
      * If structure does not exist, new structure is created and pointer set. Else the
      * old array is deleted and new pointer is set.
      */
-    void setSyntheticCoordinates(double * coords);
+    void setSyntheticCoordinates(float * coords);
 
     /**
      * @brief Sets new array pointer of toas for all targets.
@@ -124,7 +124,7 @@ public:
      * If structure does not exist, new structure is created and pointer set. Else the
      * old array is deleted and new pointer is set.
      */
-    void setSyntheticToas(double * toas);
+    void setSyntheticToas(float * toas);
 
 private:
 
@@ -146,8 +146,8 @@ private:
         short radar_id; ///< Stores the main radar identificator
         double time;    ///< Represents the time, when all values were recieved
         short targets_count; ///< The number of targets visible by radar with 'radar_id'
-        double * coordinates; ///< The array of coordinates [x, y] gradually
-        double * toas; ///< The TOA value measured in time or distance depending on generator setup for left and right antenna gradually
+        float * coordinates; ///< The array of coordinates [x, y] gradually
+        float * toas; ///< The TOA value measured in time or distance depending on generator setup for left and right antenna gradually
     };
 
     synthetic_data * syntheticData; ///< The structure for storing synthetic data

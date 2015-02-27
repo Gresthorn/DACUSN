@@ -6,6 +6,8 @@
 #include <limits.h>
 #include <float.h>
 #include <QDebug>
+#include <QThread>
+#include <QList>
 
 #include "uwbsettings.h"
 #include "stddefs.h"
@@ -81,10 +83,37 @@ public:
      */
     bool processNewData(class rawData * data);
 
+    /**
+     * @brief This function returns the number of targets from latest data.
+     * @return The return value is the number of targets.
+     */
+    int getNumberOfTargetsLast(void);
+
+    /**
+     * @brief Provides fast access to pointer of array with coordinates from latest iteration.
+     * @return The return value is pointer to the array where all latest coordinates are stored.
+     */
+    float * getCoordinatesLast(void);
+
+    /**
+     * @brief Provides fast access to pointer of array with coordinates from iteration specified by index.
+     * @param[in] index Is the depth of recursion from which we would like to obtain the number of targets.
+     * @return The return value is the number of targets from specified iteration.
+     */
+    int getNumberOfTargetsAt(int index);
+
+    /**
+     * @brief Provides fast access to pointer of array with coordinates directly from iteration specified by index.
+     * @param[in] index Is the depth of recursion from which we would like to obtain coordinates.
+     * @return The return value is the pointer to array where all coordinates are stored.
+     */
+    float * getCoordinatesAt(int index);
+
 private:
     int radar_id; ///< Main radar identificator
+    unsigned int max_recursion; ///< The maximum data handling at one time dataList
 
-
+    QList<rawData * > * dataList; ///< Handles all recieved data with MTT applied. Maximum number is specified in max_recursion
 
     /********************************************************************************************************/
     /********************************************************************************************************/

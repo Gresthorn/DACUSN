@@ -1,11 +1,15 @@
 #include "stackmanager.h"
 
-stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex, uwbSettings *setts, QMutex *settings_mutex)
+stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex,
+                           QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QMutex * visualization_data_mutex, uwbSettings *setts, QMutex *settings_mutex)
 {
     rawDataStack = raw_data_stack;
     rawDataStackMutex = raw_data_stack_mutex;
     settings = setts;
     settingsMutex = settings_mutex;
+    visualizationData = visualization_data;
+    visualizationColor = visualization_color;
+    visualizationDataMutex = visualization_data_mutex;
 
     idleTime = 200;
     stackControlPeriodicity = 50;
@@ -246,9 +250,75 @@ void stackManager::dataProcessing(rawData *data)
     }
 
     // in 'i' the correct index should be stored now, we can run
-    radarList->at(i)->radar->processNewData(data);
+    if(radarList->at(i)->radar->processNewData(data)) radarList->at(i)->updated = true;
+    else radarList->at(i)->updated = false;
 
-    // Here another data processing should take place
+    // Here another data processing should take place if needed
+    // It is supposed that some data fusion from all radarUnits will be placed here
+
+    if(checkRadarDataUpdateStatus())
+    {
+        // if all radars are updated its time for fusion and visualization list update
+        applyFusion();
+    }
+
     radarListMutex->unlock();
+}
+
+bool stackManager::checkRadarDataUpdateStatus()
+{
+   // no need to lock mutex because this function is already called when the mutex is locked
+   int i;
+
+   for(i=0; i<radarList->count(); i++) if(!radarList->at(i)->updated) return false;
+
+   // now all radars are updated
+   return true;
+}
+
+void stackManager::applyFusion()
+{
+    // apply the fusion algorithm (so far only simple averaging the values)
+    int i;
+    // temporary pointer handlers
+    QVector<float * > arrays;
+    QVector<int> targets_count;
+
+    // for simplicity we suppose that all targets have same indexing in all radarUnits and coordinates are non-zero
+    for(i=0; i<radarList->count(); i++)
+    {
+        arrays.append(radarList->at(i)->radar->getCoordinatesLast());
+        targets_count.append(radarList->at(i)->radar->getNumberOfTargetsLast());
+        // restore updated status back to false so fusion can run again only after all radars has updated data
+        radarList->at(i)->updated = false;
+    }
+
+    visualizationDataMutex->lock();
+
+    clearVisualizationData();
+
+    if(!arrays.isEmpty() && !targets_count.isEmpty())
+    {
+        // so far no transformation to OPERATOR coordinate system was used
+        // so for test purposes only one radar is read
+        if(targets_count.count()>1) for(i=0; i<targets_count.at(1); i++)
+        {
+            QPointF * temp_point = new QPointF(arrays.at(1)[i*2], arrays.at(1)[i*2+1]);
+            visualizationData->append(temp_point);
+        }
+    }
+
+    for(i=0; i<visualizationData->count(); i++) qDebug() << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
+
+    visualizationDataMutex->unlock();
+}
+
+void stackManager::clearVisualizationData()
+{
+    while(!visualizationData->isEmpty())
+    {
+        delete visualizationData->first();
+        visualizationData->removeFirst();
+    }
 }
 

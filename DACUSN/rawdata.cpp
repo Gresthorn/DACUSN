@@ -50,7 +50,7 @@ void rawData::setSyntheticTargetsCount(short count)
     }
 }
 
-void rawData::setSyntheticCoordinates(double *coords)
+void rawData::setSyntheticCoordinates(float *coords)
 {
     if(syntheticData!=NULL)
     {
@@ -63,7 +63,7 @@ void rawData::setSyntheticCoordinates(double *coords)
     }
 }
 
-void rawData::setSyntheticToas(double *toas)
+void rawData::setSyntheticToas(float *toas)
 {
     if(syntheticData!=NULL)
     {

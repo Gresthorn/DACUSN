@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QTimer>
+#include <QPointF>
 
 #include <QDebug>
 
@@ -34,6 +35,9 @@ public:
     QVector<rawData * > * dataStack; ///< Stack for data recieved by sensor network
     QMutex * dataStackMutex; ///< Mutex protecting dataStack object
 
+    QList<QPointF * > * visualizationData; ///< The final positions of targets
+    QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
+    QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

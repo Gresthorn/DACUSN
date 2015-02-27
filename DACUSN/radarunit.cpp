@@ -4,19 +4,76 @@ radarUnit::radarUnit(int radarId)
 {
     radar_id = radarId;
     start = 1;
+    max_recursion = 5;
+
+    dataList = new QList<rawData * >;
 }
 
 radarUnit::~radarUnit()
 {
-
+    while(!dataList->isEmpty())
+    {
+        delete dataList->first();
+        dataList->removeFirst();
+    }
 }
 
 bool radarUnit::processNewData(rawData *data)
 {
+
     reciever_method method = data->getRecieverMethod();
+
+    // constants for MTT
+    /*float r[] = {0.1, 0.01};
+    float q[] = {0.0, 0.01, 0.0, 0.0001};
+    float diff_d = 1.0;
+    float diff_fi = 0.6;
+    int min_NT = 10;
+    int min_OLGI = 10;*/
+
+    //int i; // for cycle - test purposes
+
     if(method==SYNTHETIC)
     {
-        qDebug() << "RADAR ID: " << data->getSyntheticRadarId() << " AT TIME: " << data->getSyntheticTime() << " TARGETS COUNT: " << data->getSyntheticTargetsCount();
+
+
+        /*qDebug() << "RADAR ID: " << data->getSyntheticRadarId() << " AT TIME: " << data->getSyntheticTime() << " TARGETS COUNT: " << data->getSyntheticTargetsCount();
+        qDebug() << "COORDINATES BEFORE: ";
+        for(i=0; i<data->getSyntheticTargetsCount(); i++)
+        {
+            qDebug() << "TARGET NUMBER: " << i << " X: " << data->getSyntheticCoordinates()[i*2] << " Y: " << data->getSyntheticCoordinates()[i*2+1];
+        }*/
+
+        /*float * test = new float[10];
+        test[0] = 25.3;
+        test[1] = 30.2;test[2] = 25.3;
+        test[3] = 30.2;test[4] = 25.3;
+        test[5] = 30.2;*/
+
+        //this->MTT(test, r, q, diff_d, diff_fi, min_OLGI, min_NT);
+
+        /*qDebug() << "COORDINATES AFTER: ";
+        for(i=0; i<data->getSyntheticTargetsCount(); i++)
+        {
+            while(data->getSyntheticCoordinates()[i*2]<150) ++data->getSyntheticCoordinates()[i*2];
+            while(data->getSyntheticCoordinates()[i*2+1]<150) ++data->getSyntheticCoordinates()[i*2+1];
+            qDebug() << "TARGET NUMBER: " << i << " X: " << ++data->getSyntheticCoordinates()[i*2] << " Y: " << ++data->getSyntheticCoordinates()[i*2+1];
+        }*/
+
+        if(dataList->count()==max_recursion)
+        {
+            // remove the oldest record
+            delete dataList->first();
+            dataList->removeFirst();
+            dataList->append(data);
+        }
+        else
+        {
+            // just append the new record
+            dataList->append(data);
+        }
+
+        return true;
     }
     else
     {
@@ -26,6 +83,38 @@ bool radarUnit::processNewData(rawData *data)
     }
 
     return false;
+}
+
+int radarUnit::getNumberOfTargetsLast()
+{
+    reciever_method method = dataList->last()->getRecieverMethod();
+    if(method==SYNTHETIC) return dataList->last()->getSyntheticTargetsCount();
+    else return NULL;
+    return NULL;
+}
+
+float *radarUnit::getCoordinatesLast()
+{
+    reciever_method method = dataList->last()->getRecieverMethod();
+    if(method==SYNTHETIC) return dataList->last()->getSyntheticCoordinates();
+    else return NULL;
+    return NULL;
+}
+
+int radarUnit::getNumberOfTargetsAt(int index)
+{
+    reciever_method method = dataList->at(index)->getRecieverMethod();
+    if(method==SYNTHETIC) return dataList->at(index)->getSyntheticTargetsCount();
+    else return NULL;
+    return NULL;
+}
+
+float *radarUnit::getCoordinatesAt(int index)
+{
+    reciever_method method = dataList->at(index)->getRecieverMethod();
+    if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
+    else return NULL;
+    return NULL;
 }
 
 /********************************************************************************************************/

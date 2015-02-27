@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent) :
     radarList = new QVector<radar_handler * >;
     radarListMutex = new QMutex;
 
+    visualizationData = new QList<QPointF * >;
+    visualizationColor = new QList<QColor * >;
+    visualizationDataMutex = new QMutex;
+
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));
 
     /* ------------------------------------------------- THREADS ------------------------------------------------- */
@@ -43,6 +47,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
 
+    /*for(int a=0; a<150; a++)
+    {
+        float * coords = new float[6];
+        for(int i = 0; i<6; i++) coords[i] = (float)i;
+        rawData * test = new rawData;
+        test->setRecieverMethod(SYNTHETIC);
+        test->setSyntheticRadarId(1);
+        test->setSyntheticTime(0.75);
+        test->setSyntheticTargetsCount(3);
+        test->setSyntheticCoordinates(coords);
+
+        radarUnit * testUnit = new radarUnit(1);
+        testUnit->processNewData(test);
+
+        delete test;
+    }*/
 }
 
 MainWindow::~MainWindow()
@@ -201,7 +221,7 @@ void MainWindow::establishStackManagementThread()
     qDebug() << "Starting stack management thread...";
 
     stackManagerThread = new QThread(this);
-    stackManagerWorker = new stackManager(dataStack, dataStackMutex, radarList, radarListMutex, settings, settingsMutex);
+    stackManagerWorker = new stackManager(dataStack, dataStackMutex, radarList, radarListMutex, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
     stackManagerWorker->moveToThread(stackManagerThread);
     stackManagerThread->start(QThread::HighestPriority);
     QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);

@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QMutex>
 #include <QVector>
+#include <QPointF>
+#include <QList>
 #include <QThread>
 #include <QWaitCondition>
 
@@ -53,7 +55,8 @@ public:
      * application thread. These pointers are saved and a few important values are initialized to their
      * default values (later they are rewritten by settings values if they are specified).
      */
-    stackManager(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex, uwbSettings * setts, QMutex * settings_mutex);
+    stackManager(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex,
+                 QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QMutex * visualization_data_mutex, uwbSettings * setts, QMutex * settings_mutex);
     ~stackManager();
 
     /**
@@ -87,6 +90,9 @@ private:
     QMutex * rawDataStackMutex; ///< Pointer to the mutex locking the stack
     uwbSettings * settings; ///< Pointer to the basic application settings object
     QMutex * settingsMutex; ///< Pointer to the mutex locking the settings object
+    QList<QPointF * > * visualizationData; ///< The final positions of targets
+    QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
+    QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
 
     unsigned int idleTime; ///< The idle time, during the thread is sleeping after it find out that the stack is empty
     unsigned int stackControlPeriodicity; ///< Number of cycles that must pass until the 'stackControl' function is run
@@ -120,6 +126,22 @@ private:
      * @param[in] data Is the pointer to the 'rawData' object lastly token from the stack.
      */
     void dataProcessing(rawData * data);
+
+    /**
+     * @brief Checks for all known 'radarUnit' objects if they were updated with new data.
+     * @return The return value is true if all 'radarUnit' objects are updated with new data.
+     */
+    bool checkRadarDataUpdateStatus(void);
+
+    /**
+     * @brief This function is applying the fusion algorithm and updating visualization list.
+     */
+    void applyFusion(void);
+
+    /**
+     * @brief Clears all vector with positions of targets in the scene and prepares the vector for new data.
+     */
+    void clearVisualizationData(void);
 
 public slots:
     /**

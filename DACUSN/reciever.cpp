@@ -227,8 +227,8 @@ rawData * reciever::extract_synthetic(char * msg)
     data->setSyntheticTime(atof(tokens[i++]));
     data->setSyntheticTargetsCount((short)(atoi(tokens[i++])));
 
-    double * coordinates = new double[data->getSyntheticTargetsCount()*2];
-    double * toas = new double[data->getSyntheticTargetsCount()*2];
+    float * coordinates = new float[10];//[data->getSyntheticTargetsCount()*2];
+    float * toas = new float[data->getSyntheticTargetsCount()*2];
 
     // conversion of coordinates
     int a, b, c;
@@ -237,8 +237,8 @@ rawData * reciever::extract_synthetic(char * msg)
     {
         for(a=0; a<4; a++)
         {
-            if(a<2) coordinates[b++] = atof(tokens[i++]);
-            else toas[c++] = atof(tokens[i++]);
+            if(a<2) coordinates[b++] = (float)(atof(tokens[i++]));
+            else toas[c++] = (float)(atof(tokens[i++]));
         }
     }
 
