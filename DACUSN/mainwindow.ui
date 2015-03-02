@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -101,6 +101,11 @@
    </property>
    <property name="text">
     <string>Data Input Dialog</string>
+   </property>
+  </action>
+  <action name="actionStack_Manager_Dialog">
+   <property name="text">
+    <string>Stack Manager Dialog</string>
    </property>
   </action>
  </widget>
