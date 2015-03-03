@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     datainputthreadworker.cpp \
     stackmanager.cpp \
     radarunit.cpp \
-    datainputdialog.cpp
+    datainputdialog.cpp \
+    stackmanagerdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -31,10 +32,12 @@ HEADERS  += mainwindow.h \
     stackmanager.h \
     radarunit.h \
     radar_handler.h \
-    datainputdialog.h
+    datainputdialog.h \
+    stackmanagerdialog.h
 
 FORMS    += mainwindow.ui \
-    datainputdialog.ui
+    datainputdialog.ui \
+    stackmanagerdialog.ui
 
 RESOURCES += \
     icons.qrc

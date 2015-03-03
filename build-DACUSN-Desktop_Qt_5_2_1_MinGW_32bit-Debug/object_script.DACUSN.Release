@@ -8,9 +8,11 @@ INPUT(
 ./release\stackmanager.o
 ./release\radarunit.o
 ./release\datainputdialog.o
+./release\stackmanagerdialog.o
 ./release\qrc_icons.o
 ./release\moc_mainwindow.o
 ./release\moc_datainputthreadworker.o
 ./release\moc_stackmanager.o
 ./release\moc_datainputdialog.o
+./release\moc_stackmanagerdialog.o
 );

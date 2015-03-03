@@ -279,7 +279,11 @@ bool stackManager::checkRadarDataUpdateStatus()
 void stackManager::applyFusion()
 {
     // apply the fusion algorithm (so far only simple averaging the values)
-    int i;
+    int i, j;
+
+    // specifies the maximum target count from all radar units
+    int maximum_targets_visible = 0;
+
     // temporary pointer handlers
     QVector<float * > arrays;
     QVector<int> targets_count;
@@ -289,36 +293,76 @@ void stackManager::applyFusion()
     {
         arrays.append(radarList->at(i)->radar->getCoordinatesLast());
         targets_count.append(radarList->at(i)->radar->getNumberOfTargetsLast());
+
+        // update maximum targets visible
+        if(targets_count.last()>maximum_targets_visible) maximum_targets_visible = targets_count.last();
+
         // restore updated status back to false so fusion can run again only after all radars has updated data
         radarList->at(i)->updated = false;
     }
 
-    visualizationDataMutex->lock();
-
     clearVisualizationData();
 
+    float x_average; // the averaged value from all radars
+    float y_average; // the averaged value from all radars
+    int counter; // used for averaging;
     if(!arrays.isEmpty() && !targets_count.isEmpty())
     {
-        // so far no transformation to OPERATOR coordinate system was used
-        // so for test purposes only one radar is read
-        if(targets_count.count()>1) for(i=0; i<targets_count.at(1); i++)
+        // so far only averaging of coordinates is used: no fusion algorithm availible
+        // it is also supposed that indexes of coordinates are the same for specific target
+
+        for(j=0; j<maximum_targets_visible; j++)
         {
-            QPointF * temp_point = new QPointF(arrays.at(1)[i*2], arrays.at(1)[i*2+1]);
-            visualizationData->append(temp_point);
+            x_average = 0.0;
+            y_average = 0.0;
+            counter = 0;
+
+            // iterating through all possible targets
+            for(i=0; i<arrays.count(); i++)
+            {    
+                // if is less the radar unit surely has information about target's coordinates
+                if(j<targets_count.at(i))
+                {
+                    //qDebug() << "Target: " << j << "Radar: " << i;
+                    // apply transformation to operator coordinate system
+
+                    radarList->at(i)->radar->doTransformation(arrays.at(i)[j*2], arrays.at(i)[j*2+1]);
+                    x_average += radarList->at(i)->radar->getTransformatedX();
+                    y_average += radarList->at(i)->radar->getTransformatedY();
+
+                    ++counter;
+                }
+            }
+
+            // calculate average value
+            x_average /= (float)(counter);
+            y_average /= (float)(counter);
+
+
+            // append to visualization vector if counter is more than one (at least one radar had value)
+            if(counter>=1)
+            {
+                QPointF * temp_point = new QPointF(x_average, y_average);
+                visualizationDataMutex->lock();
+                visualizationData->append(temp_point);
+                visualizationDataMutex->unlock();
+            }
         }
     }
 
-    for(i=0; i<visualizationData->count(); i++) qDebug() << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
-
+    visualizationDataMutex->lock();
+    for(i=0; i<visualizationData->count(); i++) qDebug() << i << " " << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
     visualizationDataMutex->unlock();
 }
 
 void stackManager::clearVisualizationData()
 {
+    visualizationDataMutex->lock();
     while(!visualizationData->isEmpty())
     {
         delete visualizationData->first();
         visualizationData->removeFirst();
     }
+    visualizationDataMutex->unlock();
 }
 

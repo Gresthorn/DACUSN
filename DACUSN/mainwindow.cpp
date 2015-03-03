@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
     connect(ui->actionData_Input_Dialog, SIGNAL(triggered()), this, SLOT(openDataInputDialog()));
+    connect(ui->actionStack_Manager_Dialog, SIGNAL(triggered()), this, SLOT(openStackManagerDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -278,6 +279,13 @@ void MainWindow::destroyStackManagementThread()
 void MainWindow::openDataInputDialog()
 {
     dataInputDialog dialog(settings, settingsMutex, this);
+
+    dialog.exec();
+}
+
+void MainWindow::openStackManagerDialog()
+{
+    stackManagerDialog dialog(settings, settingsMutex, this);
 
     dialog.exec();
 }

@@ -48,6 +48,7 @@
    <addaction name="actionRestart"/>
    <addaction name="separator"/>
    <addaction name="actionData_Input_Dialog"/>
+   <addaction name="actionStack_Manager_Dialog"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
@@ -104,7 +105,14 @@
    </property>
   </action>
   <action name="actionStack_Manager_Dialog">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/mainToolbar/icons/stack.png</normaloff>:/mainToolbar/icons/stack.png</iconset>
+   </property>
    <property name="text">
+    <string>Stack Manager Dialog</string>
+   </property>
+   <property name="toolTip">
     <string>Stack Manager Dialog</string>
    </property>
   </action>

@@ -1,10 +1,16 @@
 #include "radarunit.h"
 
-radarUnit::radarUnit(int radarId)
+radarUnit::radarUnit(int radarId, double x_pos, double y_pos, double rot_Angle)
 {
     radar_id = radarId;
     start = 1;
     max_recursion = 5;
+
+    xpos = x_pos;
+    ypos = y_pos;
+    rotAngle = rot_Angle;
+
+    tempX = tempY = 0.0;
 
     dataList = new QList<rawData * >;
 }
@@ -35,8 +41,6 @@ bool radarUnit::processNewData(rawData *data)
 
     if(method==SYNTHETIC)
     {
-
-
         /*qDebug() << "RADAR ID: " << data->getSyntheticRadarId() << " AT TIME: " << data->getSyntheticTime() << " TARGETS COUNT: " << data->getSyntheticTargetsCount();
         qDebug() << "COORDINATES BEFORE: ";
         for(i=0; i<data->getSyntheticTargetsCount(); i++)
@@ -115,6 +119,44 @@ float *radarUnit::getCoordinatesAt(int index)
     if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
     else return NULL;
     return NULL;
+}
+
+void radarUnit::doTransformation(float x, float y)
+{
+    // Preparing objects for 2D transformation
+    vector< vector<float> * > * radarUnitShiftMatrix;
+    vector< vector<float> * > * radarUnitRotationMatrix = new vector< vector<float> * >;
+    vector< vector<float> * > * radarUnitCoordinateMatrix;
+
+    float shiftM[] = { (float)(xpos), (float)(ypos) };
+    float cosAngle = (float)cos(rotAngle);
+    float sinAngle = (float)sin(rotAngle);
+    float rotationMrowA[] = { cosAngle, (-1.0)*sinAngle };
+    float rotationMrowB[] = { sinAngle, cosAngle };
+    float coordinateM[] = { x, y };
+
+    addRow(radarUnitRotationMatrix, rotationMrowA, sizeof(rotationMrowA));
+    addRow(radarUnitRotationMatrix, rotationMrowB, sizeof(rotationMrowB));
+
+    radarUnitCoordinateMatrix = createColumnMatrix(coordinateM, sizeof(coordinateM));
+    radarUnitShiftMatrix = createColumnMatrix(shiftM, sizeof(shiftM));
+
+    // apply stransformation equation
+    vector< vector<float> * > * productedPart = productMatrix(radarUnitRotationMatrix, radarUnitCoordinateMatrix);
+    vector< vector<float> * > * transformationResult = sumMatrix(radarUnitShiftMatrix, productedPart);
+
+    // save calculated values
+    tempX = getVal(1, 1, transformationResult);
+    tempY = getVal(2, 1, transformationResult);
+
+    // free memory
+    deleteMatrix(radarUnitShiftMatrix);
+    deleteMatrix(radarUnitRotationMatrix);
+    deleteMatrix(radarUnitCoordinateMatrix);
+    deleteMatrix(productedPart);
+    deleteMatrix(transformationResult);
+
+
 }
 
 /********************************************************************************************************/

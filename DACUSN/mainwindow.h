@@ -11,6 +11,7 @@
 #include <QDebug>
 
 #include "datainputdialog.h"
+#include "stackmanagerdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -93,6 +94,11 @@ private slots:
      * @brief Opens dialog window for data input method management.
      */
     void openDataInputDialog(void);
+
+    /**
+     * @brief Opens dialog window for stack management setting.
+     */
+    void openStackManagerDialog(void);
 
 private:
     Ui::MainWindow *ui;

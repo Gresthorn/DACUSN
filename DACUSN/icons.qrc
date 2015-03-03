@@ -6,5 +6,6 @@
         <file>icons/play.png</file>
         <file>icons/restart.png</file>
         <file>icons/input.png</file>
+        <file>icons/stack.png</file>
     </qresource>
 </RCC>
