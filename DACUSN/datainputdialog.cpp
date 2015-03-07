@@ -28,8 +28,6 @@ dataInputDialog::dataInputDialog(uwbSettings * setts, QMutex * settings_mutex, Q
     settingsMutex->unlock();
 
     connect(this, SIGNAL(accepted()), this, SLOT(accepted()));
-
-    this->setWindowTitle(tr("Reciever settings"));
 }
 
 dataInputDialog::~dataInputDialog()

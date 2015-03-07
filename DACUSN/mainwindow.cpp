@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionData_Input_Dialog, SIGNAL(triggered()), this, SLOT(openDataInputDialog()));
     connect(ui->actionStack_Manager_Dialog, SIGNAL(triggered()), this, SLOT(openStackManagerDialog()));
+    connect(ui->actionRadar_List_Dialog, SIGNAL(triggered()), this, SLOT(openRadarListDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -286,6 +287,13 @@ void MainWindow::openDataInputDialog()
 void MainWindow::openStackManagerDialog()
 {
     stackManagerDialog dialog(settings, settingsMutex, this);
+
+    dialog.exec();
+}
+
+void MainWindow::openRadarListDialog()
+{
+    radarListDialog dialog(radarList, radarListMutex, settings, settingsMutex, this);
 
     dialog.exec();
 }

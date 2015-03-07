@@ -7,5 +7,6 @@
         <file>icons/restart.png</file>
         <file>icons/input.png</file>
         <file>icons/stack.png</file>
+        <file>icons/radar_list.png</file>
     </qresource>
 </RCC>

@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
@@ -49,6 +49,7 @@
    <addaction name="separator"/>
    <addaction name="actionData_Input_Dialog"/>
    <addaction name="actionStack_Manager_Dialog"/>
+   <addaction name="actionRadar_List_Dialog"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
@@ -114,6 +115,18 @@
    </property>
    <property name="toolTip">
     <string>Stack Manager Dialog</string>
+   </property>
+  </action>
+  <action name="actionRadar_List_Dialog">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/mainToolbar/icons/radar_list.png</normaloff>:/mainToolbar/icons/radar_list.png</iconset>
+   </property>
+   <property name="text">
+    <string>Radar List Dialog</string>
+   </property>
+   <property name="toolTip">
+    <string>Radar List Dialog</string>
    </property>
   </action>
  </widget>

@@ -12,6 +12,7 @@
 
 #include "datainputdialog.h"
 #include "stackmanagerdialog.h"
+#include "radarlistdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -99,6 +100,11 @@ private slots:
      * @brief Opens dialog window for stack management setting.
      */
     void openStackManagerDialog(void);
+
+    /**
+     * @brief Opens dialog window for radar units list management settings.
+     */
+    void openRadarListDialog(void);
 
 private:
     Ui::MainWindow *ui;
