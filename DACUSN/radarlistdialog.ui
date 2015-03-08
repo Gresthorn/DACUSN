@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>354</width>
-    <height>245</height>
+    <height>275</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,6 +56,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="importFromFileButton">
+        <property name="text">
+         <string>Import from file</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="deleteRadarUnitButton">
         <property name="text">
          <string>Delete radar unit</string>
@@ -74,6 +81,34 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="deselectAllButton">
+        <property name="text">
+         <string>Unselect all</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="selectAllButton">
+        <property name="text">
+         <string>Select all</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearListButton">
+        <property name="text">
+         <string>Clear list</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

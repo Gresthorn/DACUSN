@@ -320,6 +320,9 @@ void stackManager::applyFusion()
             // iterating through all possible targets
             for(i=0; i<arrays.count(); i++)
             {    
+                // if radar was disabled by user, do not use it in fusion algorithm
+                if(!radarList->at(i)->radar->isEnabled()) continue;
+
                 // if is less the radar unit surely has information about target's coordinates
                 if(j<targets_count.at(i))
                 {

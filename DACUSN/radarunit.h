@@ -74,8 +74,12 @@ public:
     /**
      * @brief This construtor will ensure correct allocation for all data needed when program running
      * @param[in] radarId Is the radar identificator.
+     * @param[in] x_pos Specifies the x position of radar unit in relation to operator coordinate system.
+     * @param[in] y_pos Specifies the y position of radar unit in relation to operator coordinate system.
+     * @param[in] rot_Angle Specifies the radar's coordinate system rotation in relation to operator coordinate system.
+     * @param[in] enabled Specifies if radar unit should be considered during data fusion. Default is false. If automatic creation of unit by application is used, default value is specified.
      */
-    radarUnit(int radarId, double x_pos = .0, double y_pos = .0, double rot_Angle = .0);
+    radarUnit(int radarId, double x_pos = .0, double y_pos = .0, double rot_Angle = .0, bool enable = false);
     ~radarUnit();
 
     /**
@@ -148,6 +152,18 @@ public:
     void setRotAngle(double angle) { rotAngle = angle; }
 
     /**
+     * @brief Function returns the boolean value which specifies if the radar unit is allowed by user.
+     * @return The return value is enabled state.
+     */
+    bool isEnabled(void) { return enabled; }
+
+    /**
+     * @brief This function will set the new state for radar unit.
+     * @param[in] enable Is the new radar unit state.
+     */
+    void setEnabled(bool enable) { enabled = enable; }
+
+    /**
      * @brief This function will take coordinates passed as parameters and calculates the transformation into operator coordinate system.
      * @param[in] x The input x position of target to transform.
      * @param[in] y The input y position of target to transform.
@@ -172,6 +188,7 @@ public:
 
 private:
     int radar_id; ///< Main radar identificator
+    bool enabled; ///< Specifies if the radar is enabled/disabled by user. If set to false, this unit should not be considered during data fusion. This value is always set to false if the unit was created by application automatically.
     unsigned int max_recursion; ///< The maximum data handling at one time dataList
 
     QList<rawData * > * dataList; ///< Handles all recieved data with MTT applied. Maximum number is specified in max_recursion

@@ -1,6 +1,6 @@
 #include "radarunit.h"
 
-radarUnit::radarUnit(int radarId, double x_pos, double y_pos, double rot_Angle)
+radarUnit::radarUnit(int radarId, double x_pos, double y_pos, double rot_Angle, bool enable)
 {
     radar_id = radarId;
     start = 1;
@@ -13,6 +13,8 @@ radarUnit::radarUnit(int radarId, double x_pos, double y_pos, double rot_Angle)
     tempX = tempY = 0.0;
 
     dataList = new QList<rawData * >;
+
+    enabled = enable;
 }
 
 radarUnit::~radarUnit()
@@ -128,9 +130,16 @@ void radarUnit::doTransformation(float x, float y)
     vector< vector<float> * > * radarUnitRotationMatrix = new vector< vector<float> * >;
     vector< vector<float> * > * radarUnitCoordinateMatrix;
 
+    //qDebug() << "Starting transformation of x: " << x << " y: " << y;
+
+    //qDebug() << "Radar parameters x: " << xpos << " y: " << ypos << " angle: " << rotAngle;
+
     float shiftM[] = { (float)(xpos), (float)(ypos) };
     float cosAngle = (float)cos(rotAngle);
     float sinAngle = (float)sin(rotAngle);
+
+    //qDebug() << "Sin " << sinAngle << " Cos " << cosAngle;
+
     float rotationMrowA[] = { cosAngle, (-1.0)*sinAngle };
     float rotationMrowB[] = { sinAngle, cosAngle };
     float coordinateM[] = { x, y };
@@ -149,6 +158,8 @@ void radarUnit::doTransformation(float x, float y)
     tempX = getVal(1, 1, transformationResult);
     tempY = getVal(2, 1, transformationResult);
 
+    //qDebug() << "Result of transformation is x: " << tempX << " y: " << tempY;
+
     // free memory
     deleteMatrix(radarUnitShiftMatrix);
     deleteMatrix(radarUnitRotationMatrix);
@@ -156,7 +167,7 @@ void radarUnit::doTransformation(float x, float y)
     deleteMatrix(productedPart);
     deleteMatrix(transformationResult);
 
-
+    //qDebug() << "Ending transformation.............";
 }
 
 /********************************************************************************************************/

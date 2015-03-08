@@ -7,6 +7,10 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QFileDialog>
+#include <QDir>
+#include <QFile>
+#include <QMessageBox>
 
 #include "uwbsettings.h"
 #include "radarunit.h"
@@ -43,12 +47,20 @@ private:
         ENABLE, ID, X, Y, ANGLE
     };
 
+    double convertToRadians(double angle);
+    double convertToDegrees(double angle);
+
 private slots:
+    void importFromFileSlot(void);
+    void deselectAllSlot(void);
+    void selectAllSlot(void);
+    void clearListSlot(void);
     void cellChangedControlSlot(int row, int column);
     void cellClickedRememberSlot(int row, int column);
     void addRadarUnitSlot(void);
     void rowSelectionSlot(void);
     void deleteRadarUnitSlot(void);
+    void accepted(void);
 };
 
 #endif // RADARLISTDIALOG_H
