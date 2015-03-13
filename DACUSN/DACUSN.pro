@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     radarunit.cpp \
     datainputdialog.cpp \
     stackmanagerdialog.cpp \
-    radarlistdialog.cpp
+    radarlistdialog.cpp \
+    visualization.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \

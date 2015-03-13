@@ -353,9 +353,9 @@ void stackManager::applyFusion()
         }
     }
 
-    visualizationDataMutex->lock();
-    for(i=0; i<visualizationData->count(); i++) qDebug() << i << " " << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
-    visualizationDataMutex->unlock();
+    //visualizationDataMutex->lock();
+    //for(i=0; i<visualizationData->count(); i++) qDebug() << i << " " << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
+    //visualizationDataMutex->unlock();
 }
 
 void stackManager::clearVisualizationData()

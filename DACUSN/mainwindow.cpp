@@ -21,6 +21,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     visualizationData = new QList<QPointF * >;
     visualizationColor = new QList<QColor * >;
+    // preparing some basic color set for targets
+    visualizationColor->append(new QColor(Qt::red));
+    visualizationColor->append(new QColor(Qt::blue));
+    visualizationColor->append(new QColor(Qt::green));
+    visualizationColor->append(new QColor(Qt::gray));
+    visualizationColor->append(new QColor(Qt::yellow));
+    visualizationColor->append(new QColor(Qt::black));
+    visualizationColor->append(new QColor(Qt::cyan));
+    visualizationColor->append(new QColor(Qt::magenta));
+    visualizationColor->append(new QColor(Qt::darkRed));
+    visualizationColor->append(new QColor(Qt::darkBlue));
     visualizationDataMutex = new QMutex;
 
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));
@@ -46,6 +57,18 @@ MainWindow::MainWindow(QWidget *parent) :
     stackManagerWorker = NULL;
 
     /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
+
+    /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
+
+    visualizationTimer = new QTimer(this);
+    ellipseList = new QList<QGraphicsEllipseItem * >;
+    visualizationScene = new QGraphicsScene(ui->visualizationView);
+    ui->visualizationView->setScene(visualizationScene);
+
+    connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
+    visualizationTimer->setInterval(20);
+
+    /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -100,6 +123,9 @@ void MainWindow::pauseDataInputSlot()
             pauseBlinkEffect->setInterval(1000);
             connect(pauseBlinkEffect, SIGNAL(timeout()), this, SLOT(changeDataInputPauseButtonSlot()));
             pauseBlinkEffect->start();
+
+            // pause visualization
+            visualizationTimer->stop();
         }
         else
         {
@@ -109,6 +135,9 @@ void MainWindow::pauseDataInputSlot()
             pauseBlinkEffect = NULL;
             blinker = true;
             ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
+
+            // return visualization running state
+            visualizationTimer->start();
         }
     }
 }
@@ -153,6 +182,9 @@ void MainWindow::establishDataInputThreadSlot()
 
     // starting stack manager thread
     establishStackManagementThread();
+
+    // turn visualization on
+    visualizationTimer->start();
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -215,6 +247,9 @@ void MainWindow::destroyDataInputThreadSlot()
 
     // cancel the stack manager thread
     destroyStackManagementThread();
+
+    // stop visualization
+    visualizationTimer->stop();
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -274,6 +309,7 @@ void MainWindow::destroyStackManagementThread()
 
     qDebug() << "Stack manager thread canceled...";
 }
+
 
 /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 

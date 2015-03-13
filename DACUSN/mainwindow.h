@@ -7,6 +7,7 @@
 #include <QWaitCondition>
 #include <QTimer>
 #include <QPointF>
+#include <QGraphicsEllipseItem>
 
 #include <QDebug>
 
@@ -42,6 +43,9 @@ public:
     QList<QPointF * > * visualizationData; ///< The final positions of targets
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
+
+    QGraphicsScene * visualizationScene; ///< Is the scene where all items/objects are rendered on
+    QList<QGraphicsEllipseItem * > * ellipseList; ///< Is the vector of ellipses positioned in current target's [x,y]
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -89,6 +93,11 @@ public slots:
      */
     void destroyStackManagementThread(void);
 
+    /**
+     * @brief This slot is run periodically to update visual scene with updated positions.
+     */
+    void visualizationSlot(void);
+
 private slots:
 
     /**
@@ -106,6 +115,7 @@ private slots:
      */
     void openRadarListDialog(void);
 
+
 private:
     Ui::MainWindow *ui;
 
@@ -113,6 +123,8 @@ private:
     bool blinker; ///< Boolean value which is changed periodically when 'pauseBlinkEffect' timer emits signal. Used for changing pause action button style.
     dataInputThreadWorker * dataInputWorker; ///< The worker object doing all stuff around the data recieving
     QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
+
+    QTimer * visualizationTimer; ///< Emits signals periodically so scene can update with new values
 
     stackManager * stackManagerWorker; ///< Object with infinite cycle managing the stack
     QThread * stackManagerThread; ///< Thread where 'stackManagerWorker' object can run
