@@ -234,7 +234,7 @@ void stackManager::dataProcessing(rawData *data)
     {
         for(i = 0; i<radarList->count(); i++)
         {
-            if(radarList->at(i)->id==radar_id) break;
+            if(radarList->at(i)->id==(unsigned int)(radar_id)) break;
         }
     }
 

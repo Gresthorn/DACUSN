@@ -10,6 +10,7 @@ INPUT(
 ./debug\datainputdialog.o
 ./debug\stackmanagerdialog.o
 ./debug\radarlistdialog.o
+./debug\visualization.o
 ./debug\qrc_icons.o
 ./debug\moc_mainwindow.o
 ./debug\moc_datainputthreadworker.o
@@ -17,4 +18,5 @@ INPUT(
 ./debug\moc_datainputdialog.o
 ./debug\moc_stackmanagerdialog.o
 ./debug\moc_radarlistdialog.o
+./debug\moc_visualization.o
 );

@@ -15,6 +15,10 @@ uwbSettings::uwbSettings()
     maxStackWarningCount = 10;
 
     stackRescueEnable = true;
+
+    visualizationInterval = 38;
+
+    visualizationSchema = COMET_EFFECT;
 }
 
 uwbSettings::uwbSettings(char *config)

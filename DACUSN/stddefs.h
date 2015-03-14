@@ -10,6 +10,12 @@ enum reciever_method
     SYNTHETIC = 1 ///< Is used when the data are read by server application from file and sent throught pipe
 };
 
+enum visualization_schema
+{
+    COMMON_FLOW = 0, ///< This schema displays objects as a very simple circles fastly changing their positions.
+    COMET_EFFECT = 1 ///< Is displaying targets as moving comet with a little history positions. The history may be changed as the animation duration.
+};
+
 
 #endif // STDDEFS
 

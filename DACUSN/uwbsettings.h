@@ -132,6 +132,31 @@ public:
      * @return The return value is boolean value of stack rescue state.
      */
     bool getStackRescueState(void) { return stackRescueEnable; }
+
+    /**
+     * @brief Sets new interval for scene update sequence in miliseconds.
+     * @param[in] interval Is the new value of interval in miliseconds.
+     */
+    void setVisualizationInterval(unsigned int interval) { visualizationInterval = interval; }
+
+    /**
+     * @brief This function is used for checking out how often should the scene update be done.
+     * @return The return value is interval in miliseconds.
+     */
+    unsigned int getVisualizationInterval(void) { return visualizationInterval; }
+
+    /**
+     * @brief Sets the new visualization schema.
+     * @param[in] schema Is the new schema set for visualization algorithms.
+     */
+    void setVisualizationSchema(visualization_schema schema) { visualizationSchema = schema; }
+
+    /**
+     * @brief Returns the visualization schema currently set and used for targets display.
+     * @return The return value is the enum type of schema currently set.
+     */
+    visualization_schema getVisualizationSchema(void) { return visualizationSchema; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -140,6 +165,9 @@ private:
     unsigned int stackControlPeriodicity; ///< Determines the number of cycles of reading data from stack after the control of stack filling speed is checked
     unsigned int stackIdleTime; ///< Determines how long to wait in miliseconds in stack reader thread if the stack is empty
     unsigned int maxStackWarningCount; ///< Is the maximum tolarable warning count when doing the speed of stack filling revision
+
+    unsigned int visualizationInterval; ///< Sets how often should be the scene updated.
+    visualization_schema visualizationSchema; ///< Holds the user choice of visual effects in scene.
 
     bool stackRescueEnable; ///< Switch to enable or disable stack rescue functionality
 };

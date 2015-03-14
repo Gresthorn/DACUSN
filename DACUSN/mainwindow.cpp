@@ -61,12 +61,15 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 
     visualizationTimer = new QTimer(this);
-    ellipseList = new QList<QGraphicsEllipseItem * >;
-    visualizationScene = new QGraphicsScene(ui->visualizationView);
-    ui->visualizationView->setScene(visualizationScene);
+    visualizationScene = new radarScene;
+    visualizationView = new radarView(visualizationScene, this);
+
+    ui->radarViewLayout->addWidget(visualizationView, 0, 0);
+
+    visualizationManager = new animationManager(visualizationScene, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
 
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
-    visualizationTimer->setInterval(20);
+    visualizationTimer->setInterval(settings->getVisualizationInterval());
 
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 

@@ -36,7 +36,8 @@ HEADERS  += mainwindow.h \
     radar_handler.h \
     datainputdialog.h \
     stackmanagerdialog.h \
-    radarlistdialog.h
+    radarlistdialog.h \
+    visualization.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \

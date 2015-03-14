@@ -23,6 +23,7 @@
 #include "stackmanager.h"
 #include "radarunit.h"
 #include "radar_handler.h"
+#include "visualization.h"
 
 namespace Ui {
 class MainWindow;
@@ -44,8 +45,9 @@ public:
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
 
-    QGraphicsScene * visualizationScene; ///< Is the scene where all items/objects are rendered on
-    QList<QGraphicsEllipseItem * > * ellipseList; ///< Is the vector of ellipses positioned in current target's [x,y]
+    radarScene * visualizationScene; ///< Is the scene where all items/objects are rendered on
+    radarView * visualizationView; ///< The view widget where the viewport of 'visualizationScene' will be placed;
+    animationManager * visualizationManager; ///< Is the object that handles all methods for different visualization schemas.
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -125,12 +127,14 @@ private:
     QThread * dataInputThread; ///< The main thread where 'dataInputThreadWorker' may run
 
     QTimer * visualizationTimer; ///< Emits signals periodically so scene can update with new values
+    visualization_schema * visualizationSchema; ///< Handles the user choice of how the targets should be displayed;
 
     stackManager * stackManagerWorker; ///< Object with infinite cycle managing the stack
     QThread * stackManagerThread; ///< Thread where 'stackManagerWorker' object can run
 
     QVector<radar_handler * > * radarList; ///< Vector of all availible radars
     QMutex * radarListMutex; ///< Mutex protecting the 'radarList' from multithread access
+
 };
 
 #endif // MAINWINDOW_H
