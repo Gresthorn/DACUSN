@@ -11,6 +11,7 @@ INPUT(
 ./release\stackmanagerdialog.o
 ./release\radarlistdialog.o
 ./release\visualization.o
+./release\scenerendererdialog.o
 ./release\qrc_icons.o
 ./release\moc_mainwindow.o
 ./release\moc_datainputthreadworker.o
@@ -18,4 +19,6 @@ INPUT(
 ./release\moc_datainputdialog.o
 ./release\moc_stackmanagerdialog.o
 ./release\moc_radarlistdialog.o
+./release\moc_visualization.o
+./release\moc_scenerendererdialog.o
 );

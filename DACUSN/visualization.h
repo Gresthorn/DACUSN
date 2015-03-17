@@ -66,6 +66,12 @@ public:
      */
     int getMeterToPixelRatio(void) { return meter_to_pixel_ratio; }
 
+    /**
+     * @brief Function will hide all items in ellipse list.
+     */
+    void hideAllCommonFlowSchemaObjects(void);
+
+
 private:
     int meter_to_pixel_ratio;
     int x_pixel, y_pixel, x_width, y_width;
@@ -93,15 +99,19 @@ public:
      * @param[in] scene Is the scene where all visualizations will be drawn.
      * @param[in] parent Is the parent widget (usually mainwindow).
      */
-    radarView(class radarScene * scene, QWidget * parent = 0);
+    radarView(class radarScene * scene, uwbSettings * setts, QMutex * settings_mutex, QWidget * parent = 0);
 
 private:
     QGridLayout * radarViewLayout; ///< Grid layout for placing rulers or maybe in future another additional widgets.
     QWidget * emptyCorner; ///< Used to fill empty corner in grid layout.
 
+    uwbSettings * settings;
+    QMutex * settingsMutex;
+
 protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 };
 
 /******************************************* CUSTOM GRAPHICS SCENE *******************************************/
@@ -111,15 +121,22 @@ class radarScene : public QGraphicsScene
 
 public:
     /**
-     * @brief This simple constructor just calls the QGraphicsScene to do all needed stuff.
+     * @brief This simple constructor just calls the QGraphicsScene to do all needed stuff like loading basic colors grid, background etc.
      * @param[in] parent Is parent widget of scene.
      */
-    radarScene(QObject *parent = 0): QGraphicsScene(parent)
-    {
+    radarScene(uwbSettings * setts, QMutex * settings_mutex, QObject *parent = 0);
 
-    }
+    /**
+     * @brief This function is used primarily by view widget. If user is tapping, the status is on, else is off to notify scene about wether to check rendering conditions.
+     * @param[in] status Is true if user is tapping the view.
+     */
+    void setTappingSequence(bool status) { tappingSequence = status; }
 
 private:
+    uwbSettings * settings;
+    QMutex * settingsMutex;
+
+    bool tappingSequence; ///< If user is tapping the scene, this value is set to true so rendering may check tapping options
 
 protected:
     /**

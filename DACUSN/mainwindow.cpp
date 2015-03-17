@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     visualizationColor->append(new QColor(Qt::darkBlue));
     visualizationDataMutex = new QMutex;
 
+    lastKnownSchema = settings->getVisualizationSchema();
+
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));
 
     /* ------------------------------------------------- THREADS ------------------------------------------------- */
@@ -61,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 
     visualizationTimer = new QTimer(this);
-    visualizationScene = new radarScene;
-    visualizationView = new radarView(visualizationScene, this);
+    visualizationScene = new radarScene(settings, settingsMutex, this);
+    visualizationView = new radarView(visualizationScene, settings, settingsMutex, this);
 
     ui->radarViewLayout->addWidget(visualizationView, 0, 0);
 
@@ -78,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionData_Input_Dialog, SIGNAL(triggered()), this, SLOT(openDataInputDialog()));
     connect(ui->actionStack_Manager_Dialog, SIGNAL(triggered()), this, SLOT(openStackManagerDialog()));
     connect(ui->actionRadar_List_Dialog, SIGNAL(triggered()), this, SLOT(openRadarListDialog()));
+    connect(ui->actionScene_renderer, SIGNAL(triggered()), this, SLOT(openSceneRendererDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -333,6 +336,13 @@ void MainWindow::openStackManagerDialog()
 void MainWindow::openRadarListDialog()
 {
     radarListDialog dialog(radarList, radarListMutex, settings, settingsMutex, this);
+
+    dialog.exec();
+}
+
+void MainWindow::openSceneRendererDialog()
+{
+    sceneRendererDialog dialog(settings, settingsMutex, visualizationScene, visualizationView, this);
 
     dialog.exec();
 }

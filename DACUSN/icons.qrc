@@ -8,5 +8,7 @@
         <file>icons/input.png</file>
         <file>icons/stack.png</file>
         <file>icons/radar_list.png</file>
+        <file>icons/render.png</file>
+        <file>icons/color_chart.png</file>
     </qresource>
 </RCC>

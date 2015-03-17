@@ -15,11 +15,28 @@ void MainWindow::visualizationSlot()
 
         if(settings->getVisualizationSchema()==COMMON_FLOW)
         {
+            // modify the last known schema status (sometimes when switching between schemas, some actions are needed)
+            if(lastKnownSchema!=COMMON_FLOW)
+            {
+                lastKnownSchema = COMMON_FLOW;
+            }
+
             settingsMutex->unlock();
             visualizationManager->launchCommonFlow();
         }
         else if(settings->getVisualizationSchema()==COMET_EFFECT)
         {
+            // modify the last known schema status (sometimes when switching between schemas, some actions are needed)
+            if(lastKnownSchema!=COMET_EFFECT)
+            {
+                if(lastKnownSchema==COMMON_FLOW)
+                {
+                    visualizationManager->hideAllCommonFlowSchemaObjects();
+                }
+
+                lastKnownSchema = COMET_EFFECT;
+            }
+
             settingsMutex->unlock();
             visualizationManager->launchCometItems();
 
@@ -61,8 +78,11 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<Q
 /*************************************************************************************************************/
 /*************************************************************************************************************/
 
-radarView::radarView(radarScene *scene, QWidget *parent) : QGraphicsView(scene, parent)
+radarView::radarView(radarScene *scene, uwbSettings * setts, QMutex * settings_mutex, QWidget *parent) : QGraphicsView(scene, parent)
 {
+    settings = setts;
+    settingsMutex = settings_mutex;
+
     // prepare new layout for ruler and view widget placing
     radarViewLayout = new QGridLayout;
 
@@ -97,12 +117,33 @@ radarView::radarView(radarScene *scene, QWidget *parent) : QGraphicsView(scene, 
 
 void radarView::mouseReleaseEvent(QMouseEvent *event)
 {
+    // we have to update status before any update
+    radarScene * scene = static_cast<radarScene * >(this->scene());
+    scene->setTappingSequence(false);
+
     QGraphicsView::mouseMoveEvent(event);
+
     this->viewport()->update();
+}
+
+void radarView::mousePressEvent(QMouseEvent *event)
+{
+    radarScene * scene = static_cast<radarScene * >(this->scene());
+    scene->setTappingSequence(true);
+    QGraphicsView::mousePressEvent(event);
 }
 
 void radarView::mouseMoveEvent(QMouseEvent *event)
 {
+    settingsMutex->lock();
+    // if updates are not allowed
+    if(settings->getTappingRenderMethod()==NO_SCENE_UPDATE)
+    {
+        settingsMutex->unlock();
+        return;
+    }
+    settingsMutex->unlock();
+
     this->viewport()->update();
     QGraphicsView::mouseMoveEvent(event);
 }
@@ -113,56 +154,116 @@ void radarView::mouseMoveEvent(QMouseEvent *event)
 /*************************************************************************************************************/
 
 
+radarScene::radarScene(uwbSettings * setts, QMutex * settings_mutex, QObject *parent) : QGraphicsScene(parent)
+{
+    settings = setts;
+    settingsMutex = settings_mutex;
+
+    tappingSequence = false;
+}
+
 void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
+    visualization_tapping_options tapping_opt;
+
+    settingsMutex->lock();
+
+            tapping_opt = settings->getTappingRenderMethod();
+
+    settingsMutex->unlock();
+
+    // no background rendering alloved
+    if(tappingSequence && tapping_opt==NO_BACKGROUND) return;
+
+    bool g_one, g_two, g_three;
+
+    settingsMutex->lock();
+
+        g_one = settings->gridOneIsEnabled();
+        g_two = settings->gridTwoIsEnabled();
+        g_three = settings->gridThreeIsEnabled();
+
+    settingsMutex->unlock();
+
     qreal left, top;
 
-    // basic/main lines
-    QVarLengthArray<QLineF, 2> lines;
+    // the most smooth/detailed grid
+    if(g_three)
+    {
+        // check if we are tapping scene and if so, we check for conditions
+        bool render_decision;
+        if(tappingSequence) if(tapping_opt!=NO_3 && tapping_opt!=NO_3_2) render_decision = true; else render_decision = false;
+        else render_decision = true;
 
-    lines.append(QLineF(0.0, rect.top(), 0.0, rect.bottom()));
-    lines.append(QLineF(rect.left(), 0.0, rect.right(), 0.0));
+        if(render_decision)
+        {
+            int detailedGridSize = 20;
 
-    painter->setPen(QPen(QBrush(QColor(111, 111, 111, 255)), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            left = int(rect.left()) - (int(rect.left()) % detailedGridSize);
+            top = int(rect.top()) - (int(rect.top()) % detailedGridSize);
+            //const int count = (int(rect.left())/detailedGridSize) + (int(rect.top())/detailedGridSize) + 2;
 
-    painter->drawLines(lines.data(), lines.size());
+            QVarLengthArray<QLineF, 500> detailedLines;
+
+            for (qreal x = left; x < rect.right(); x += detailedGridSize)
+                detailedLines.append(QLineF(x, rect.top(), x, rect.bottom()));
+
+            for (qreal y = top; y < rect.bottom(); y += detailedGridSize)
+                detailedLines.append(QLineF(rect.left(), y, rect.right(), y));
+
+            settingsMutex->lock();
+            painter->setPen(QPen(QBrush(*settings->getGridThreeColor()), 0.5, Qt::DotLine, Qt::RoundCap, Qt::RoundJoin));
+            settingsMutex->unlock();
+
+            painter->drawLines(detailedLines.data(), detailedLines.size());
+        }
+    }
 
     // middle smooth/detailed grid
-    int middleDetailedGridSize = 100;
+    if(g_two)
+    {
+        // check if we are tapping scene and if so, we check for conditions
+        bool render_decision;
+        if(tappingSequence) if(tapping_opt!=NO_2 && tapping_opt!=NO_3_2) render_decision = true; else render_decision = false;
+        else render_decision = true;
 
-    left = int(rect.left()) - (int(rect.left()) % middleDetailedGridSize);
-    top = int(rect.top()) - (int(rect.top()) % middleDetailedGridSize);
+        if(render_decision)
+        {
+            int middleDetailedGridSize = 100;
 
-    QVarLengthArray<QLineF, 250> middleDetailedLines;
+            left = int(rect.left()) - (int(rect.left()) % middleDetailedGridSize);
+            top = int(rect.top()) - (int(rect.top()) % middleDetailedGridSize);
 
-    for (qreal x = left; x < rect.right(); x += middleDetailedGridSize)
-        middleDetailedLines.append(QLineF(x, rect.top(), x, rect.bottom()));
+            QVarLengthArray<QLineF, 250> middleDetailedLines;
 
-    for (qreal y = top; y < rect.bottom(); y += middleDetailedGridSize)
-        middleDetailedLines.append(QLineF(rect.left(), y, rect.right(), y));
+            for (qreal x = left; x < rect.right(); x += middleDetailedGridSize)
+                middleDetailedLines.append(QLineF(x, rect.top(), x, rect.bottom()));
 
-    painter->setPen(QPen(QBrush(QColor(111, 111, 111, 100)), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            for (qreal y = top; y < rect.bottom(); y += middleDetailedGridSize)
+                middleDetailedLines.append(QLineF(rect.left(), y, rect.right(), y));
 
-    painter->drawLines(middleDetailedLines.data(), middleDetailedLines.size());
+            settingsMutex->lock();
+            painter->setPen(QPen(QBrush(*settings->getGridTwoColor()), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            settingsMutex->unlock();
 
-    // the most smooth/detailed grid
-    int detailedGridSize = 20;
+            painter->drawLines(middleDetailedLines.data(), middleDetailedLines.size());
+        }
+    }
 
-    left = int(rect.left()) - (int(rect.left()) % detailedGridSize);
-    top = int(rect.top()) - (int(rect.top()) % detailedGridSize);
-    //const int count = (int(rect.left())/detailedGridSize) + (int(rect.top())/detailedGridSize) + 2;
+    // basic/main lines must go last, so is seen clearly - rendered on top
+    if(g_one)
+    {
+        QVarLengthArray<QLineF, 2> lines;
 
-    QVarLengthArray<QLineF, 500> detailedLines;
+        lines.append(QLineF(0.0, rect.top(), 0.0, rect.bottom()));
+        lines.append(QLineF(rect.left(), 0.0, rect.right(), 0.0));
 
-    for (qreal x = left; x < rect.right(); x += detailedGridSize)
-        detailedLines.append(QLineF(x, rect.top(), x, rect.bottom()));
+        settingsMutex->lock();
+        painter->setPen(QPen(QBrush(*settings->getGridOneColor()), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        settingsMutex->unlock();
 
-    for (qreal y = top; y < rect.bottom(); y += detailedGridSize)
-        detailedLines.append(QLineF(rect.left(), y, rect.right(), y));
-
-    painter->setPen(QPen(QBrush(QColor(0,0,0, 150)), 0.2, Qt::DotLine, Qt::RoundCap, Qt::RoundJoin));
-
-    painter->drawLines(detailedLines.data(), detailedLines.size());
+        painter->drawLines(lines.data(), lines.size());
+    }
 }
 
 /******************************************* CUSTOM GRAPHICS ITEMS *******************************************/
@@ -254,6 +355,12 @@ void animationManager::launchCommonFlow()
     }
 
     visualizationDataMutex->unlock();
+}
+
+void animationManager::hideAllCommonFlowSchemaObjects()
+{
+    int i;
+    for(i=0; i<ellipseList->count(); i++) if(ellipseList->at(i)->isVisible()) ellipseList->at(i)->hide();
 }
 
 

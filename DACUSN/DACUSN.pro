@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     datainputdialog.cpp \
     stackmanagerdialog.cpp \
     radarlistdialog.cpp \
-    visualization.cpp
+    visualization.cpp \
+    scenerendererdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -37,12 +38,14 @@ HEADERS  += mainwindow.h \
     datainputdialog.h \
     stackmanagerdialog.h \
     radarlistdialog.h \
-    visualization.h
+    visualization.h \
+    scenerendererdialog.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \
     stackmanagerdialog.ui \
-    radarlistdialog.ui
+    radarlistdialog.ui \
+    scenerendererdialog.ui
 
 RESOURCES += \
     icons.qrc

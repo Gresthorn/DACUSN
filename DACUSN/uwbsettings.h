@@ -2,6 +2,7 @@
 #define UWBSETTINGS_H
 
 #include <stdlib.h>
+#include <QColor>
 
 #include "stddefs.h"
 
@@ -157,6 +158,90 @@ public:
      */
     visualization_schema getVisualizationSchema(void) { return visualizationSchema; }
 
+    /**
+     * @brief Returns the color value of the most basic/main grid.
+     * @return The return value is the QColor pointer.
+     */
+    QColor * getGridOneColor(void) { return gridOneColor; }
+
+    /**
+     * @brief Returns the color value of the intermediate detailed grid.
+     * @return The return value is the QColor pointer.
+     */
+    QColor * getGridTwoColor(void) { return gridTwoColor; }
+
+    /**
+     * @brief Returns the color value of the most smooth grid.
+     * @return The return value is the QColor pointer.
+     */
+    QColor * getGridThreeColor(void) { return gridThreeColor; }
+
+    /**
+     * @brief Returns the new color value of the most basic/main grid.
+     * @param[in] color Is the QColor pointer to newly generated color.
+     */
+    void setGridOneColor(QColor * color) { gridOneColor = color; }
+
+    /**
+     * @brief Returns the new color value of the intermediate detailed grid.
+     * @param[in] color Is the QColor pointer to newly generated color.
+     */
+    void setGridTwoColor(QColor * color) { gridTwoColor = color; }
+
+    /**
+     * @brief Returns the new color value of the most smooth grid.
+     * @param[in] color Is the QColor pointer to newly generated color.
+     */
+    void setGridThreeColor(QColor * color) { gridThreeColor = color; }
+
+    /**
+     * @brief Allows to check if drawing grid of level one is enabled;
+     * @return The return value is boolean value equal to true if the setting is enabled.
+     */
+    bool gridOneIsEnabled(void)  { return gridOneEnabled; }
+
+    /**
+     * @brief Allows to check if drawing grid of level two is enabled;
+     * @return The return value is boolean value equal to true if the setting is enabled.
+     */
+    bool gridTwoIsEnabled(void)  { return gridTwoEnabled; }
+
+    /**
+     * @brief Allows to check if drawing grid of level three is enabled;
+     * @return The return value is boolean value equal to true if the setting is enabled.
+     */
+    bool gridThreeIsEnabled(void) { return gridThreeEnabled; }
+
+    /**
+     * @brief Allows to enable/disable first level of grid.
+     * @param[in] enable The new enable/disable value for grid.
+     */
+    void setGridOneEnable(bool enable) { gridOneEnabled = enable; }
+
+    /**
+     * @brief Allows to enable/disable second level of grid.
+     * @param[in] enable The new enable/disable value for grid.
+     */
+    void setGridTwoEnable(bool enable) { gridTwoEnabled = enable; }
+
+    /**
+     * @brief Allows to enable/disable third level of grid.
+     * @param[in] enable The new enable/disable value for grid.
+     */
+    void setGridThreeEnable(bool enable) { gridThreeEnabled = enable; }
+
+    /**
+     * @brief Returns the tapping rendering method selected by user which allows to save some performance by not rendering everything in the scene.
+     * @return The return value is enum type specifying the option.
+     */
+    visualization_tapping_options getTappingRenderMethod(void) { return tapping_opt; }
+
+    /**
+     * @brief Allows to change rendering method for background in the scene.
+     * @param[in] method Is the enum type specifying the option.
+     */
+    void setTappingRenderMethod(visualization_tapping_options method) { tapping_opt = method; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -170,6 +255,17 @@ private:
     visualization_schema visualizationSchema; ///< Holds the user choice of visual effects in scene.
 
     bool stackRescueEnable; ///< Switch to enable or disable stack rescue functionality
+
+    QColor * gridOneColor; ///< Is the pointer to the color of the most basic/main grid.
+    QColor * gridTwoColor; ///< Is the pointer to the color of the intermediate detailed grid.
+    QColor * gridThreeColor; ///< Is the pointer to the color of the most smooth grid.
+    QColor * backgroundColor; ///< Represents the background color of the scene.
+
+    bool gridOneEnabled; ///< Specify if drawing of grid level one is enabled
+    bool gridTwoEnabled; ///< Specify if drawing of grid level two is enabled
+    bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled
+
+    visualization_tapping_options tapping_opt; ///< Holds the information about what rendering method is choosed while tapping.
 };
 
 #endif // UWBSETTINGS_H

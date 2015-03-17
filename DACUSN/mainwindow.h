@@ -14,6 +14,7 @@
 #include "datainputdialog.h"
 #include "stackmanagerdialog.h"
 #include "radarlistdialog.h"
+#include "scenerendererdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -117,6 +118,11 @@ private slots:
      */
     void openRadarListDialog(void);
 
+    /**
+     * @brief Opens dialog window for setting related to scene backgrounds/grids and rendering options.
+     */
+    void openSceneRendererDialog(void);
+
 
 private:
     Ui::MainWindow *ui;
@@ -134,6 +140,8 @@ private:
 
     QVector<radar_handler * > * radarList; ///< Vector of all availible radars
     QMutex * radarListMutex; ///< Mutex protecting the 'radarList' from multithread access
+
+    visualization_schema lastKnownSchema; ///< Is the lastly known visualization schema. Used when user suddenly changes schema during rendering and some clear functions are needed.
 
 };
 
