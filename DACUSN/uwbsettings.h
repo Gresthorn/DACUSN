@@ -242,6 +242,18 @@ public:
      */
     void setTappingRenderMethod(visualization_tapping_options method) { tapping_opt = method; }
 
+    /**
+     * @brief If the applications allows to use more than one rendering engine, the currently using engine can be retrieved by this function.
+     * @return The enum type specifying the engine used.
+     */
+    rendering_engine getRenderingEngine(void) { return engine; }
+
+    /**
+     * @brief Sets the new engine type. This function however is not responsible for switching the program/inner operations and settings.
+     * @param[in] new_engine Is the enum type representing new engine that we wish to set up.
+      */
+    void setRenderingEngine(rendering_engine new_engine) { engine = new_engine; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -266,6 +278,8 @@ private:
     bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled
 
     visualization_tapping_options tapping_opt; ///< Holds the information about what rendering method is choosed while tapping.
+
+    rendering_engine engine; ///< Holds the information about what rendering engine is used by graphics view to visualize objects.
 };
 
 #endif // UWBSETTINGS_H

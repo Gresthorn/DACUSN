@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -49,3 +49,5 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     icons.qrc
+
+CONFIG += qwt

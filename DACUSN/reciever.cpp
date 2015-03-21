@@ -227,8 +227,8 @@ rawData * reciever::extract_synthetic(char * msg)
     data->setSyntheticTime(atof(tokens[i++]));
     data->setSyntheticTargetsCount((short)(atoi(tokens[i++])));
 
-    float * coordinates = new float[data->getSyntheticTargetsCount()*2];
-    float * toas = new float[data->getSyntheticTargetsCount()*2];
+    float * coordinates = new float[MAX_N*2];//[data->getSyntheticTargetsCount()*2];
+    float * toas = new float[MAX_N*2];//[data->getSyntheticTargetsCount()*2];
 
     // conversion of coordinates
     int a, b, c;

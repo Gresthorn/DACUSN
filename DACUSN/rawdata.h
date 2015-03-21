@@ -118,6 +118,16 @@ public:
     void setSyntheticCoordinates(float * coords);
 
     /**
+     * @brief Sets new pointer for synthetic coordinates. Pointer must point to extisting array (no control is done here).
+     * @param[in] coords Is the pointer to array of float numbers initialized by higher classes.
+     *
+     * This function is used when some operations are done by another classes and new array is requiered to be set instead. (e.g.
+     * Zeroing unneeded space). This function just replace the pointer. No deletions or controls are implemented and the higher
+     * classes are responsible for doing so.
+     */
+    void setSyntheticCoordinatesPointer(float *coords);
+
+    /**
      * @brief Sets new array pointer of toas for all targets.
      * @param The only parameter is the array pointer of toas for all targets.
      *

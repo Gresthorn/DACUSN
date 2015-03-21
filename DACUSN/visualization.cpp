@@ -50,10 +50,10 @@ void MainWindow::visualizationSlot()
     // repaint scene
     visualizationScene->update();
 
+    qDebug() << "Items in scene: " << visualizationScene->items().count();
     qDebug() << "ELAPSED " << timer.nsecsElapsed();
 
 }
-
 
 animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<QPointF * > * visualization_Data, QList<QColor * > * visualization_Color, QMutex * visualization_Data_Mutex, uwbSettings * setts, QMutex * settings_mutex)
 {
@@ -72,6 +72,18 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<Q
     x_pixel = y_pixel = 0;
     x_width = y_width = 10;
 }
+
+/******************************************* CUSTOM OPENGL WIDGET ********************************************/
+/*************************************************************************************************************/
+/*************************************************************************************************************/
+/*************************************************************************************************************/
+
+openGLWidget::openGLWidget(QWidget *parent, const QGLWidget *shareWidget, Qt::WindowFlags f)
+    : QGLWidget(parent, shareWidget, f)
+{
+    // Ready to implement next stuff if needed
+}
+
 
 /******************************************* CUSTOM GRAPHICS VIEW ********************************************/
 /*************************************************************************************************************/
@@ -133,6 +145,21 @@ void radarView::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
 }
 
+void radarView::wheelEvent(QWheelEvent *event)
+{
+
+    double scaleFactor = 1.10;
+    if(event->delta()>0)
+    {
+        scale(scaleFactor, scaleFactor);
+    }
+    else
+    {
+        scale((1.0)/scaleFactor, (1.0)/scaleFactor);
+    }
+
+}
+
 void radarView::mouseMoveEvent(QMouseEvent *event)
 {
     settingsMutex->lock();
@@ -160,6 +187,12 @@ radarScene::radarScene(uwbSettings * setts, QMutex * settings_mutex, QObject *pa
     settingsMutex = settings_mutex;
 
     tappingSequence = false;
+}
+
+bool radarScene::isOpenGL(QPainter *painter)
+{
+    if(painter->paintEngine()->type()==QPaintEngine::OpenGL2) return true;
+    else return false;
 }
 
 void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
@@ -212,7 +245,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
                 detailedLines.append(QLineF(rect.left(), y, rect.right(), y));
 
             settingsMutex->lock();
-            painter->setPen(QPen(QBrush(*settings->getGridThreeColor()), 0.5, Qt::DotLine, Qt::RoundCap, Qt::RoundJoin));
+            painter->setPen(QPen(QBrush(*settings->getGridThreeColor()), 1.0, Qt::SolidLine));
             settingsMutex->unlock();
 
             painter->drawLines(detailedLines.data(), detailedLines.size());
@@ -290,7 +323,7 @@ void animationManager::launchCometItems()
         item = new cometItem(QPointF(x_pixel, y_pixel), 0.0, *visualizationColor->at(i));
 
 
-        QSequentialAnimationGroup * animationGroup = new QSequentialAnimationGroup;
+        QSequentialAnimationGroup * animationGroup = new QSequentialAnimationGroup(item);
 
         // rising animation
         QPropertyAnimation * resizeUp = new QPropertyAnimation(item, "size");
@@ -307,6 +340,8 @@ void animationManager::launchCometItems()
         animationGroup->addAnimation(resizeDown);
 
         visualizationScene->addItem(item);
+
+        connect(animationGroup, SIGNAL(finished()), this, SLOT(deleteAnimationGroup()));
 
         animationGroupList.append(animationGroup);
     }
@@ -363,6 +398,17 @@ void animationManager::hideAllCommonFlowSchemaObjects()
     for(i=0; i<ellipseList->count(); i++) if(ellipseList->at(i)->isVisible()) ellipseList->at(i)->hide();
 }
 
+void animationManager::deleteAnimationGroup()
+{
+    QSequentialAnimationGroup * group = qobject_cast<QSequentialAnimationGroup * >(sender());
+    cometItem * comItem = qobject_cast<cometItem * >(group->parent());
+
+    group->clear();
+
+    delete group;
+    delete comItem;
+}
+
 
 
 cometItem::cometItem(const QPointF &position, qreal size, QColor color) : QGraphicsEllipseItem()
@@ -382,4 +428,3 @@ void cometItem::setRectSize(qreal rectSize)
     // we need to set new coordinates of bounding rect so the circle is centered exactly at the 'position'
     setRect(targetPosition.x()-rectSize/2.0, targetPosition.y()-rectSize/2.0, rectSize, rectSize);
 }
-

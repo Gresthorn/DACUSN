@@ -10,6 +10,10 @@
 #include <QGraphicsObject>
 #include <QList>
 #include <QGridLayout>
+#include <QElapsedTimer>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QGLWidget>
 
 #include "uwbsettings.h"
 
@@ -87,6 +91,29 @@ private:
     QList<QGraphicsEllipseItem * > * ellipseList; ///< Is the vector of ellipses positioned in current target's [x,y]
 
 public slots:
+    /**
+     * @brief When animation group finishes its animation sequence, the 'finished()' signal emitted starts this slot, so all related objects can be safely deleted.
+     */
+    void deleteAnimationGroup(void);
+};
+
+/******************************************* CUSTOM OPENGL WIDGET ********************************************/
+
+class openGLWidget : public QGLWidget
+{
+    Q_OBJECT
+
+public:
+    /**
+     * @brief The 'openGLwidget' class is derived from original QGLWidget
+     *
+     * By setting the viewport to this widget allows using openGL rendering engine and therefore may
+     * improve performance capabilities of application. Also allows to use many features related with
+     * openGL including 3D rendering. Here by reimplementing different protected functions many other
+     * improvements can be achieved. Class is now prepared for future use.
+     *
+     */
+    openGLWidget(QWidget *parent = 0, const QGLWidget *shareWidget = 0, Qt::WindowFlags f = 0);
 };
 
 /******************************************* CUSTOM GRAPHICS VIEW ********************************************/
@@ -101,6 +128,12 @@ public:
      */
     radarView(class radarScene * scene, uwbSettings * setts, QMutex * settings_mutex, QWidget * parent = 0);
 
+    /**
+     * @brief Returns the pointer to 'QGLWidget', usually 'openGLWidget' if is present. Else returns NULL.
+     * @return The pointer to 'QGLWidget' or 'openGLWidget'.
+     */
+    openGLWidget * getOpenGLWidget(void) { return openGLW; }
+
 private:
     QGridLayout * radarViewLayout; ///< Grid layout for placing rulers or maybe in future another additional widgets.
     QWidget * emptyCorner; ///< Used to fill empty corner in grid layout.
@@ -108,10 +141,13 @@ private:
     uwbSettings * settings;
     QMutex * settingsMutex;
 
+    openGLWidget * openGLW; ///< Pointer to openGL widget if is present. Else this pointer must be NULL.
+
 protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 };
 
 /******************************************* CUSTOM GRAPHICS SCENE *******************************************/
@@ -136,7 +172,9 @@ private:
     uwbSettings * settings;
     QMutex * settingsMutex;
 
-    bool tappingSequence; ///< If user is tapping the scene, this value is set to true so rendering may check tapping options
+    bool tappingSequence; ///< If user is tapping the scene, this value is set to true so rendering may check tapping options.
+
+    bool isOpenGL(QPainter *painter); ///< Checks if the openGL functionality is availible and returns true if yes. Otherwise returns false.
 
 protected:
     /**

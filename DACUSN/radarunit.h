@@ -46,8 +46,6 @@ typedef int     word;                   ///< use 32-bit integer format
 #define uS                 (512)        ///< subsampling
 #define SPEED_OF_LIGHT     (3E8)
 
-#define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
-                                        ///< (max number of targets)
 #define LARGE_NUMBER       (100)        ///< arbitrary large value ...
 #define MIN_Y_COORDINATE  (0.02)        ///< points [x,y] with y<MIN_Y_COORDINATE => [0,0]
 #define EMPTY               (-1)
@@ -184,6 +182,12 @@ public:
      * @return The return value is lastly calculated y position.
      */
     float getTransformatedY(void) { return tempY; }
+
+    /**
+     * @brief Function takes the array and checks for maximum targets allowed. If array is big, length > MAX_N*2 macro are deleted and array is rescaled. If length < MAX_N*2, rest is zeroed.
+     * @param[in] array Is pointer to object holding the array that is required to process.
+     */
+    void zeroEmptyPositions(rawData * array);
 
 
 private:

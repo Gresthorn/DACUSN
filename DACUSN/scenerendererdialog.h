@@ -42,6 +42,9 @@ private slots:
     void colorSelectGridOneSlot(void);
     void colorSelectGridTwoSlot(void);
     void colorSelectGridThreeSlot(void);
+
+signals:
+    void renderingEngineChanged(rendering_engine);
 };
 
 #endif // SCENERENDERERDIALOG_H

@@ -32,12 +32,12 @@ bool radarUnit::processNewData(rawData *data)
     reciever_method method = data->getRecieverMethod();
 
     // constants for MTT
-    /*float r[] = {0.1, 0.01};
+    float r[] = {0.1, 0.01};
     float q[] = {0.0, 0.01, 0.0, 0.0001};
     float diff_d = 1.0;
     float diff_fi = 0.6;
     int min_NT = 10;
-    int min_OLGI = 10;*/
+    int min_OLGI = 10;
 
     //int i; // for cycle - test purposes
 
@@ -50,16 +50,14 @@ bool radarUnit::processNewData(rawData *data)
             qDebug() << "TARGET NUMBER: " << i << " X: " << data->getSyntheticCoordinates()[i*2] << " Y: " << data->getSyntheticCoordinates()[i*2+1];
         }*/
 
-        /*float * test = new float[10];
-        test[0] = 25.3;
-        test[1] = 30.2;test[2] = 25.3;
-        test[3] = 30.2;test[4] = 25.3;
-        test[5] = 30.2;*/
+        //float * test = new float[20];
+        //for(int j = 0; j<20; j++) test[j] = j;
 
-        //this->MTT(test, r, q, diff_d, diff_fi, min_OLGI, min_NT);
+        zeroEmptyPositions(data);
+        this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
 
         /*qDebug() << "COORDINATES AFTER: ";
-        for(i=0; i<data->getSyntheticTargetsCount(); i++)
+        for(int i=0; i<data->getSyntheticTargetsCount(); i++)
         {
             while(data->getSyntheticCoordinates()[i*2]<150) ++data->getSyntheticCoordinates()[i*2];
             while(data->getSyntheticCoordinates()[i*2+1]<150) ++data->getSyntheticCoordinates()[i*2+1];
@@ -166,8 +164,39 @@ void radarUnit::doTransformation(float x, float y)
     deleteMatrix(radarUnitCoordinateMatrix);
     deleteMatrix(productedPart);
     deleteMatrix(transformationResult);
+}
 
-    //qDebug() << "Ending transformation.............";
+void radarUnit::zeroEmptyPositions(rawData * array)
+{
+    // TOAS ARE NOT PROCESSED AS COORDINATES YET. SO FAR THERE WAS NO NEED TO DO THAT.
+    if(array==NULL) return;
+
+    int count = array->getSyntheticTargetsCount();
+    float * values = array->getSyntheticCoordinates();
+
+    if(count<MAX_N)
+    {
+        // if less than MAX_N, need to put zeros on unused positions
+        /*int i;
+        for(i=count; i<MAX_N; i++)
+        {
+            values[i*2] = values[i*2+1] = 0.0;
+        }*/
+    }
+    else if(count>MAX_N)
+    {
+        // if more, need to realloc array to fit the MTT requirements
+        float * newArr = new float[MAX_N*2];
+
+        memcpy(newArr, values, MAX_N*2*sizeof(float));
+
+        delete [] values;
+
+        values = newArr;
+    }
+
+    array->setSyntheticCoordinatesPointer(values);
+
 }
 
 /********************************************************************************************************/

@@ -63,6 +63,11 @@ void rawData::setSyntheticCoordinates(float *coords)
     }
 }
 
+void rawData::setSyntheticCoordinatesPointer(float *coords)
+{
+    if(coords!=NULL) syntheticData->coordinates = coords;
+}
+
 void rawData::setSyntheticToas(float *toas)
 {
     if(syntheticData!=NULL)

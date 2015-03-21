@@ -13,9 +13,12 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <layout class="QGridLayout" name="wrapperLayout">
       <item row="0" column="0">
        <layout class="QGridLayout" name="radarViewLayout">
@@ -24,10 +27,117 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="1">
-       <layout class="QGridLayout" name="additionalInfoLayout"/>
-      </item>
      </layout>
+    </item>
+    <item row="0" column="0">
+     <widget class="QWidget" name="sceneControlsWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>250</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>250</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="1" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QToolBox" name="sceneControlsToolBox">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(216, 216, 216)</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="tabSpacing">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="sceneControls">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>232</width>
+            <height>172</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <attribute name="label">
+           <string>Scene controls</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="1" column="0">
+            <widget class="QDial" name="rotationControlDial">
+             <property name="cursor">
+              <cursorShape>CrossCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: qconicalgradient(cx:0.5, cy:0.5, angle:0, stop:0 rgba(0, 0, 0, 118), stop:1 rgba(255, 255, 255, 255))</string>
+             </property>
+             <property name="minimum">
+              <number>-180</number>
+             </property>
+             <property name="maximum">
+              <number>180</number>
+             </property>
+             <property name="pageStep">
+              <number>1</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="sceneRotationLabel">
+             <property name="styleSheet">
+              <string notr="true">font-weight: bold;</string>
+             </property>
+             <property name="text">
+              <string>Scene rotation</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="basicIndicators">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>232</width>
+            <height>172</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Information</string>
+          </attribute>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

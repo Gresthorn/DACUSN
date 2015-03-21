@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>502</width>
     <height>300</height>
    </rect>
   </property>
@@ -187,6 +187,9 @@
         <property name="text">
          <string>Tapping sequence:</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -201,6 +204,33 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="renderingEngineLabel">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Rendering engine:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="renderingEngineComboBox">
+        <item>
+         <property name="text">
+          <string>Default Qt painter engine</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>OpenGL engine</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>

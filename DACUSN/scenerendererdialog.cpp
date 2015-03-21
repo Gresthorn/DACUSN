@@ -27,6 +27,8 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
 
     ui->targetDisplayMethodComboBox->setCurrentIndex(settings->getVisualizationSchema());
 
+    ui->renderingEngineComboBox->setCurrentIndex(settings->getRenderingEngine());
+
     settingsMutex->unlock();
 
 
@@ -64,6 +66,13 @@ void sceneRendererDialog::accepted()
     settings->setTappingRenderMethod((visualization_tapping_options)(ui->backgroundRenderingComboBox->currentIndex()));
 
     settings->setVisualizationSchema((visualization_schema)(ui->targetDisplayMethodComboBox->currentIndex()));
+
+    // switching rendering engine requires reestablishing all viewport so changing is done only if the combo box was changed to save performance
+    if(settings->getRenderingEngine()!=ui->renderingEngineComboBox->currentIndex())
+    {
+        settings->setRenderingEngine((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
+        emit renderingEngineChanged((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
+    }
 
     settingsMutex->unlock();
 }

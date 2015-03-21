@@ -20,11 +20,11 @@ uwbSettings::uwbSettings()
 
     visualizationSchema = COMMON_FLOW;
 
-    gridOneColor = new QColor(111, 111, 111, 255);
+    gridOneColor = new QColor(0, 0, 0, 255);
 
-    gridTwoColor = new QColor(111, 111, 111, 100);
+    gridTwoColor = new QColor(111, 111, 111, 255);
 
-    gridThreeColor = new QColor(0,0,0, 150);
+    gridThreeColor = new QColor(200,200,200, 255);
 
     backgroundColor = new QColor(255, 255, 255, 255);
 
@@ -35,6 +35,8 @@ uwbSettings::uwbSettings()
     gridThreeEnabled = true;
 
     tapping_opt = RENDER_EVERYTHING;
+
+    engine = STANDARD_QT_PAINTER;
 }
 
 uwbSettings::uwbSettings(char *config)

@@ -1,6 +1,9 @@
 #ifndef STDDEFS
 #define STDDEFS
 
+#define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
+                                        ///< (max number of targets)
+
 /**
  * @brief The reciever_method enum covers all possible kinds of recieve methods for UWB sensor network.
  */
@@ -27,6 +30,15 @@ enum visualization_tapping_options
     NO_3_2 = 3, ///< Will disable rendering 2nd and 3rd level grid.
     NO_BACKGROUND = 4, ///< Will stop rendering background during tapping.
     NO_SCENE_UPDATE = 5 ///< This option wil disable periodical scene update function during tapping.
+};
+
+/**
+ * @brief This enum allows to clearly categorize the engine that is used for rendering the scene.
+ */
+enum rendering_engine
+{
+    STANDARD_QT_PAINTER = 0, ///< If no QGLWidget is used in QGraphicsView but common QWidget is placed instead
+    OPEN_GL_ENGINE = 1 ///< If QGLWidget is used to render 2D scene
 };
 
 
