@@ -14,6 +14,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QGLWidget>
+#include <QRadialGradient>
 
 #include "uwbsettings.h"
 

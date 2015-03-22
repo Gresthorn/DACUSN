@@ -41,6 +41,15 @@ enum rendering_engine
     OPEN_GL_ENGINE = 1 ///< If QGLWidget is used to render 2D scene
 };
 
+/**
+ * @brief The rendering_engine_buffer_type enum specifies the buffering method of openGL rendering engine.
+ */
+enum rendering_engine_buffer_type
+{
+    SINGLE_BUFFERING = 0,
+    DOUBLE_BUFFERING = 1
+};
+
 
 #endif // STDDEFS
 

@@ -10,5 +10,6 @@
         <file>icons/radar_list.png</file>
         <file>icons/render.png</file>
         <file>icons/color_chart.png</file>
+        <file>icons/settings.png</file>
     </qresource>
 </RCC>

@@ -177,22 +177,34 @@ public:
     QColor * getGridThreeColor(void) { return gridThreeColor; }
 
     /**
-     * @brief Returns the new color value of the most basic/main grid.
+     * @brief Returns the color value of the scene background.
+     * @return The return value is the QColor pointer.
+     */
+    QColor * getBackgroundColor(void) { return backgroundColor; }
+
+    /**
+     * @brief Sets the new color value of the most basic/main grid.
      * @param[in] color Is the QColor pointer to newly generated color.
      */
     void setGridOneColor(QColor * color) { gridOneColor = color; }
 
     /**
-     * @brief Returns the new color value of the intermediate detailed grid.
+     * @brief Sets the new color value of the intermediate detailed grid.
      * @param[in] color Is the QColor pointer to newly generated color.
      */
     void setGridTwoColor(QColor * color) { gridTwoColor = color; }
 
     /**
-     * @brief Returns the new color value of the most smooth grid.
+     * @brief Sets the new color value of the most smooth grid.
      * @param[in] color Is the QColor pointer to newly generated color.
      */
     void setGridThreeColor(QColor * color) { gridThreeColor = color; }
+
+    /**
+     * @brief Sets the new color value for scene background.
+     * @param[in] color Is the QColor pointer to newly generated color.
+     */
+    void setBackgroundColor(QColor * color) { backgroundColor = color; }
 
     /**
      * @brief Allows to check if drawing grid of level one is enabled;
@@ -213,6 +225,12 @@ public:
     bool gridThreeIsEnabled(void) { return gridThreeEnabled; }
 
     /**
+     * @brief Allows to check if drawing background enabled;
+     * @return The return value is boolean value equal to true if the setting is enabled.
+     */
+    bool backgroundIsEnabled(void) { return backgroundColorEnabled; }
+
+    /**
      * @brief Allows to enable/disable first level of grid.
      * @param[in] enable The new enable/disable value for grid.
      */
@@ -229,6 +247,12 @@ public:
      * @param[in] enable The new enable/disable value for grid.
      */
     void setGridThreeEnable(bool enable) { gridThreeEnabled = enable; }
+
+    /**
+     * @brief Allows to enable/disable background of the scene.
+     * @param[in] enable The new enable/disable value for background.
+     */
+    void setBackgroundColorEnable(bool enable) { backgroundColorEnabled = enable; }
 
     /**
      * @brief Returns the tapping rendering method selected by user which allows to save some performance by not rendering everything in the scene.
@@ -254,6 +278,42 @@ public:
       */
     void setRenderingEngine(rendering_engine new_engine) { engine = new_engine; }
 
+    /** THE FOLLOWING FUNCTIONS ARE ABLE TO RETRIEVE BASIC OPENGL SETTINGS **/
+
+    rendering_engine_buffer_type oglGetBufferType(void) { return ogl_buffering_type; }
+    bool oglGetDirectRendering(void) { return ogl_direct_rendering; }
+    bool oglGetDepthBuffer(void) { return ogl_depth_buffer; }
+    bool oglGetAccumulationBuffer(void) { return ogl_accumulation_buffer; }
+    bool oglGetStencilBuffer(void) { return ogl_stencil_buffer; }
+    bool oglGetMultisampleBuffer(void) { return ogl_multisample_buffer; }
+    int oglGetSwapInterval(void) { return ogl_swap_interval; }
+    int oglGetMultisampleBufferSize(void) { return ogl_multisample_buffer_size; }
+    int oglGetStencilBufferSize(void) { return ogl_stencil_buffer_size; }
+    int oglGetAccumulationBufferSize(void) { return ogl_accumulation_buffer_size; }
+    int oglGetDepthBufferSize(void) { return ogl_depth_buffer_size; }
+    int oglGetRedBufferSize(void) { return ogl_red_buffer_size; }
+    int oglGetGreenBufferSize(void) { return ogl_green_buffer_size; }
+    int oglGetBlueBufferSize(void) { return ogl_blue_buffer_size; }
+    int oglGetAlphaBufferSize(void) { return ogl_alpha_buffer_size; }
+
+    /** THE FOLLOWING FUNCTIONS ARE ABLE TO SET BASIC OPENGL SETTINGS **/
+
+    void oglSetBufferType(rendering_engine_buffer_type type) { ogl_buffering_type = type; }
+    void oglSetDirectRendering(bool enabled) { ogl_direct_rendering = enabled; }
+    void oglSetDepthBuffer(bool enabled) { ogl_depth_buffer = enabled; }
+    void oglSetAccumulationBuffer(bool enabled) { ogl_accumulation_buffer = enabled; }
+    void oglSetStencilBuffer(bool enabled) { ogl_stencil_buffer = enabled; }
+    void oglSetMultisampleBuffer(bool enabled) { ogl_multisample_buffer = enabled; }
+    void oglSetSwapInterval(int value) { ogl_swap_interval = value; }
+    void oglSetMultisampleBufferSize(int value) { ogl_multisample_buffer_size = value; }
+    void oglSetStencilBufferSize(int value) { ogl_stencil_buffer_size = value; }
+    void oglSetAccumulationBufferSize(int value) { ogl_accumulation_buffer_size = value; }
+    void oglSetDepthBufferSize(int value) { ogl_depth_buffer_size = value; }
+    void oglSetRedBufferSize(int value) { ogl_red_buffer_size = value; }
+    void oglSetGreenBufferSize(int value) { ogl_green_buffer_size = value; }
+    void oglSetBlueBufferSize(int value) { ogl_blue_buffer_size = value; }
+    void oglSetAlphaBufferSize(int value) { ogl_alpha_buffer_size = value; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -273,13 +333,35 @@ private:
     QColor * gridThreeColor; ///< Is the pointer to the color of the most smooth grid.
     QColor * backgroundColor; ///< Represents the background color of the scene.
 
-    bool gridOneEnabled; ///< Specify if drawing of grid level one is enabled
-    bool gridTwoEnabled; ///< Specify if drawing of grid level two is enabled
-    bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled
+    bool gridOneEnabled; ///< Specify if drawing of grid level one is enabled.
+    bool gridTwoEnabled; ///< Specify if drawing of grid level two is enabled.
+    bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled.
+    bool backgroundColorEnabled; ///< Specify if drawing of background is enabled.
 
     visualization_tapping_options tapping_opt; ///< Holds the information about what rendering method is choosed while tapping.
 
     rendering_engine engine; ///< Holds the information about what rendering engine is used by graphics view to visualize objects.
+
+    rendering_engine_buffer_type ogl_buffering_type; ///< Specifies the buffer type if openGL rendering engine is on
+
+    ///< The following variables are basic options for openGL rendering engine.
+    bool ogl_direct_rendering;
+    int ogl_red_buffer_size;
+    int ogl_green_buffer_size;
+    int ogl_blue_buffer_size;
+    int ogl_alpha_buffer_size;
+
+    bool ogl_depth_buffer;
+    bool ogl_accumulation_buffer;
+    bool ogl_stencil_buffer;
+    bool ogl_multisample_buffer;
+    int ogl_swap_interval;
+
+    int ogl_depth_buffer_size;
+    int ogl_accumulation_buffer_size;
+    int ogl_stencil_buffer_size;
+    int ogl_multisample_buffer_size;
+
 };
 
 #endif // UWBSETTINGS_H

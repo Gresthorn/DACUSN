@@ -34,9 +34,30 @@ uwbSettings::uwbSettings()
 
     gridThreeEnabled = true;
 
+    backgroundColorEnabled = true;
+
     tapping_opt = RENDER_EVERYTHING;
 
     engine = STANDARD_QT_PAINTER;
+
+    ogl_buffering_type = DOUBLE_BUFFERING;
+
+    ogl_direct_rendering = true;
+    ogl_red_buffer_size = -1;
+    ogl_green_buffer_size = -1;
+    ogl_blue_buffer_size = -1;
+    ogl_alpha_buffer_size = -1;
+
+    ogl_depth_buffer = true;
+    ogl_accumulation_buffer = false;
+    ogl_stencil_buffer = false;
+    ogl_multisample_buffer = true;
+    ogl_swap_interval = -1;
+
+    ogl_depth_buffer_size = -1;
+    ogl_accumulation_buffer_size = -1;
+    ogl_stencil_buffer_size = -1;
+    ogl_multisample_buffer_size = -1;
 }
 
 uwbSettings::uwbSettings(char *config)

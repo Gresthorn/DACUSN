@@ -6,24 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>502</width>
-    <height>300</height>
+    <width>734</width>
+    <height>490</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Scene grid and rendering options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QGroupBox" name="sceneOptionsGroupBox">
      <property name="minimumSize">
@@ -36,40 +26,6 @@
       <string>Scene options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="gridOneCheckBox">
-        <property name="text">
-         <string>Grid #1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="gridTwoCheckBox">
-        <property name="text">
-         <string>Grid #2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="gridThreeCheckBox">
-        <property name="text">
-         <string>Grid #3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="2" column="2">
        <widget class="QPushButton" name="colorPickerGridThree">
         <property name="styleSheet">
@@ -82,19 +38,55 @@
          <iconset resource="icons.qrc">
           <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="colorPickerGridTwo">
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="gridThreeCheckBox">
+        <property name="text">
+         <string>Grid #3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="gridTwoCheckBox">
+        <property name="text">
+         <string>Grid #2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="gridOneCheckBox">
+        <property name="text">
+         <string>Grid #1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="targetsDisplayMethodLabel">
         <property name="styleSheet">
-         <string notr="true">border:none;</string>
+         <string notr="true">font-weight: bold;</string>
         </property>
         <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
+         <string>Display method: </string>
         </property>
        </widget>
       </item>
@@ -110,9 +102,15 @@
          <iconset resource="icons.qrc">
           <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="2">
        <widget class="QComboBox" name="targetDisplayMethodComboBox">
         <item>
          <property name="text">
@@ -126,21 +124,68 @@
         </item>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="targetsDisplayMethodLabel">
+      <item row="1" column="2">
+       <widget class="QPushButton" name="colorPickerGridTwo">
         <property name="styleSheet">
-         <string notr="true">font-weight: bold;</string>
+         <string notr="true">border:none;</string>
         </property>
         <property name="text">
-         <string>TextLabel: </string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="backgroundCheckBox">
+        <property name="text">
+         <string>Background</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="backgroundColorButton">
+        <property name="styleSheet">
+         <string notr="true">border:none;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
+   <item row="1" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="openGLsettingsGroupBox">
      <property name="title">
       <string>Rendering options</string>
      </property>
@@ -179,20 +224,7 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="tappingSeqLabel">
-        <property name="styleSheet">
-         <string notr="true">font-weight: bold</string>
-        </property>
-        <property name="text">
-         <string>Tapping sequence:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
+      <item row="5" column="0">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -205,13 +237,13 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="renderingEngineLabel">
+      <item row="0" column="0">
+       <widget class="QLabel" name="tappingSeqLabel">
         <property name="styleSheet">
-         <string notr="true">font-weight: bold;</string>
+         <string notr="true">font-weight: bold</string>
         </property>
         <property name="text">
-         <string>Rendering engine:</string>
+         <string>Tapping sequence:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -230,6 +262,242 @@
           <string>OpenGL engine</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>OpenGL</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="5" column="3">
+          <widget class="QSpinBox" name="greenSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="redSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="6" colspan="2">
+          <widget class="QSpinBox" name="depthBufferSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="6">
+          <widget class="QCheckBox" name="depthBufferCheckBox">
+           <property name="text">
+            <string>Depth buffer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="6" colspan="2">
+          <widget class="QSpinBox" name="accumulationBufferSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="6" colspan="2">
+          <widget class="QSpinBox" name="stencilBufferSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="6">
+          <widget class="QCheckBox" name="accumulationBufferCheckBox">
+           <property name="text">
+            <string>Accumulation buffer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="6" colspan="2">
+          <widget class="QSpinBox" name="multisamplesBuffersSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="6">
+          <widget class="QCheckBox" name="multisampleBuffersCheckBox">
+           <property name="text">
+            <string>Multisample buffers</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="8">
+          <widget class="QCheckBox" name="directRenderingCheckBox">
+           <property name="text">
+            <string>Direct rendering</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="8">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="6">
+          <widget class="QCheckBox" name="stencilBufferCheckBox">
+           <property name="text">
+            <string>Stencil buffer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="6">
+          <widget class="QLabel" name="swapIntervalLabel">
+           <property name="text">
+            <string>Swap interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="6" colspan="2">
+          <widget class="QSpinBox" name="swapIntervalSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="7">
+          <widget class="QSpinBox" name="alphaSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="4">
+          <widget class="QRadioButton" name="singleBufferingRadio">
+           <property name="text">
+            <string>Single buffering</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="8">
+          <widget class="QLabel" name="label">
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold;</string>
+           </property>
+           <property name="text">
+            <string>Buffer sizes:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4" colspan="4">
+          <widget class="QRadioButton" name="doubleBufferingRadio">
+           <property name="text">
+            <string>Double buffering</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="redLabel">
+           <property name="text">
+            <string>R:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="4">
+          <widget class="QLabel" name="blueLabel">
+           <property name="text">
+            <string>B:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="greenLabel">
+           <property name="text">
+            <string>G:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="6">
+          <widget class="QLabel" name="alphaLabel">
+           <property name="text">
+            <string>Alpha:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="5">
+          <widget class="QSpinBox" name="blueSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="8">
+          <widget class="QLabel" name="label_2">
+           <property name="styleSheet">
+            <string notr="true">font-weight: bold;font-style: italic;</string>
+           </property>
+           <property name="text">
+            <string>* (-1) as a buffer size will cause default selection of buffer sizes</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QGroupBox" name="commonSettingsGroupBox">
+        <property name="title">
+         <string>Common settings</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="renderingEngineLabel">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Rendering engine:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
      </layout>
@@ -274,4 +542,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

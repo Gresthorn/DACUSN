@@ -75,10 +75,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
     visualizationTimer->setInterval(settings->getVisualizationInterval());
 
-    sceneRotationLastDialValue = 0;
-    connect(ui->rotationControlDial, SIGNAL(valueChanged(int)), this, SLOT(sceneRotationChanged(int)));
-
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
+
+
+    /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
+
+    sceneRotation = 0;
+    connect(ui->rotationControlDial, SIGNAL(valueChanged(int)), this, SLOT(sceneRotationChangedSlot(int)));
+    connect(ui->sceneRotationSettingsButton, SIGNAL(clicked()), this, SLOT(sceneRotationManualChangeSlot()));
+
+    /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
+
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -88,23 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionScene_renderer, SIGNAL(triggered()), this, SLOT(openSceneRendererDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
-
-    /*for(int a=0; a<150; a++)
-    {
-        float * coords = new float[6];
-        for(int i = 0; i<6; i++) coords[i] = (float)i;
-        rawData * test = new rawData;
-        test->setRecieverMethod(SYNTHETIC);
-        test->setSyntheticRadarId(1);
-        test->setSyntheticTime(0.75);
-        test->setSyntheticTargetsCount(3);
-        test->setSyntheticCoordinates(coords);
-
-        radarUnit * testUnit = new radarUnit(1);
-        testUnit->processNewData(test);
-
-        delete test;
-    }*/
 }
 
 MainWindow::~MainWindow()
@@ -113,42 +103,6 @@ MainWindow::~MainWindow()
     this->destroyDataInputThreadSlot();
 
     delete ui;
-}
-
-void MainWindow::renderingEngineChanged(rendering_engine rengine)
-{
-    if(rengine==OPEN_GL_ENGINE)
-    {
-        openGLWidget * t = new openGLWidget;
-        QGLFormat qglformat;
-        qglformat.setSampleBuffers(true);
-        qglformat.setDepth(true);
-        qglformat.setDirectRendering(true);
-
-        t->setFormat(qglformat);
-
-        visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-
-        visualizationView->setViewport(t);
-
-        visualizationView->viewport()->update();
-        visualizationView->scene()->update();
-    }
-    else
-    {
-        visualizationView->setViewport(new QWidget);
-
-        visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-
-        visualizationView->viewport()->update();
-        visualizationView->scene()->update();
-    }
-}
-
-void MainWindow::sceneRotationChanged(int angle)
-{
-    visualizationView->rotate(angle-sceneRotationLastDialValue);
-    sceneRotationLastDialValue = angle;
 }
 
 void MainWindow::pauseDataInputSlot()
@@ -358,6 +312,93 @@ void MainWindow::destroyStackManagementThread()
 }
 
 
+/* ------------------------------------------------- VISUALIZATION SLOTS -------------------------------------------- */
+
+void MainWindow::renderingEngineChangedSlot(rendering_engine rengine)
+{
+    if(rengine==OPEN_GL_ENGINE)
+    {
+        openGLWidget * t = new openGLWidget;
+        setOglEngineFormatSlot(t);
+
+        visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+
+        visualizationView->setViewport(t);
+
+        visualizationView->viewport()->update();
+        visualizationView->scene()->update();
+    }
+    else
+    {
+        visualizationView->setViewport(new QWidget);
+
+        visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+
+        visualizationView->viewport()->update();
+        visualizationView->scene()->update();
+    }
+}
+
+void MainWindow::setOglEngineFormatSlot(openGLWidget * oglwidget)
+{
+    settingsMutex->lock();
+
+    QGLFormat oglformat;
+    if(settings->oglGetBufferType()==DOUBLE_BUFFERING)
+    {
+        oglformat.setDoubleBuffer(true);
+    }
+    else
+    {
+        oglformat.setDoubleBuffer(false);
+    }
+    oglformat.setDirectRendering(settings->oglGetDirectRendering());
+    oglformat.setAccum(settings->oglGetAccumulationBuffer());
+    oglformat.setStencil(settings->oglGetStencilBuffer());
+    oglformat.setSampleBuffers(settings->oglGetMultisampleBuffer());
+
+    oglformat.setRedBufferSize(settings->oglGetRedBufferSize());
+    oglformat.setGreenBufferSize(settings->oglGetGreenBufferSize());
+    oglformat.setBlueBufferSize(settings->oglGetBlueBufferSize());
+    oglformat.setAlphaBufferSize(settings->oglGetAlphaBufferSize());
+    oglformat.setDepthBufferSize(settings->oglGetDepthBufferSize());
+    oglformat.setAccumBufferSize(settings->oglGetAccumulationBufferSize());
+    oglformat.setStencilBufferSize(settings->oglGetStencilBufferSize());
+    oglformat.setSamples(settings->oglGetMultisampleBufferSize());
+    oglformat.setSwapInterval(settings->oglGetSwapInterval());
+
+    oglwidget->setFormat(oglformat);
+
+    settingsMutex->unlock();
+}
+
+void MainWindow::sceneRotationChangedSlot(int angle)
+{
+    QTransform transform;
+
+    sceneRotation = angle;
+
+    transform.rotate(sceneRotation);
+
+    visualizationView->setTransform(transform);
+
+    ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(sceneRotation));
+}
+
+void MainWindow::sceneRotationManualChangeSlot()
+{
+    QTransform transform;
+
+    sceneRotation = QInputDialog::getDouble(this, tr("Enter the scene rotation angle."), tr("Scene rotation angle: "), sceneRotation, -180.0, 180.0);
+
+    transform.rotate(sceneRotation);
+
+    visualizationView->setTransform(transform);
+
+    ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(sceneRotation));
+    ui->rotationControlDial->setValue(sceneRotation);
+}
+
 
 
 /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
@@ -386,7 +427,7 @@ void MainWindow::openRadarListDialog()
 void MainWindow::openSceneRendererDialog()
 {
     sceneRendererDialog dialog(settings, settingsMutex, visualizationScene, visualizationView, this);
-    connect(&dialog, SIGNAL(renderingEngineChanged(rendering_engine)), this, SLOT(renderingEngineChanged(rendering_engine)));
+    connect(&dialog, SIGNAL(renderingEngineChanged(rendering_engine)), this, SLOT(renderingEngineChangedSlot(rendering_engine)));
 
     dialog.exec();
 }

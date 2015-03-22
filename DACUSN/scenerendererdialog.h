@@ -33,6 +33,7 @@ private:
     QColor * gridOneColor;
     QColor * gridTwoColor;
     QColor * gridThreeColor;
+    QColor * backgroundColor;
 
     Ui::sceneRendererDialog *ui;
 
@@ -42,6 +43,7 @@ private slots:
     void colorSelectGridOneSlot(void);
     void colorSelectGridTwoSlot(void);
     void colorSelectGridThreeSlot(void);
+    void colorSelectionBackgroundSlot(void);
 
 signals:
     void renderingEngineChanged(rendering_engine);

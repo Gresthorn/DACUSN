@@ -68,7 +68,7 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<Q
     visualizationColor = visualization_Color;
     visualizationDataMutex = visualization_Data_Mutex;
 
-    meter_to_pixel_ratio = 20;
+    meter_to_pixel_ratio = 50;
     x_pixel = y_pixel = 0;
     x_width = y_width = 10;
 }
@@ -111,7 +111,7 @@ radarView::radarView(radarScene *scene, uwbSettings * setts, QMutex * settings_m
 
     // setting up scene
     setScene(scene);
-    setSceneRect(-50000.0, -50000.0, 100000, 100000);
+    setSceneRect(-50000.0, -50000.0, 100000.0, 100000.0);
     scale(1.0, -1.0);
     centerOn(0.0, 0.0);
 
@@ -197,6 +197,24 @@ bool radarScene::isOpenGL(QPainter *painter)
 
 void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
+    // draw background with needed colors
+    bool drawBackgroundEnabled;
+    settingsMutex->lock();
+        drawBackgroundEnabled = settings->backgroundIsEnabled();
+    settingsMutex->unlock();
+
+    if(drawBackgroundEnabled)
+    {
+        QColor * backgroundColor;
+        settingsMutex->lock();
+            backgroundColor = settings->getBackgroundColor();
+        settingsMutex->unlock();
+
+        QBrush background(*backgroundColor, Qt::SolidPattern);
+        painter->fillRect(rect, background);
+    }
+
+
     visualization_tapping_options tapping_opt;
 
     settingsMutex->lock();
@@ -292,7 +310,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
         lines.append(QLineF(rect.left(), 0.0, rect.right(), 0.0));
 
         settingsMutex->lock();
-        painter->setPen(QPen(QBrush(*settings->getGridOneColor()), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setPen(QPen(QBrush(*settings->getGridOneColor()), 4.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         settingsMutex->unlock();
 
         painter->drawLines(lines.data(), lines.size());

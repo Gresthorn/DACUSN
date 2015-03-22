@@ -18,16 +18,40 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
     gridOneColor = new QColor(*settings->getGridOneColor());
     gridTwoColor = new QColor(*settings->getGridTwoColor());
     gridThreeColor = new QColor(*settings->getGridThreeColor());
+    backgroundColor = new QColor(*settings->getBackgroundColor());
 
     ui->gridOneCheckBox->setChecked(settings->gridOneIsEnabled());
     ui->gridTwoCheckBox->setChecked(settings->gridTwoIsEnabled());
     ui->gridThreeCheckBox->setChecked(settings->gridThreeIsEnabled());
+    ui->backgroundCheckBox->setChecked(settings->backgroundIsEnabled());
 
     ui->backgroundRenderingComboBox->setCurrentIndex(settings->getTappingRenderMethod());
 
     ui->targetDisplayMethodComboBox->setCurrentIndex(settings->getVisualizationSchema());
 
     ui->renderingEngineComboBox->setCurrentIndex(settings->getRenderingEngine());
+
+    // OpenGL settings
+
+    if(settings->oglGetBufferType() == DOUBLE_BUFFERING) ui->doubleBufferingRadio->setChecked(true);
+    else if(settings->oglGetBufferType() == SINGLE_BUFFERING) ui->singleBufferingRadio->setChecked(true);
+
+    ui->directRenderingCheckBox->setChecked(settings->oglGetDirectRendering());
+    ui->depthBufferCheckBox->setChecked(settings->oglGetDepthBuffer());
+    ui->accumulationBufferCheckBox->setChecked(settings->oglGetAccumulationBuffer());
+    ui->stencilBufferCheckBox->setChecked(settings->oglGetStencilBuffer());
+    ui->multisampleBuffersCheckBox->setChecked(settings->oglGetMultisampleBuffer());
+
+    ui->redSpinBox->setValue(settings->oglGetRedBufferSize());
+    ui->greenSpinBox->setValue(settings->oglGetGreenBufferSize());
+    ui->blueSpinBox->setValue(settings->oglGetBlueBufferSize());
+    ui->alphaSpinBox->setValue(settings->oglGetAlphaBufferSize());
+    ui->depthBufferSpinBox->setValue(settings->oglGetDepthBufferSize());
+    ui->accumulationBufferSpinBox->setValue(settings->oglGetAccumulationBufferSize());
+    ui->stencilBufferSpinBox->setValue(settings->oglGetStencilBufferSize());
+    ui->multisamplesBuffersSpinBox->setValue(settings->oglGetMultisampleBufferSize());
+    ui->swapIntervalSpinBox->setValue(settings->oglGetSwapInterval());
+
 
     settingsMutex->unlock();
 
@@ -38,6 +62,8 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
     connect(ui->colorPickerGridTwo, SIGNAL(clicked()), SLOT(colorSelectGridTwoSlot()));
 
     connect(ui->colorPickerGridThree, SIGNAL(clicked()), SLOT(colorSelectGridThreeSlot()));
+
+    connect(ui->backgroundColorButton, SIGNAL(clicked()), SLOT(colorSelectionBackgroundSlot()));
 
     connect(this, SIGNAL(accepted()), this, SLOT(accepted()));
 }
@@ -58,23 +84,42 @@ void sceneRendererDialog::accepted()
     settings->setGridOneColor(gridOneColor);
     settings->setGridTwoColor(gridTwoColor);
     settings->setGridThreeColor(gridThreeColor);
+    settings->setBackgroundColor(backgroundColor);
 
     settings->setGridOneEnable(ui->gridOneCheckBox->isChecked());
     settings->setGridTwoEnable(ui->gridTwoCheckBox->isChecked());
     settings->setGridThreeEnable(ui->gridThreeCheckBox->isChecked());
+    settings->setBackgroundColorEnable(ui->backgroundCheckBox->isChecked());
 
     settings->setTappingRenderMethod((visualization_tapping_options)(ui->backgroundRenderingComboBox->currentIndex()));
 
     settings->setVisualizationSchema((visualization_schema)(ui->targetDisplayMethodComboBox->currentIndex()));
 
-    // switching rendering engine requires reestablishing all viewport so changing is done only if the combo box was changed to save performance
-    if(settings->getRenderingEngine()!=ui->renderingEngineComboBox->currentIndex())
-    {
-        settings->setRenderingEngine((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
-        emit renderingEngineChanged((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
-    }
+    if(ui->doubleBufferingRadio->isChecked()) settings->oglSetBufferType(DOUBLE_BUFFERING);
+    else if(ui->singleBufferingRadio->isChecked()) settings->oglSetBufferType(SINGLE_BUFFERING);
+
+    settings->oglSetDirectRendering(ui->directRenderingCheckBox->isChecked());
+    settings->oglSetDepthBuffer(ui->depthBufferCheckBox->isChecked());
+    settings->oglSetAccumulationBuffer(ui->accumulationBufferCheckBox->isChecked());
+    settings->oglSetStencilBuffer(ui->stencilBufferCheckBox->isChecked());
+    settings->oglSetMultisampleBuffer(ui->multisampleBuffersCheckBox->isChecked());
+
+    settings->oglSetRedBufferSize(ui->redSpinBox->value());
+    settings->oglSetGreenBufferSize(ui->greenSpinBox->value());
+    settings->oglSetBlueBufferSize(ui->blueSpinBox->value());
+    settings->oglSetAlphaBufferSize(ui->alphaSpinBox->value());
+    settings->oglSetDepthBufferSize(ui->depthBufferSpinBox->value());
+    settings->oglSetAccumulationBufferSize(ui->accumulationBufferSpinBox->value());
+    settings->oglSetStencilBufferSize(ui->stencilBufferSpinBox->value());
+    settings->oglSetMultisampleBufferSize(ui->multisamplesBuffersSpinBox->value());
+    settings->oglSetSwapInterval(ui->swapIntervalSpinBox->value());
+
+
+    settings->setRenderingEngine((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
 
     settingsMutex->unlock();
+
+    emit renderingEngineChanged((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
 }
 
 void sceneRendererDialog::colorSelectGridTwoSlot()
@@ -99,4 +144,12 @@ void sceneRendererDialog::colorSelectGridOneSlot()
     gridOneColor = new QColor(QColorDialog::getColor(*gridOneColor, this, tr("Select color for grid #1")));
     if(gridOneColor) delete temp;
     else gridOneColor = temp;
+}
+
+void sceneRendererDialog::colorSelectionBackgroundSlot()
+{
+    QColor * temp = backgroundColor;
+    backgroundColor = new QColor(QColorDialog::getColor(*backgroundColor, this, tr("Select color for scene background")));
+    if(backgroundColor) delete temp;
+    else backgroundColor = temp;
 }

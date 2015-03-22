@@ -12,6 +12,7 @@
 
 #include <QDebug>
 
+#include <QInputDialog>
 #include "datainputdialog.h"
 #include "stackmanagerdialog.h"
 #include "radarlistdialog.h"
@@ -105,13 +106,23 @@ public slots:
     /**
      * @brief If the rendering engine was changed in rendering settings via dialog window, this slot ensures safe switching to new engine.
      */
-    void renderingEngineChanged(rendering_engine rengine);
+    void renderingEngineChangedSlot(rendering_engine rengine);
+
+    /**
+     * @brief This slot is called when from the renderer dialog, openGL engine is detected and flags are required to be set from settings
+     */
+    void setOglEngineFormatSlot(openGLWidget * oglwidget);
 
     /**
      * @brief When user changes rotation with dial widget, the scene can be accessed via slot to change the rotation angle value.
      * @param[in] angle Is the new rotation angle in degrees.
      */
-    void sceneRotationChanged(int angle);
+    void sceneRotationChangedSlot(int angle);
+
+    /**
+     * @brief Is slot evoked after user clicks the button for manual rotation angle select.
+     */
+    void sceneRotationManualChangeSlot(void);
 
 private slots:
 
@@ -155,7 +166,7 @@ private:
 
     visualization_schema lastKnownSchema; ///< Is the lastly known visualization schema. Used when user suddenly changes schema during rendering and some clear functions are needed.
 
-    int sceneRotationLastDialValue; ///< Holds the last known slider value. Used for correct scene rotation.
+    double sceneRotation; ///< Holds the last known slider value. Used for correct scene rotation.
 };
 
 #endif // MAINWINDOW_H
