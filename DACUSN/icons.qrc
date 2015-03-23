@@ -11,5 +11,7 @@
         <file>icons/render.png</file>
         <file>icons/color_chart.png</file>
         <file>icons/settings.png</file>
+        <file>icons/move_to.png</file>
+        <file>icons/center_to_zero.png</file>
     </qresource>
 </RCC>

@@ -24,6 +24,7 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
     ui->gridTwoCheckBox->setChecked(settings->gridTwoIsEnabled());
     ui->gridThreeCheckBox->setChecked(settings->gridThreeIsEnabled());
     ui->backgroundCheckBox->setChecked(settings->backgroundIsEnabled());
+    ui->allowSmoothTransitionsCheckBox->setChecked(settings->getSmoothTransitions());
 
     ui->backgroundRenderingComboBox->setCurrentIndex(settings->getTappingRenderMethod());
 
@@ -90,6 +91,7 @@ void sceneRendererDialog::accepted()
     settings->setGridTwoEnable(ui->gridTwoCheckBox->isChecked());
     settings->setGridThreeEnable(ui->gridThreeCheckBox->isChecked());
     settings->setBackgroundColorEnable(ui->backgroundCheckBox->isChecked());
+    settings->setSmootheTransitions(ui->allowSmoothTransitionsCheckBox->isChecked());
 
     settings->setTappingRenderMethod((visualization_tapping_options)(ui->backgroundRenderingComboBox->currentIndex()));
 

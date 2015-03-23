@@ -36,6 +36,8 @@ uwbSettings::uwbSettings()
 
     backgroundColorEnabled = true;
 
+    smoothTransitions = true;
+
     tapping_opt = RENDER_EVERYTHING;
 
     engine = STANDARD_QT_PAINTER;

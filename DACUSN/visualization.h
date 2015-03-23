@@ -15,6 +15,7 @@
 #include <QWheelEvent>
 #include <QGLWidget>
 #include <QRadialGradient>
+#include <QGraphicsTextItem>
 
 #include "uwbsettings.h"
 
@@ -121,6 +122,9 @@ public:
 
 class radarView : public QGraphicsView
 {
+
+    Q_OBJECT
+
 public:
     /**
      * @brief The constructor sets basic parameters of the view and creates grid layout to allow rulers to be displayed in widget.
@@ -135,6 +139,16 @@ public:
      */
     openGLWidget * getOpenGLWidget(void) { return openGLW; }
 
+    /**
+     * @brief This derived class can hold additional parameter about rotation angle that user has set up and retrieved it when needed.
+     * @return The return value is the current rotation angle.
+     */
+    double getRotationAngle(void) { return currentRotation; }
+
+    void moveToXYAnimation(const QPointF & target);
+
+    void setRotationAngleAnimation(int target);
+
 private:
     QGridLayout * radarViewLayout; ///< Grid layout for placing rulers or maybe in future another additional widgets.
     QWidget * emptyCorner; ///< Used to fill empty corner in grid layout.
@@ -144,11 +158,33 @@ private:
 
     openGLWidget * openGLW; ///< Pointer to openGL widget if is present. Else this pointer must be NULL.
 
+    double scaleFactor; ///< Represents the scale factor by which axis are multiplied when making zooming effect.
+    short scaleDepth; ///< When smooth effect is enabled, this number is used for indicating the QTimer maximum repetitions doing multiplication axis by 'scaleFactor'.
+    short scaleCounter; ///< Used for controlling if the 'scaleDepth' is reached.
+    short scaleCounterGlobal; ///< Used for controlling the absolute scale state ('scaleCounter' is periodically zeroed after the animation is finished so after several scales we do not know what scale is the current). The current scale is scaleFactor*scaleCounterGlobal*scaleDepth.
+
+    double dx; ///< Is the interval that is added to current x center position during animated centering.
+    double dy; ///< Is the interval that is added to current y center position during animated centering.
+    int moveToXYCounter; ///< Is used for couning the steps. Each centering takes 2 seconds (default).
+    int moveToXYSteps; ///< Specifies how many steps should it take to center on some position.
+    QPointF targetPoint; ///< Holds the target position where we want to center on.
+
+    double currentRotation; ///< Holds the information about current scene rotation angle.
+    int targetAngle; ///< Is the target angle during smooth transition rotation animation.
+    int angleStep; ///< Is the step added to angle during animation.
+
 protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
+
+public slots:
+    void scaleInSlot(void);
+    void scaleOutSlot(void);
+    void setRotationAngle(int angle);
+    void centerOnXYAnimationSlot(void);
+    void sceneRotationAnimationSlot(void);
 };
 
 /******************************************* CUSTOM GRAPHICS SCENE *******************************************/
@@ -220,6 +256,8 @@ private:
     qreal size; ///< Is the current size of item representing object. This value is animated and changed by animation property. Note that this class is drawing circles, so bounding is in fact square represented by this parameter.
     QPointF targetPosition; ///< Is the target position from where bounding rect corners are calculated.
 };
+
+
 
 #endif // VISUALIZATION
 

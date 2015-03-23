@@ -17,6 +17,7 @@
 #include "stackmanagerdialog.h"
 #include "radarlistdialog.h"
 #include "scenerendererdialog.h"
+#include "coordinatesinputdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -116,6 +117,7 @@ public slots:
     /**
      * @brief When user changes rotation with dial widget, the scene can be accessed via slot to change the rotation angle value.
      * @param[in] angle Is the new rotation angle in degrees.
+     * @param[in] animation Is parameter specifying if the angle is being changed from animation sequence. If yes, the value is set to true and the slot will not use 'centerOn' function.
      */
     void sceneRotationChangedSlot(int angle);
 
@@ -123,6 +125,16 @@ public slots:
      * @brief Is slot evoked after user clicks the button for manual rotation angle select.
      */
     void sceneRotationManualChangeSlot(void);
+
+    /**
+     * @brief This slot is called when user clicks appropriate button to move center of the scene on specific [x, y] point.
+     */
+    void sceneMoveToXYSlot(void);
+
+    /**
+     * @brief Center view to [0, 0] coordinates and restores the view of angle to zero.
+     */
+    void centerToZeroSlot(void);
 
 private slots:
 
@@ -147,6 +159,7 @@ private slots:
     void openSceneRendererDialog(void);
 
 
+
 private:
     Ui::MainWindow *ui;
 
@@ -166,7 +179,7 @@ private:
 
     visualization_schema lastKnownSchema; ///< Is the lastly known visualization schema. Used when user suddenly changes schema during rendering and some clear functions are needed.
 
-    double sceneRotation; ///< Holds the last known slider value. Used for correct scene rotation.
+    // HELPER VARIABLES
 };
 
 #endif // MAINWINDOW_H

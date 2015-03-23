@@ -92,6 +92,7 @@ openGLWidget::openGLWidget(QWidget *parent, const QGLWidget *shareWidget, Qt::Wi
 
 radarView::radarView(radarScene *scene, uwbSettings * setts, QMutex * settings_mutex, QWidget *parent) : QGraphicsView(scene, parent)
 {
+
     settings = setts;
     settingsMutex = settings_mutex;
 
@@ -108,6 +109,15 @@ radarView::radarView(radarScene *scene, uwbSettings * setts, QMutex * settings_m
     // placing widgets
     radarViewLayout->addWidget(emptyCorner, 0, 0);
     radarViewLayout->addWidget(this->viewport(), 1, 1);
+
+    // setting scale factor to default value;
+    scaleFactor = 1.01;
+    scaleDepth = 10;
+    scaleCounter = scaleCounterGlobal = 0;
+    currentRotation = 0.0;
+
+    moveToXYSteps = 20;
+    angleStep = 5;
 
     // setting up scene
     setScene(scene);
@@ -127,13 +137,44 @@ radarView::radarView(radarScene *scene, uwbSettings * setts, QMutex * settings_m
     this->setLayout(radarViewLayout);
 }
 
+void radarView::moveToXYAnimation(const QPointF &target)
+{
+    // calculate the line between current center and target center
+    QPointF currCenter = mapToScene(viewport()->rect().center());
+
+    // calculate distances between x and y of points
+    double x_steps_dx = target.x()-currCenter.x();
+    double y_steps_dy = target.y()-currCenter.y();
+
+    dx = x_steps_dx/((double)(moveToXYSteps));
+    dy = y_steps_dy/((double)(moveToXYSteps));
+    moveToXYCounter = 0;
+
+    targetPoint = target;
+
+    // animation is enabled, run animation timer
+    QTimer * sceneMoveToXYAnimationTimer = new QTimer;
+    connect(sceneMoveToXYAnimationTimer, SIGNAL(timeout()), this, SLOT(centerOnXYAnimationSlot()));
+    sceneMoveToXYAnimationTimer->start(30);
+}
+
+void radarView::setRotationAngleAnimation(int target)
+{
+    targetAngle = target;
+
+    // start animation
+    QTimer * angleChangeAnimationTimer = new QTimer;
+    connect(angleChangeAnimationTimer, SIGNAL(timeout()), this, SLOT(sceneRotationAnimationSlot()));
+    angleChangeAnimationTimer->start(25);
+}
+
 void radarView::mouseReleaseEvent(QMouseEvent *event)
 {
     // we have to update status before any update
     radarScene * scene = static_cast<radarScene * >(this->scene());
     scene->setTappingSequence(false);
 
-    QGraphicsView::mouseMoveEvent(event);
+    QGraphicsView::mouseReleaseEvent(event);
 
     this->viewport()->update();
 }
@@ -147,17 +188,169 @@ void radarView::mousePressEvent(QMouseEvent *event)
 
 void radarView::wheelEvent(QWheelEvent *event)
 {
+    bool smoothTransitionEnabled;
+    settingsMutex->lock();
+        smoothTransitionEnabled = settings->getSmoothTransitions();
+    settingsMutex->unlock();
 
-    double scaleFactor = 1.10;
     if(event->delta()>0)
     {
-        scale(scaleFactor, scaleFactor);
+        if(smoothTransitionEnabled)
+        {
+            // animation is enabled
+            QTimer * scaleInTimer = new QTimer;
+            connect(scaleInTimer, SIGNAL(timeout()), this, SLOT(scaleInSlot()));
+            scaleInTimer->start(50);
+        }
+        else
+        {
+            // animation is disabled
+            scale(pow(scaleFactor, (double)(scaleDepth)), pow(scaleFactor, (double)(scaleDepth)));
+            scaleCounterGlobal++;
+        }
     }
     else
     {
-        scale((1.0)/scaleFactor, (1.0)/scaleFactor);
+        if(smoothTransitionEnabled)
+        {
+            // animation is enabled
+            QTimer * scaleOutTimer = new QTimer;
+            connect(scaleOutTimer, SIGNAL(timeout()), this, SLOT(scaleOutSlot()));
+            scaleOutTimer->start(50);
+        }
+        else
+        {
+            // animation is disabled
+            scale((1.0)/pow(scaleFactor, (double)(scaleDepth)), (1.0)/pow(scaleFactor, (double)(scaleDepth)));
+            scaleCounterGlobal--;
+        }
     }
 
+}
+
+void radarView::scaleInSlot()
+{
+    if(scaleCounter<scaleDepth)
+    {
+        // continue in scale in animating
+        scale(scaleFactor, scaleFactor);
+        scaleCounter++;
+    }
+    else
+    {
+        // finish scaling animation
+        QTimer * scaleInTimer = qobject_cast<QTimer * >(sender());
+        scaleInTimer->stop();
+        delete scaleInTimer;
+
+        scaleCounter = 0;
+        scaleCounterGlobal++;
+    }
+}
+
+void radarView::scaleOutSlot()
+{
+
+    if(scaleCounter<scaleDepth)
+    {
+        // continue in scale out animating
+        scale((1.0)/scaleFactor, (1.0)/scaleFactor);
+        scaleCounter++;
+    }
+    else
+    {
+        // finish scaling animation
+        QTimer * scaleOutTimer = qobject_cast<QTimer * >(sender());
+        scaleOutTimer->stop();
+        delete scaleOutTimer;
+
+        scaleCounter = 0;
+        scaleCounterGlobal--;
+    }
+}
+
+void radarView::setRotationAngle(int angle)
+{
+    QTransform transform;
+
+    transform.rotate(angle);
+    currentRotation = (double)(angle);
+
+    int scaleMultiplier = scaleCounterGlobal*scaleDepth;
+
+    qreal scale;
+
+    scale = pow(scaleFactor, (double)(scaleMultiplier));
+
+    transform.scale(scale, -(1.0)*scale);
+
+    setTransform(transform);
+}
+
+void radarView::centerOnXYAnimationSlot()
+{
+    if(moveToXYCounter<moveToXYSteps)
+    {
+        QPointF currCenter = mapToScene(viewport()->rect().center());
+        centerOn(currCenter.x()+dx, currCenter.y()+dy);
+        moveToXYCounter++; // incrementing counter to know how much steps needed for reaching destination
+    }
+    else
+    {
+        // animation finished
+        QTimer * sceneMoveToXYAnimationTimer = qobject_cast<QTimer * >(sender());
+        sceneMoveToXYAnimationTimer->stop();
+        delete sceneMoveToXYAnimationTimer;
+
+        centerOn(targetPoint);
+    }
+}
+
+void radarView::sceneRotationAnimationSlot()
+{
+    if(currentRotation<targetAngle)
+    {
+        currentRotation += angleStep;
+        if(currentRotation>targetAngle)
+        {
+            // we are done now
+            QTimer * rotationAngleAnimationTimer = qobject_cast<QTimer * >(sender());
+            rotationAngleAnimationTimer->stop();
+            delete rotationAngleAnimationTimer;
+
+            setRotationAngle(targetAngle);
+        }
+        else
+        {
+            // continue in decrementing by step size
+            setRotationAngle(currentRotation);
+        }
+    }
+    else if(currentRotation>targetAngle)
+    {
+        currentRotation -= angleStep;
+        if(currentRotation<targetAngle)
+        {
+            // we are done now
+            QTimer * rotationAngleAnimationTimer = qobject_cast<QTimer * >(sender());
+            rotationAngleAnimationTimer->stop();
+            delete rotationAngleAnimationTimer;
+
+            setRotationAngle(targetAngle);
+        }
+        else
+        {
+            // continue in decrementing by step size
+            setRotationAngle(currentRotation);
+        }
+    }
+    else
+    {
+        // we are done as well
+        QTimer * rotationAngleAnimationTimer = qobject_cast<QTimer * >(sender());
+        rotationAngleAnimationTimer->stop();
+        delete rotationAngleAnimationTimer;
+    }
 }
 
 void radarView::mouseMoveEvent(QMouseEvent *event)
@@ -310,7 +503,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
         lines.append(QLineF(rect.left(), 0.0, rect.right(), 0.0));
 
         settingsMutex->lock();
-        painter->setPen(QPen(QBrush(*settings->getGridOneColor()), 4.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setPen(QPen(QBrush(*settings->getGridOneColor()), 3.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         settingsMutex->unlock();
 
         painter->drawLines(lines.data(), lines.size());

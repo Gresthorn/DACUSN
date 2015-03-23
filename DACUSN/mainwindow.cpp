@@ -64,6 +64,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     visualizationTimer = new QTimer(this);
     visualizationScene = new radarScene(settings, settingsMutex, this);
+
+    /*QGraphicsTextItem * testText = new QGraphicsTextItem("Hello world");
+    testText->setPos(50.0, 50.0);
+    QTransform textTransform;
+    textTransform.scale(1.0, -1.0);
+    testText->setTransform(textTransform);
+    visualizationScene->addItem(testText);*/
+
     visualizationView = new radarView(visualizationScene, settings, settingsMutex, this);
 
     visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -80,9 +88,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
-    sceneRotation = 0;
-    connect(ui->rotationControlDial, SIGNAL(valueChanged(int)), this, SLOT(sceneRotationChangedSlot(int)));
+    connect(ui->rotationControlDial, SIGNAL(sliderMoved(int)), this, SLOT(sceneRotationChangedSlot(int)));
     connect(ui->sceneRotationSettingsButton, SIGNAL(clicked()), this, SLOT(sceneRotationManualChangeSlot()));
+    connect(ui->moveToXYButton, SIGNAL(clicked()), this, SLOT(sceneMoveToXYSlot()));
+    connect(ui->centerToZeroButton, SIGNAL(clicked()), this, SLOT(centerToZeroSlot()));
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
@@ -374,29 +383,92 @@ void MainWindow::setOglEngineFormatSlot(openGLWidget * oglwidget)
 
 void MainWindow::sceneRotationChangedSlot(int angle)
 {
-    QTransform transform;
 
-    sceneRotation = angle;
+    visualizationView->setRotationAngle(angle);
 
-    transform.rotate(sceneRotation);
-
-    visualizationView->setTransform(transform);
-
-    ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(sceneRotation));
+    ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(angle));
 }
 
 void MainWindow::sceneRotationManualChangeSlot()
 {
-    QTransform transform;
+    int targetAngle = QInputDialog::getInt(this, tr("Enter the scene rotation angle."), tr("Scene rotation angle: "), ui->rotationControlDial->value(), -180, 180);
 
-    sceneRotation = QInputDialog::getDouble(this, tr("Enter the scene rotation angle."), tr("Scene rotation angle: "), sceneRotation, -180.0, 180.0);
+    bool smoothTransitionsEnabled;
 
-    transform.rotate(sceneRotation);
+    settingsMutex->lock();
+        smoothTransitionsEnabled = settings->getSmoothTransitions();
+    settingsMutex->unlock();
 
-    visualizationView->setTransform(transform);
+    if(smoothTransitionsEnabled)
+    {
+        // start animation
+        visualizationView->setRotationAngleAnimation(targetAngle);
+        ui->rotationControlDial->setValue(targetAngle);
+        ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(targetAngle));
+    }
+    else
+    {
+        // just change angle
+        visualizationView->setRotationAngle(targetAngle);
+        ui->rotationControlDial->setValue(targetAngle);
+        ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(targetAngle));
+    }
+}
 
-    ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(sceneRotation));
-    ui->rotationControlDial->setValue(sceneRotation);
+void MainWindow::sceneMoveToXYSlot()
+{
+    // calculate the line between current center and target center
+    QPointF currCenter = visualizationView->mapToScene(visualizationView->viewport()->rect().center());
+    QPointF targetCenter;
+    bool userDecision = false;
+
+    // after user confirms dialog new center will be stored in targetCenter object
+    coordinatesInputDialog dialog(currCenter, &targetCenter, &userDecision);
+    dialog.exec();
+
+    // if user cancelled dialog
+    if(!userDecision) return;
+
+
+    bool smoothTransitionEnabled;
+    settingsMutex->lock();
+        smoothTransitionEnabled = settings->getSmoothTransitions();
+    settingsMutex->unlock();
+
+    if(smoothTransitionEnabled)
+    {
+        visualizationView->moveToXYAnimation(targetCenter);
+    }
+    else
+    {
+        // simply center on target position
+        visualizationView->centerOn(targetCenter);
+    }
+}
+
+void MainWindow::centerToZeroSlot()
+{
+    bool smoothTransitionEnabled;
+    settingsMutex->lock();
+        smoothTransitionEnabled = settings->getSmoothTransitions();
+    settingsMutex->unlock();
+
+    if(smoothTransitionEnabled)
+    {
+        visualizationView->moveToXYAnimation(QPointF(0.0, 0.0));
+        visualizationView->setRotationAngleAnimation(0);
+
+        ui->rotationControlDial->setValue(0.0);
+        ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(0));
+    }
+    else
+    {
+        visualizationView->centerOn(0.0, 0.0);
+        visualizationView->setRotationAngle(0);
+
+        ui->rotationControlDial->setValue(0.0);
+        ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(0));
+    }
 }
 
 

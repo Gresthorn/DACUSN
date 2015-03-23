@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     stackmanagerdialog.cpp \
     radarlistdialog.cpp \
     visualization.cpp \
-    scenerendererdialog.cpp
+    scenerendererdialog.cpp \
+    coordinatesinputdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -39,13 +40,15 @@ HEADERS  += mainwindow.h \
     stackmanagerdialog.h \
     radarlistdialog.h \
     visualization.h \
-    scenerendererdialog.h
+    scenerendererdialog.h \
+    coordinatesinputdialog.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \
     stackmanagerdialog.ui \
     radarlistdialog.ui \
-    scenerendererdialog.ui
+    scenerendererdialog.ui \
+    coordinatesinputdialog.ui
 
 RESOURCES += \
     icons.qrc

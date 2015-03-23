@@ -255,6 +255,18 @@ public:
     void setBackgroundColorEnable(bool enable) { backgroundColorEnabled = enable; }
 
     /**
+     * @brief This function retrievs the setting of smooth transitions animation state.
+     * @return Return value is boolean value representing state.
+     */
+    bool getSmoothTransitions(void) { return smoothTransitions; }
+
+    /**
+     * @brief The following function is able to set the new setting for smooth transition setting.
+     * @param[in] enable Is parameter representing the new value for setting.
+     */
+    void setSmootheTransitions(bool enable) { smoothTransitions = enable; }
+
+    /**
      * @brief Returns the tapping rendering method selected by user which allows to save some performance by not rendering everything in the scene.
      * @return The return value is enum type specifying the option.
      */
@@ -337,6 +349,7 @@ private:
     bool gridTwoEnabled; ///< Specify if drawing of grid level two is enabled.
     bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled.
     bool backgroundColorEnabled; ///< Specify if drawing of background is enabled.
+    bool smoothTransitions; ///< Enables/Disables smooth transitions during zooming, changing angles or moving to [x, y] position etc.
 
     visualization_tapping_options tapping_opt; ///< Holds the information about what rendering method is choosed while tapping.
 
