@@ -10,8 +10,13 @@
         <file>icons/radar_list.png</file>
         <file>icons/render.png</file>
         <file>icons/color_chart.png</file>
-        <file>icons/settings.png</file>
         <file>icons/move_to.png</file>
         <file>icons/center_to_zero.png</file>
+        <file>icons/path.png</file>
+        <file>icons/path_hover.png</file>
+        <file>icons/center_to_zero_hover.png</file>
+        <file>icons/move_to_hover.png</file>
+        <file>icons/settings_angle.png</file>
+        <file>icons/settings_angle_hover.png</file>
     </qresource>
 </RCC>

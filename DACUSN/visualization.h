@@ -11,11 +11,14 @@
 #include <QList>
 #include <QGridLayout>
 #include <QElapsedTimer>
+#include <QGraphicsLineItem>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QGLWidget>
 #include <QRadialGradient>
 #include <QGraphicsTextItem>
+#include <QGraphicsSceneHoverEvent>
+#include <QDateTime>
 
 #include "uwbsettings.h"
 
@@ -35,6 +38,101 @@
  *
  */
 
+/******************************************* CUSTOM GRAPHICS ITEMS *******************************************/
+
+class cometItem :  public QObject, public QGraphicsEllipseItem
+{
+    Q_OBJECT
+
+    Q_PROPERTY(qreal size READ getRectSize WRITE setRectSize)
+
+
+public:
+    /**
+     * @brief This constructor simplify the parameters passed into object to basic parameters, easier to understand from another threads/functions.
+     * @param[in] position Is the position of target that we wish to display.
+     * @param[in] size Is the size of the circle representing the target in scene.
+     * @param[in] color The color assigned to the target.
+     */
+    cometItem (const QPointF & position, qreal size, QColor color);
+
+    /**
+     * @brief Function sets new pixel size of items rect. New rect is recalculated to fit into targets position [x, y].
+     * @param[in] rectSize Is the new rect size of item.
+     */
+    void setRectSize(qreal rectSize);
+
+    /**
+     * @brief Returns the current rect size. This function is primarily used by QAnimationProperty objects.
+     * @return The return value is currently used rect size.
+     */
+    qreal getRectSize(void) { return size; }
+
+private:
+    qreal size; ///< Is the current size of item representing object. This value is animated and changed by animation property. Note that this class is drawing circles, so bounding is in fact square represented by this parameter.
+    QPointF targetPosition; ///< Is the target position from where bounding rect corners are calculated.
+};
+
+class crossItem : public QObject, public QGraphicsItem
+{
+    Q_OBJECT
+
+public:
+
+    QRectF boundingRect() const;
+
+    /**
+     * @brief The constructor of single cross item.
+     * @param[in] x The x coordinate of target.
+     * @param[in] y The y coordinate of target.
+     * @param[in] size Is the width and height of cross item.
+     * @param[in] color Is the pointer color object for painting the cross item. For user this color indicates the target.
+     * @param[in] scene Is the pointer to graphics scene used for drawing texts if additional info are required.
+     * @param[in] parent Parent item.
+     */
+    crossItem(qreal x, qreal y, QColor * color, QGraphicsScene * scene, qreal size=5.0, QGraphicsItem * parent=0);
+
+    /**
+     * @brief Returns the time when the item was created in epochal form.
+     * @return The return value is the time expressed in epochal form since 1970.
+     */
+    unsigned int getTime(void) { return timems; }
+
+    /**
+     * @brief Function returns the x-position of target. This position represents the real position without conversion to pixels.
+     * @return The return value is the x-position in 'qreal' form.
+     */
+    qreal getX(void) { return xPos; }
+
+    /**
+     * @brief Function returns the y-position of target. This position represents the real position without conversion to pixels.
+     * @return The return value is the y-position in 'qreal' form.
+     */
+    qreal getY(void) { return yPos; }
+
+    ~crossItem();
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    //void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+    //void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+
+private:
+    qreal xPos, yPos; ///< Represents the real position of target without any conversions to pixels.
+
+    unsigned int timems; ///< The time when the object was generated in epochal form (may be considered as the time of targets position at 'xPos' and 'yPos')
+
+    //QGraphicsTextItem * infoLabel; ///< Is the pointer to text displaying additional info after hovering.
+
+    QVector<QLineF> * lines; ///< List for 'lineA' and 'lineB'
+
+    QColor crossColor; ///< The color being used for item drawing.
+
+    QGraphicsScene * graphicsScene; ///< The pointer to graphics scene where the item is places.
+};
+
+/******************************************* ANIMATION MANAGER CLASS *****************************************/
+
 class animationManager : public QObject
 {
     Q_OBJECT
@@ -48,7 +146,7 @@ public:
      * @param[in] setts Pointer to the basic application settings object.
      * @param[in] settings_mutex Pointer to the mutex locking the settings object.
      */
-    animationManager(QGraphicsScene * visualization_Scene, QList<QPointF * > * visualization_Data, QList<QColor * > * visualization_Color, QMutex * visualization_Data_Mutex, uwbSettings * setts, QMutex * settings_mutex);
+    animationManager(QGraphicsScene * visualization_Scene, QGraphicsView * visualization_View, QList<QPointF * > * visualization_Data, QList<QColor * > * visualization_Color, QMutex * visualization_Data_Mutex, uwbSettings * setts, QMutex * settings_mutex);
 
     /**
      * @brief Creates and sets the animation controls to make the comet effect.
@@ -77,6 +175,22 @@ public:
      */
     void hideAllCommonFlowSchemaObjects(void);
 
+    /**
+     * @brief Is used by history path regime to discover if all ellipses are hidden and block the hiding algorithm to repeteadly hide ellipse items.
+     * @return The return value is true if all items are hidden.
+     */
+    bool allCommonItemsHidden(void) { return ellipseListInvisible; }
+
+    /**
+     * @brief If user selects drawing history paths of movements, this function is called to update polygons and draws them.
+     */
+    void launchPathDrawing(void);
+
+    /**
+     * @brief This function will register new 'crossItem' in path handler.
+     * @param[in] item Pointer to fully initialized and set up 'crossItem'.
+     */
+    void appendPathItem(crossItem * item) { pathHandler->append(item); }
 
 private:
     int meter_to_pixel_ratio;
@@ -89,14 +203,33 @@ private:
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
 
-    QGraphicsScene * visualizationScene; ///< Is the scene where all items/objects are rendered on
+    QGraphicsScene * visualizationScene; ///< Is the scene where all items/objects are rendered on.
+    QGraphicsView * visualizationView; ///< Pointer to the graphics view used for rendering.
     QList<QGraphicsEllipseItem * > * ellipseList; ///< Is the vector of ellipses positioned in current target's [x,y]
+    bool ellipseListInvisible; ///< Is set to true only if all ellipses in 'ellipseList' are invisible
+
+    QList<class crossItem * > * pathHandler; ///< This list holds points to for path drawing if a history of targets movements is required.
 
 public slots:
     /**
      * @brief When animation group finishes its animation sequence, the 'finished()' signal emitted starts this slot, so all related objects can be safely deleted.
      */
     void deleteAnimationGroup(void);
+
+    /**
+     * @brief This function will add all items from paths list to the scene. This is used if we have some history saved and switched into draw history mode.
+     */
+    void loadPathsList(void);
+
+    /**
+     * @brief Function will go throught all list and deletes all paths.
+     */
+    void clearPathsList(void);
+
+    /**
+     * @brief This method will remove all cross items from scene but will not remove objects itself.
+     */
+    void removePathsFromScene(void);
 };
 
 /******************************************* CUSTOM OPENGL WIDGET ********************************************/
@@ -221,42 +354,6 @@ protected:
      */
     virtual void drawBackground(QPainter * painter, const QRectF & rect);
 };
-
-/******************************************* CUSTOM GRAPHICS ITEMS *******************************************/
-
-class cometItem :  public QObject, public QGraphicsEllipseItem
-{
-    Q_OBJECT
-
-    Q_PROPERTY(qreal size READ getRectSize WRITE setRectSize)
-
-
-public:
-    /**
-     * @brief This constructor simplify the parameters passed into object to basic parameters, easier to understand from another threads/functions.
-     * @param[in] position Is the position of target that we wish to display.
-     * @param[in] size Is the size of the circle representing the target in scene.
-     * @param[in] color The color assigned to the target.
-     */
-    cometItem (const QPointF & position, qreal size, QColor color);
-
-    /**
-     * @brief Function sets new pixel size of items rect. New rect is recalculated to fit into targets position [x, y].
-     * @param[in] rectSize Is the new rect size of item.
-     */
-    void setRectSize(qreal rectSize);
-
-    /**
-     * @brief Returns the current rect size. This function is primarily used by QAnimationProperty objects.
-     * @return The return value is currently used rect size.
-     */
-    qreal getRectSize(void) { return size; }
-
-private:
-    qreal size; ///< Is the current size of item representing object. This value is animated and changed by animation property. Note that this class is drawing circles, so bounding is in fact square represented by this parameter.
-    QPointF targetPosition; ///< Is the target position from where bounding rect corners are calculated.
-};
-
 
 
 #endif // VISUALIZATION

@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->radarViewLayout->addWidget(visualizationView, 0, 0);
 
-    visualizationManager = new animationManager(visualizationScene, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
+    visualizationManager = new animationManager(visualizationScene, visualizationView, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
 
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
     visualizationTimer->setInterval(settings->getVisualizationInterval());
@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->sceneRotationSettingsButton, SIGNAL(clicked()), this, SLOT(sceneRotationManualChangeSlot()));
     connect(ui->moveToXYButton, SIGNAL(clicked()), this, SLOT(sceneMoveToXYSlot()));
     connect(ui->centerToZeroButton, SIGNAL(clicked()), this, SLOT(centerToZeroSlot()));
+    connect(ui->pathHistoryCheckButton, SIGNAL(clicked()), this, SLOT(pathHistoryShow()));
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
@@ -468,6 +469,92 @@ void MainWindow::centerToZeroSlot()
 
         ui->rotationControlDial->setValue(0.0);
         ui->sceneRotationLabel->setText(QString("Scene rotation: %1°").arg(0));
+    }
+}
+
+void MainWindow::pathHistoryShow()
+{
+    if(ui->pathHistoryCheckButton->isChecked())
+    {
+        // start drawing paths
+
+        bool pathHistorySaveEnabled;
+
+        // First of all we need to switch to common Qt 2D painting engine since it supports local rendering.
+        settingsMutex->lock();
+        // Save the current visualization schema, so we can return to it after turning history drawing off.
+        lastKnownSchema = settings->getVisualizationSchema();
+        // Save the currently used engine.
+        lastKnownEngine = settings->getRenderingEngine();
+        // Check if so far history saving has been enabled.
+        pathHistorySaveEnabled = settings->getHistoryPath();
+        settingsMutex->unlock();
+
+        // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
+        if(lastKnownEngine!=STANDARD_QT_PAINTER)
+        {
+            delete visualizationView->viewport();
+            visualizationView->setViewport(new QWidget);
+        }
+
+        // Taking absolute control of scene rendering.
+        visualizationView->setMouseTracking(true);
+        visualizationView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+
+
+        // Now if the history protocol is switched on, we can add all data from list to scene and do a global update.
+        // If no history protocol was saved, if some data are availible in list, delete them.
+        if(pathHistorySaveEnabled) visualizationManager->loadPathsList();
+        else visualizationManager->clearPathsList();
+
+        // Global update
+        visualizationView->viewport()->update();
+
+        // Because of performance it is better to absolutely disable rendering smoother level grids.
+        settingsMutex->lock();
+        lastKnownTappingOptions = settings->getTappingRenderMethod();
+        // Save the smooth transitions enable/disable state.
+        lastKnownSmoothTransitionsState = settings->getSmoothTransitions();
+
+        settings->setSmootheTransitions(false);
+        settings->setTappingRenderMethod(NO_3_2);
+
+        // Finally start the path drawing schema
+        settings->setVisualizationSchema(PATH_HISTORY);
+        settingsMutex->unlock();
+
+        // NOW WE HAVE SUCCESSFULY SWITCHED TO HISTORY DRAWING SCHEMA
+        // NOTE: SINCE NOW EVERY ITEM ADDED OR SCROLLING/ZOOMING MUST BE UPDATED MANUALLY.
+    }
+    else
+    {
+        // stop drawing paths
+        settingsMutex->lock();
+        // setup back visualization schema, tapping options and engine to lastly used ones
+        settings->setVisualizationSchema(lastKnownSchema);
+        settings->setRenderingEngine(lastKnownEngine);
+        settings->setTappingRenderMethod(lastKnownTappingOptions);
+        settings->setSmootheTransitions(lastKnownSmoothTransitionsState);
+        settingsMutex->unlock();
+
+        // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
+        if(lastKnownEngine==OPEN_GL_ENGINE)
+        {
+            delete visualizationView->viewport();
+            visualizationView->setViewport(new QGLWidget);
+        }
+
+        // Restore the rendering methods
+        visualizationView->setMouseTracking(false);
+        visualizationView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+
+        // Remove all history objects/paths from scene.
+        visualizationManager->removePathsFromScene();
+
+        // Finally update scene without cross items
+        visualizationScene->update();
+
+        // NOW WE HAVE SUCCESSFULY SWITCHED BACK TO PREVIOUS REGIME
     }
 }
 

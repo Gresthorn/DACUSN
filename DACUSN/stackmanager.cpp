@@ -320,18 +320,29 @@ void stackManager::applyFusion()
             // iterating through all possible targets
             for(i=0; i<arrays.count(); i++)
             {    
+                //qDebug() << "-------------------------------------------------------------------------------------";
                 // if radar was disabled by user, do not use it in fusion algorithm
                 if(!radarList->at(i)->radar->isEnabled()) continue;
 
                 // if is less the radar unit surely has information about target's coordinates
                 if(j<targets_count.at(i))
                 {
-                    //qDebug() << "Target: " << j << "Radar: " << i;
                     // apply transformation to operator coordinate system
 
                     radarList->at(i)->radar->doTransformation(arrays.at(i)[j*2], arrays.at(i)[j*2+1]);
-                    x_average += radarList->at(i)->radar->getTransformatedX();
-                    y_average += radarList->at(i)->radar->getTransformatedY();
+
+                    // Usually if MTT produces invalid value, the "nan" or "inf/-inf" states were catched. Therefore it is much better to not consider such values
+                    float x = radarList->at(i)->radar->getTransformatedX();
+                    float y = radarList->at(i)->radar->getTransformatedY();
+
+                    if(x!=x || y!=y) continue;
+                    else if(x>std::numeric_limits<float>::max() || x<(-std::numeric_limits<float>::max())
+                            || y>std::numeric_limits<float>::max() || y<(-std::numeric_limits<float>::max())) continue;
+                    else if(qFuzzyCompare(0.0, x) || qFuzzyCompare(0.0, y)) continue;
+
+                    x_average += x;
+                    y_average += y;
+                    //qDebug() << radarList->at(i)->radar->getTransformatedX() << " " << radarList->at(i)->radar->getTransformatedY();
 
                     ++counter;
                 }
@@ -348,10 +359,15 @@ void stackManager::applyFusion()
                 QPointF * temp_point = new QPointF(x_average, y_average);
                 visualizationDataMutex->lock();
                 visualizationData->append(temp_point);
+                //qDebug() << temp_point->x() << " " << temp_point->y();
                 visualizationDataMutex->unlock();
             }
         }
     }
+
+    visualizationDataMutex->lock();
+    qDebug() << visualizationData->count();
+    visualizationDataMutex->unlock();
 
     //visualizationDataMutex->lock();
     //for(i=0; i<visualizationData->count(); i++) qDebug() << i << " " << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();

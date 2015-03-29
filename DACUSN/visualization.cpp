@@ -11,9 +11,38 @@ void MainWindow::visualizationSlot()
     QElapsedTimer timer;
     timer.start();
 
-        settingsMutex->lock(); // UNLOCK MUTEX IMMEDIATELY AFTER IF/CASE BLOCK STARTS SO OTHER THREADS CAN ACCESS SETTINGS IF NEEDED!!!!!!!
+        bool history_enabled;
+        visualization_schema vis_schema;
+        settingsMutex->lock();
+            history_enabled = settings->getHistoryPath();
+            vis_schema = settings->getVisualizationSchema();
+        settingsMutex->unlock();
 
-        if(settings->getVisualizationSchema()==COMMON_FLOW)
+        // if recording history is required, we need to save cross items first but if PATH_HISTORY is set as well we do not record it here, because
+        // launchPath() method will create its own objects itself and saves them into list. Therefore "background" recording is not needed.
+        if(history_enabled && vis_schema!=PATH_HISTORY)
+        {
+            visualizationDataMutex->lock();
+
+                float meter_to_pixel_ratio = METER_TO_PIXEL_RATIO;
+                for(int j = 0; j<visualizationData->count(); j++)
+                {
+                    float x = visualizationData->at(j)->x()*meter_to_pixel_ratio;
+                    float y = visualizationData->at(j)->y()*meter_to_pixel_ratio;
+
+                    // register new point/object
+                    crossItem * item = new crossItem(x, y, visualizationColor->at(j), visualizationScene);
+
+                    // record new position
+                    visualizationManager->appendPathItem(item);
+                }
+
+            visualizationDataMutex->unlock();
+        }
+
+        //settingsMutex->lock(); // UNLOCK MUTEX IMMEDIATELY AFTER IF/CASE BLOCK STARTS SO OTHER THREADS CAN ACCESS SETTINGS IF NEEDED!!!!!!!
+
+        if(vis_schema==COMMON_FLOW)
         {
             // modify the last known schema status (sometimes when switching between schemas, some actions are needed)
             if(lastKnownSchema!=COMMON_FLOW)
@@ -21,10 +50,13 @@ void MainWindow::visualizationSlot()
                 lastKnownSchema = COMMON_FLOW;
             }
 
-            settingsMutex->unlock();
+            /* -------- MUT. UNLOCK -------- */
+            //settingsMutex->unlock();
+
+
             visualizationManager->launchCommonFlow();
         }
-        else if(settings->getVisualizationSchema()==COMET_EFFECT)
+        else if(vis_schema==COMET_EFFECT)
         {
             // modify the last known schema status (sometimes when switching between schemas, some actions are needed)
             if(lastKnownSchema!=COMET_EFFECT)
@@ -36,30 +68,53 @@ void MainWindow::visualizationSlot()
 
                 lastKnownSchema = COMET_EFFECT;
             }
+            /* -------- MUT. UNLOCK -------- */
+            //settingsMutex->unlock();
 
-            settingsMutex->unlock();
             visualizationManager->launchCometItems();
 
         }
+        else if(vis_schema==PATH_HISTORY)
+        {
+            // modify the last known schema status (sometimes when switching between schemas, some actions are needed)
+            if(lastKnownSchema!=PATH_HISTORY)
+            {
+                if(lastKnownSchema==COMMON_FLOW && !visualizationManager->allCommonItemsHidden())
+                {
+                    visualizationManager->hideAllCommonFlowSchemaObjects();
+                }
+
+                // IMPORTANT NOTE: DO NOT REPLACE 'lastKnownSchema' HERE BECAUSE IT IS USED FOR RESTORING FUNCTION TO SWITCH BACK INTO PREVIOUS SCHEMA WHEN SWITCHING OFF FROM HISTORY REGIME
+                // INSTEAD USE 'visualizationManager->allCommonItemsHidden()' METHOD TO DISCOVER IF ALL ITEMS ARE HIDDEN.
+            }
+
+            /* -------- MUT. UNLOCK -------- */
+            //settingsMutex->unlock();
+
+            visualizationManager->launchPathDrawing();
+        }
         else
         {
-            settingsMutex->unlock();
+            /* -------- MUT. UNLOCK -------- */
+            //settingsMutex->unlock();
             qDebug() << "Unknown visualization method selected.";
         }
 
     // repaint scene
-    visualizationScene->update();
+    if(vis_schema!=PATH_HISTORY) visualizationScene->update();
 
-    qDebug() << "Items in scene: " << visualizationScene->items().count();
-    qDebug() << "ELAPSED " << timer.nsecsElapsed();
+    //qDebug() << "Items in scene: " << visualizationScene->items().count();
+    //qDebug() << "ELAPSED " << timer.nsecsElapsed();
 
 }
 
-animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<QPointF * > * visualization_Data, QList<QColor * > * visualization_Color, QMutex * visualization_Data_Mutex, uwbSettings * setts, QMutex * settings_mutex)
+animationManager::animationManager(QGraphicsScene * visualization_Scene, QGraphicsView * visualization_View, QList<QPointF * > * visualization_Data, QList<QColor * > * visualization_Color, QMutex * visualization_Data_Mutex, uwbSettings * setts, QMutex * settings_mutex)
 {
     visualizationScene = visualization_Scene;
+    visualizationView = visualization_View;
 
     ellipseList = new QList<QGraphicsEllipseItem * >;
+    ellipseListInvisible = true;
 
     settings = setts;
     settingsMutex = settings_mutex;
@@ -68,9 +123,24 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QList<Q
     visualizationColor = visualization_Color;
     visualizationDataMutex = visualization_Data_Mutex;
 
-    meter_to_pixel_ratio = 50;
+    meter_to_pixel_ratio = METER_TO_PIXEL_RATIO;
     x_pixel = y_pixel = 0;
     x_width = y_width = 10;
+
+    // Allocate space for path history list
+
+    pathHandler = new QList<crossItem * >;
+
+    /*qsrand(15);
+    int high = 600;
+    int low = -600;
+    for(int i=0; i<1000; i++)
+    {
+        int x = qrand() % ((high + 1) - low) + low;
+        int y = qrand() % ((high + 1) - low) + low;
+        crossItem * temp = new crossItem(x, y, visualization_Color->at(2), visualization_Scene);
+        pathHandler->append(temp);
+    }*/
 }
 
 /******************************************* CUSTOM OPENGL WIDGET ********************************************/
@@ -590,7 +660,11 @@ void animationManager::launchCommonFlow()
         ellipseList->at(i)->setPos(x_pixel, y_pixel);
         ellipseList->at(i)->setBrush(QBrush(*visualizationColor->at(i)));
 
-        if(!ellipseList->at(i)->isVisible()) ellipseList->at(i)->setVisible(true);
+        if(!ellipseList->at(i)->isVisible())
+        {
+            ellipseListInvisible = false;
+            ellipseList->at(i)->setVisible(true);
+        }
     }
 
     // if unused items, hide them
@@ -607,6 +681,67 @@ void animationManager::hideAllCommonFlowSchemaObjects()
 {
     int i;
     for(i=0; i<ellipseList->count(); i++) if(ellipseList->at(i)->isVisible()) ellipseList->at(i)->hide();
+    ellipseListInvisible = true;
+}
+
+void animationManager::launchPathDrawing()
+{
+    visualizationDataMutex->lock();
+
+        float meter_to_pixel_ratio = METER_TO_PIXEL_RATIO;
+        for(int j = 0; j<visualizationData->count(); j++)
+        {
+            float x = visualizationData->at(j)->x()*meter_to_pixel_ratio;
+            float y = visualizationData->at(j)->y()*meter_to_pixel_ratio;
+
+            // register new point/object
+            crossItem * item = new crossItem(x, y, visualizationColor->at(j), visualizationScene);
+
+            visualizationScene->addItem(item);
+            // record new position
+            appendPathItem(item);
+
+            // render just required area
+            QRectF itemRect = item->boundingRect();
+            QRectF itemRectScene = QRectF(item->mapToScene(itemRect.topLeft()), item->mapToScene(itemRect.bottomRight()));
+            QPoint itemRectViewTopLeft = visualizationView->mapFromScene(itemRectScene.topLeft());
+            QPoint itemRectViewBottomRight = visualizationView->mapFromScene(itemRectScene.bottomRight());
+
+            visualizationView->viewport()->update(QRect(itemRectViewTopLeft, itemRectViewBottomRight));
+        }
+
+    visualizationDataMutex->unlock();
+}
+
+void animationManager::clearPathsList()
+{
+    while(!pathHandler->isEmpty())
+    {
+        // deleting until all 'crossItems' are deleted
+        pathHandler->removeFirst();
+    }
+
+    qDebug() << "All paths have been deleted.";
+}
+
+void animationManager::removePathsFromScene()
+{
+    for(int i = 0; i<pathHandler->count(); i++)
+    {
+        visualizationScene->removeItem(pathHandler->at(i));
+    }
+
+    qDebug() << "All paths have been removed from scene.";
+}
+
+void animationManager::loadPathsList()
+{
+    for(int i = 0; i<pathHandler->count(); i++)
+    {
+        visualizationScene->addItem(pathHandler->at(i));
+    }
+
+    qDebug() << "All paths have been loaded.";
 }
 
 void animationManager::deleteAnimationGroup()
@@ -619,8 +754,6 @@ void animationManager::deleteAnimationGroup()
     delete group;
     delete comItem;
 }
-
-
 
 cometItem::cometItem(const QPointF &position, qreal size, QColor color) : QGraphicsEllipseItem()
 {
@@ -638,4 +771,49 @@ void cometItem::setRectSize(qreal rectSize)
     size = rectSize;
     // we need to set new coordinates of bounding rect so the circle is centered exactly at the 'position'
     setRect(targetPosition.x()-rectSize/2.0, targetPosition.y()-rectSize/2.0, rectSize, rectSize);
+}
+
+crossItem::crossItem(qreal x, qreal y, QColor * color, QGraphicsScene * scene, qreal size, QGraphicsItem * parent) : QGraphicsItem(parent)
+{
+
+    graphicsScene = scene;
+
+    // generate the epochal time
+    QDateTime time;
+    time = QDateTime::currentDateTime();
+    timems = time.toTime_t();
+
+    // need to accept hover events
+    setAcceptHoverEvents(true);
+    QLineF lineA((-1.0)*(size/2.0), size/2.0, size/2.0, (-1.0)*(size/2.0));
+    QLineF lineB((-1.0)*(size/2.0), (-1.0)*(size/2.0), size/2.0, size/2.0);
+
+    lines = new QVector<QLineF>;
+    lines->append(lineA);
+    lines->append(lineB);
+
+    xPos = x;
+    yPos = y;
+
+    crossColor = *color;
+
+    setPos(x, y);
+}
+
+crossItem::~crossItem()
+{
+    delete lines;
+}
+
+QRectF crossItem::boundingRect() const
+{
+    return QRectF(lines->at(0).p1(), lines->at(0).p2());
+}
+
+void crossItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(QPen(QBrush(crossColor), 1.0));
+
+    painter->drawLines(*lines);
 }

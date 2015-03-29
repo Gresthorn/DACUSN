@@ -3,6 +3,7 @@
 
 #define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
                                         ///< (max number of targets)
+#define METER_TO_PIXEL_RATIO 50.0         ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO
 
 /**
  * @brief The reciever_method enum covers all possible kinds of recieve methods for UWB sensor network.
@@ -16,7 +17,8 @@ enum reciever_method
 enum visualization_schema
 {
     COMMON_FLOW = 0, ///< This schema displays objects as a very simple circles fastly changing their positions.
-    COMET_EFFECT = 1 ///< Is displaying targets as moving comet with a little history positions. The history may be changed as the animation duration.
+    COMET_EFFECT = 1, ///< Is displaying targets as moving comet with a little history positions. The history may be changed as the animation duration.
+    PATH_HISTORY = 2 ///< Is displaying targets positions history in the scene by simple cross items. Needs to be the separate display method because of performance.
 };
 
 /**

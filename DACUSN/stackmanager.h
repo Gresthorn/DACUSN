@@ -8,6 +8,7 @@
 #include <QList>
 #include <QThread>
 #include <QWaitCondition>
+#include <limits>
 
 #include <QDebug>
 

@@ -54,13 +54,13 @@ bool radarUnit::processNewData(rawData *data)
         //for(int j = 0; j<20; j++) test[j] = j;
 
         zeroEmptyPositions(data);
-        this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+        //this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+
 
         /*qDebug() << "COORDINATES AFTER: ";
         for(int i=0; i<data->getSyntheticTargetsCount(); i++)
         {
-            while(data->getSyntheticCoordinates()[i*2]<150) ++data->getSyntheticCoordinates()[i*2];
-            while(data->getSyntheticCoordinates()[i*2+1]<150) ++data->getSyntheticCoordinates()[i*2+1];
+            qDebug() << "RADAR : " << this->radar_id;
             qDebug() << "TARGET NUMBER: " << i << " X: " << ++data->getSyntheticCoordinates()[i*2] << " Y: " << ++data->getSyntheticCoordinates()[i*2+1];
         }*/
 

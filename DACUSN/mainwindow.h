@@ -136,6 +136,11 @@ public slots:
      */
     void centerToZeroSlot(void);
 
+    /**
+     * @brief This slot is evoked when user select/unselect drawing path history.
+     */
+    void pathHistoryShow(void);
+
 private slots:
 
     /**
@@ -178,6 +183,9 @@ private:
     QMutex * radarListMutex; ///< Mutex protecting the 'radarList' from multithread access
 
     visualization_schema lastKnownSchema; ///< Is the lastly known visualization schema. Used when user suddenly changes schema during rendering and some clear functions are needed.
+    rendering_engine lastKnownEngine; ///< Is the lastly known/used engine for view rendering. Used when switching to history drawing so after turning this feature off we can return to previous engine.
+    visualization_tapping_options lastKnownTappingOptions; ///< The lastly used tapping option before switching to draw history regime.
+    bool lastKnownSmoothTransitionsState; ///< Saves the smooth transitions state for time when user is switched into path drawing mode.
 
     // HELPER VARIABLES
 };

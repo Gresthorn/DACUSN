@@ -60,6 +60,8 @@ uwbSettings::uwbSettings()
     ogl_accumulation_buffer_size = -1;
     ogl_stencil_buffer_size = -1;
     ogl_multisample_buffer_size = -1;
+
+    recordPathHistory = true;
 }
 
 uwbSettings::uwbSettings(char *config)

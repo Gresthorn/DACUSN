@@ -290,6 +290,18 @@ public:
       */
     void setRenderingEngine(rendering_engine new_engine) { engine = new_engine; }
 
+    /**
+     * @brief Sets wether the path passed by target should be drawn.
+     * @param[in] enable Is the new value for drawing history status.
+     */
+    void setHistoryPath(bool enable) { recordPathHistory = enable; }
+
+    /**
+     * @brief Allows to check if history path is being currently drawn in the view.
+     * @return Returns the 'showPathHistory' status.
+     */
+    bool getHistoryPath(void) { return recordPathHistory; }
+
     /** THE FOLLOWING FUNCTIONS ARE ABLE TO RETRIEVE BASIC OPENGL SETTINGS **/
 
     rendering_engine_buffer_type oglGetBufferType(void) { return ogl_buffering_type; }
@@ -350,6 +362,8 @@ private:
     bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled.
     bool backgroundColorEnabled; ///< Specify if drawing of background is enabled.
     bool smoothTransitions; ///< Enables/Disables smooth transitions during zooming, changing angles or moving to [x, y] position etc.
+
+    bool recordPathHistory; ///< If this option is enabled, then the path that target has passed since the settings was enabled is recorded.
 
     visualization_tapping_options tapping_opt; ///< Holds the information about what rendering method is choosed while tapping.
 

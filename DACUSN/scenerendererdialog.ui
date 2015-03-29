@@ -26,6 +26,26 @@
       <string>Scene options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="8" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="gridTwoCheckBox">
+        <property name="text">
+         <string>Grid #2</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="2">
        <widget class="QPushButton" name="colorPickerGridThree">
         <property name="styleSheet">
@@ -53,26 +73,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="gridTwoCheckBox">
-        <property name="text">
-         <string>Grid #2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="1">
        <widget class="QCheckBox" name="gridOneCheckBox">
         <property name="text">
@@ -80,14 +80,18 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="targetsDisplayMethodLabel">
-        <property name="styleSheet">
-         <string notr="true">font-weight: bold;</string>
-        </property>
-        <property name="text">
-         <string>Display method: </string>
-        </property>
+      <item row="6" column="2">
+       <widget class="QComboBox" name="targetDisplayMethodComboBox">
+        <item>
+         <property name="text">
+          <string>Common flow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Comet effect</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="0" column="2">
@@ -110,18 +114,28 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QComboBox" name="targetDisplayMethodComboBox">
-        <item>
-         <property name="text">
-          <string>Common flow</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Comet effect</string>
-         </property>
-        </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="targetsDisplayMethodLabel">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Display method: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="backgroundCheckBox">
+        <property name="text">
+         <string>Background</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QCheckBox" name="allowSmoothTransitionsCheckBox">
+        <property name="text">
+         <string>Smooth transitions</string>
+        </property>
        </widget>
       </item>
       <item row="1" column="2">
@@ -164,17 +178,10 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="backgroundCheckBox">
+      <item row="5" column="1" colspan="2">
+       <widget class="QCheckBox" name="realTimeRecordingCheckBox">
         <property name="text">
-         <string>Background</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QCheckBox" name="allowSmoothTransitionsCheckBox">
-        <property name="text">
-         <string>Smooth transitions</string>
+         <string>Real time trajectory recording</string>
         </property>
        </widget>
       </item>

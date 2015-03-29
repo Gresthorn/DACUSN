@@ -32,10 +32,27 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
 
     ui->renderingEngineComboBox->setCurrentIndex(settings->getRenderingEngine());
 
+    ui->realTimeRecordingCheckBox->setChecked(settings->getHistoryPath());
+
     // OpenGL settings
 
     if(settings->oglGetBufferType() == DOUBLE_BUFFERING) ui->doubleBufferingRadio->setChecked(true);
     else if(settings->oglGetBufferType() == SINGLE_BUFFERING) ui->singleBufferingRadio->setChecked(true);
+
+    if(settings->getVisualizationSchema()==PATH_HISTORY)
+    {
+        // disable few widgets that are not allowed to modify during PATH_HISTORY mode
+        ui->renderingEngineComboBox->setDisabled(true);
+        ui->backgroundRenderingComboBox->setDisabled(true);
+        ui->allowSmoothTransitionsCheckBox->setDisabled(true);
+    }
+    else
+    {
+        // enable widgets that could been disabled because of PATH_HISTORY mode
+        ui->renderingEngineComboBox->setDisabled(false);
+        ui->backgroundRenderingComboBox->setDisabled(false);
+        ui->allowSmoothTransitionsCheckBox->setDisabled(false);
+    }
 
     ui->directRenderingCheckBox->setChecked(settings->oglGetDirectRendering());
     ui->depthBufferCheckBox->setChecked(settings->oglGetDepthBuffer());
@@ -53,9 +70,7 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
     ui->multisamplesBuffersSpinBox->setValue(settings->oglGetMultisampleBufferSize());
     ui->swapIntervalSpinBox->setValue(settings->oglGetSwapInterval());
 
-
     settingsMutex->unlock();
-
 
     //grid colors select
     connect(ui->colorPickerGridOne, SIGNAL(clicked()), SLOT(colorSelectGridOneSlot()));
@@ -92,6 +107,8 @@ void sceneRendererDialog::accepted()
     settings->setGridThreeEnable(ui->gridThreeCheckBox->isChecked());
     settings->setBackgroundColorEnable(ui->backgroundCheckBox->isChecked());
     settings->setSmootheTransitions(ui->allowSmoothTransitionsCheckBox->isChecked());
+
+    settings->setHistoryPath(ui->realTimeRecordingCheckBox->isChecked());
 
     settings->setTappingRenderMethod((visualization_tapping_options)(ui->backgroundRenderingComboBox->currentIndex()));
 
