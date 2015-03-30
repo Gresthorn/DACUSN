@@ -45,6 +45,7 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
         ui->renderingEngineComboBox->setDisabled(true);
         ui->backgroundRenderingComboBox->setDisabled(true);
         ui->allowSmoothTransitionsCheckBox->setDisabled(true);
+        ui->targetDisplayMethodComboBox->setDisabled(true);
     }
     else
     {
@@ -52,6 +53,7 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
         ui->renderingEngineComboBox->setDisabled(false);
         ui->backgroundRenderingComboBox->setDisabled(false);
         ui->allowSmoothTransitionsCheckBox->setDisabled(false);
+        ui->targetDisplayMethodComboBox->setDisabled(false);
     }
 
     ui->directRenderingCheckBox->setChecked(settings->oglGetDirectRendering());

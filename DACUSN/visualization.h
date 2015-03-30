@@ -176,6 +176,11 @@ public:
     void hideAllCommonFlowSchemaObjects(void);
 
     /**
+     * @brief Function will reveal all items in ellipse list.
+     */
+    void revealAllCommonFlowSchemaObjects(void);
+
+    /**
      * @brief Is used by history path regime to discover if all ellipses are hidden and block the hiding algorithm to repeteadly hide ellipse items.
      * @return The return value is true if all items are hidden.
      */
@@ -191,6 +196,11 @@ public:
      * @param[in] item Pointer to fully initialized and set up 'crossItem'.
      */
     void appendPathItem(crossItem * item) { pathHandler->append(item); }
+
+    /**
+     * @brief Returns the group of all crossItems in scene.
+     * @return Return value is pointer to the group.
+     */
 
 private:
     int meter_to_pixel_ratio;
@@ -209,6 +219,7 @@ private:
     bool ellipseListInvisible; ///< Is set to true only if all ellipses in 'ellipseList' are invisible
 
     QList<class crossItem * > * pathHandler; ///< This list holds points to for path drawing if a history of targets movements is required.
+
 
 public slots:
     /**

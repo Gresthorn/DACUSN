@@ -130,17 +130,6 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QGraphi
     // Allocate space for path history list
 
     pathHandler = new QList<crossItem * >;
-
-    /*qsrand(15);
-    int high = 600;
-    int low = -600;
-    for(int i=0; i<1000; i++)
-    {
-        int x = qrand() % ((high + 1) - low) + low;
-        int y = qrand() % ((high + 1) - low) + low;
-        crossItem * temp = new crossItem(x, y, visualization_Color->at(2), visualization_Scene);
-        pathHandler->append(temp);
-    }*/
 }
 
 /******************************************* CUSTOM OPENGL WIDGET ********************************************/
@@ -679,9 +668,26 @@ void animationManager::launchCommonFlow()
 
 void animationManager::hideAllCommonFlowSchemaObjects()
 {
-    int i;
-    for(i=0; i<ellipseList->count(); i++) if(ellipseList->at(i)->isVisible()) ellipseList->at(i)->hide();
+    // NOTE THIS FUNCTION HAS BEEN MODIFIED!!! SINCE PATH PAINTING MODE WILL NEED TO DELETE OBJECTS FROM SCENE THIS FUNCTION MUST DO THAT
+    // INSTEAD SIMPLY HIDING THEM. PRACTICALLY NEW CYCLE WAS ADDED WHEN STARTING PATH PAINTING MODE WHICH WILL DELETE ALL OBJECTS FROM SCENE
+    // ITSELF. THIS FUNCTION WAS NOT DELETED ONLY BECAUSE OF REVEAL FUNCTION WITH WHICH THIS FUNCTION PROVIDES SOMETHING LIKE SET. MAYBE CAN
+    // BE USED IN FUTURE.
+    // YOU CAN ALSO USE SET VISIBILITY TO FALSE, BUT LAUNCHING FUNCTION WILL MODIFY ELLIPSE ITEMS AS NEEDED SO THIS STEP HAS NO REASONAL POINT AT ALL.
+    for(int i=0; i<ellipseList->count(); i++) visualizationScene->removeItem(ellipseList->at(i));
     ellipseListInvisible = true;
+}
+
+void animationManager::revealAllCommonFlowSchemaObjects()
+{
+    // NOTE THIS FUNCTION HAS BEEN MODIFIED!!! SINCE PATH PAINTING MODE WILL ALSO DELETE OBJECTS FROM SCENE THIS FUNCTION MUST ADD THEM BACK AGAIN
+    // YOU CAN ALSO USE SET VISIBLE TO TRUE, BUT LAUNCHING FUNCTION WILL DO THAT AS WELL SO PRACTICALLY THIS STEP HAS NO POINT.
+
+    for(int i = 0; i<ellipseList->count(); i++)
+    {
+        visualizationScene->addItem(ellipseList->at(i));
+    }
+
+    ellipseListInvisible = false;
 }
 
 void animationManager::launchPathDrawing()
@@ -731,7 +737,7 @@ void animationManager::removePathsFromScene()
         visualizationScene->removeItem(pathHandler->at(i));
     }
 
-    qDebug() << "All paths have been removed from scene.";
+    qDebug() << "All paths have been removed from scene. (" << pathHandler->count() << ")";
 }
 
 void animationManager::loadPathsList()
@@ -741,7 +747,7 @@ void animationManager::loadPathsList()
         visualizationScene->addItem(pathHandler->at(i));
     }
 
-    qDebug() << "All paths have been loaded.";
+    qDebug() << "All paths have been loaded. (" << pathHandler->count() << ")";
 }
 
 void animationManager::deleteAnimationGroup()

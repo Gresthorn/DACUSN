@@ -491,23 +491,25 @@ void MainWindow::pathHistoryShow()
         settingsMutex->unlock();
 
         // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
-        if(lastKnownEngine!=STANDARD_QT_PAINTER)
+        if(lastKnownEngine==OPEN_GL_ENGINE)
         {
-            delete visualizationView->viewport();
             visualizationView->setViewport(new QWidget);
         }
 
         // Taking absolute control of scene rendering.
         visualizationView->setMouseTracking(true);
-        visualizationView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+        visualizationView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate); 
 
+        // Global update
+        // Delete/hide all items that should be not displayed during path drawing mode.
+        QList<QGraphicsItem * > item_list = visualizationScene->items();
+        for(int i = 0; i<item_list.count(); i++) visualizationScene->removeItem(item_list.at(i));
 
         // Now if the history protocol is switched on, we can add all data from list to scene and do a global update.
         // If no history protocol was saved, if some data are availible in list, delete them.
         if(pathHistorySaveEnabled) visualizationManager->loadPathsList();
         else visualizationManager->clearPathsList();
 
-        // Global update
         visualizationView->viewport()->update();
 
         // Because of performance it is better to absolutely disable rendering smoother level grids.
@@ -540,7 +542,6 @@ void MainWindow::pathHistoryShow()
         // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
         if(lastKnownEngine==OPEN_GL_ENGINE)
         {
-            delete visualizationView->viewport();
             visualizationView->setViewport(new QGLWidget);
         }
 
@@ -550,6 +551,9 @@ void MainWindow::pathHistoryShow()
 
         // Remove all history objects/paths from scene.
         visualizationManager->removePathsFromScene();
+
+        // Now reveal all common flow objects
+        if(lastKnownSchema==COMMON_FLOW) visualizationManager->revealAllCommonFlowSchemaObjects();
 
         // Finally update scene without cross items
         visualizationScene->update();
