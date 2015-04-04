@@ -18,5 +18,9 @@
         <file>icons/move_to_hover.png</file>
         <file>icons/settings_angle.png</file>
         <file>icons/settings_angle_hover.png</file>
+        <file>icons/export_icon.png</file>
+        <file>icons/export_icon_hover.png</file>
+        <file>icons/rendering_icon.png</file>
+        <file>icons/rendering_icon_hover.png</file>
     </qresource>
 </RCC>

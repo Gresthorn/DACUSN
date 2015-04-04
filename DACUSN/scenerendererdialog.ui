@@ -25,24 +25,55 @@
      <property name="title">
       <string>Scene options</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="8" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <layout class="QGridLayout">
+      <item row="0" column="2">
+       <widget class="QPushButton" name="colorPickerGridOne">
+        <property name="styleSheet">
+         <string notr="true">border:none;</string>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
+        </property>
+        <property name="iconSize">
          <size>
-          <width>20</width>
-          <height>40</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
-       </spacer>
+       </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="gridTwoCheckBox">
+      <item row="7" column="1" colspan="2">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QComboBox" name="targetDisplayMethodComboBox">
+        <item>
+         <property name="text">
+          <string>Common flow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Comet effect</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="gridThreeCheckBox">
         <property name="text">
-         <string>Grid #2</string>
+         <string>Grid #3</string>
         </property>
        </widget>
       </item>
@@ -66,13 +97,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="gridThreeCheckBox">
-        <property name="text">
-         <string>Grid #3</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QCheckBox" name="gridOneCheckBox">
         <property name="text">
@@ -80,22 +104,36 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QComboBox" name="targetDisplayMethodComboBox">
-        <item>
-         <property name="text">
-          <string>Common flow</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Comet effect</string>
-         </property>
-        </item>
+      <item row="10" column="1">
+       <widget class="QLabel" name="imageExportPathLabel">
+        <property name="text">
+         <string>Single image export path:</string>
+        </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="colorPickerGridOne">
+      <item row="5" column="1" colspan="2">
+       <widget class="QCheckBox" name="realTimeRecordingCheckBox">
+        <property name="text">
+         <string>Real time trajectory recording</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QCheckBox" name="allowSmoothTransitionsCheckBox">
+        <property name="text">
+         <string>Smooth transitions</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="backgroundCheckBox">
+        <property name="text">
+         <string>Background</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="colorPickerGridTwo">
         <property name="styleSheet">
          <string notr="true">border:none;</string>
         </property>
@@ -124,40 +162,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="backgroundCheckBox">
-        <property name="text">
-         <string>Background</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QCheckBox" name="allowSmoothTransitionsCheckBox">
-        <property name="text">
-         <string>Smooth transitions</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="colorPickerGridTwo">
-        <property name="styleSheet">
-         <string notr="true">border:none;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/mainToolbar/icons/color_chart.png</normaloff>:/mainToolbar/icons/color_chart.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="2">
        <widget class="QPushButton" name="backgroundColorButton">
         <property name="styleSheet">
@@ -178,10 +182,100 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1" colspan="2">
-       <widget class="QCheckBox" name="realTimeRecordingCheckBox">
+      <item row="10" column="2">
+       <widget class="QPushButton" name="exportImagePathButton">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>32</width>
+          <height>20</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Real time trajectory recording</string>
+         <string>Select save dir.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="gridTwoCheckBox">
+        <property name="text">
+         <string>Grid #2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLabel" name="periodicalImgBackupLabel">
+        <property name="text">
+         <string>Periodical image export path:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QPushButton" name="periodicalImgBackupButton">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>32</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Select save dir.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QCheckBox" name="periodicalImgBackupCheckBox">
+        <property name="text">
+         <string>Allow periodical image backup</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QSpinBox" name="periodicalImgBackupSpinBox">
+        <property name="minimum">
+         <number>1000</number>
+        </property>
+        <property name="maximum">
+         <number>10000000</number>
         </property>
        </widget>
       </item>

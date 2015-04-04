@@ -294,13 +294,74 @@ public:
      * @brief Sets wether the path passed by target should be drawn.
      * @param[in] enable Is the new value for drawing history status.
      */
+
+    /**
+     * @brief Sets the new export path for images that are exported from instant conversion from view.
+     * @param[in] path Is the new value for export path.
+     */
+    void setExportPath(QString path) { exportPath = path; }
+
+    /**
+     * @brief Function will return currently set export path for images.
+     * @return The return value is QString containing path.
+     */
+    QString getExportPath(void) { return exportPath; }
+
+    /**
+     * @brief This function enables/disables periodical image export from view.
+     * @param[in] enabled Is true if periodical backup is enabled.
+     */
+    void setPeriodicalImgBackup(bool enabled) { periodicalImgBackup = enabled; }
+
+    /**
+     * @brief Allows to check if periodical backup is enabled.
+     * @return Is boolean value indicating the periodical backup status.
+     */
+    bool getPeriodicalImgBackup(void) { return periodicalImgBackup; }
+
+    /**
+     * @brief Sets up the destination of exported images if periodical backup is enabled.
+     * @param[in] path The new path for exported images.
+     */
+    void setPeriodicalImgBackupPath(QString path) { periodicalImgBackupPath = path; }
+
+    /**
+     * @brief Returns the currently used destination for images generated from view by periodical backup sequence.
+     * @return Is the string showing to directory used as the currently used destination.
+     */
+    QString getPeriodicalImgBackupPath(void) { return periodicalImgBackupPath; }
+
     void setHistoryPath(bool enable) { recordPathHistory = enable; }
+
+    /**
+     * @brief This function returns the currently used interval for periodical image generation timer.
+     * @return The return value is time interval in miliseconds.
+     */
+    unsigned int getPeriodicalImgBackupInterval(void) { return periodicalImgBackupInterval; }
+
+    /**
+     * @brief Sets the new break time interval for timer causing the periodical image export from view in miliseconds.
+     * @param[in] interval Is the new milisecond interval for break between two image generation sequence.
+     */
+    void setPeriodicalImgBackupInterval(unsigned int interval) { periodicalImgBackupInterval = interval; }
 
     /**
      * @brief Allows to check if history path is being currently drawn in the view.
      * @return Returns the 'showPathHistory' status.
      */
     bool getHistoryPath(void) { return recordPathHistory; }
+
+    /**
+     * @brief Function allows retrieve information about wether visualization is turned on/off.
+     * @return The return value is boolean value representing the mentioned state.
+     */
+    bool getVisualizationEnabled(void) { return visualization_enabled; }
+
+    /**
+     * @brief Allows to set new state for visualization. If set to true, rendering will be started, else background processing will remain without rendering.
+     * @param[in] enabled Is the new value for visualization enable state.
+     */
+    void setVisualizationEnabled(bool enabled) { visualization_enabled = enabled; }
 
     /** THE FOLLOWING FUNCTIONS ARE ABLE TO RETRIEVE BASIC OPENGL SETTINGS **/
 
@@ -357,6 +418,8 @@ private:
     QColor * gridThreeColor; ///< Is the pointer to the color of the most smooth grid.
     QColor * backgroundColor; ///< Represents the background color of the scene.
 
+    bool visualization_enabled; ///< If user wants to save some processing power, he may disable visualization while background processing will be done without rendering.
+
     bool gridOneEnabled; ///< Specify if drawing of grid level one is enabled.
     bool gridTwoEnabled; ///< Specify if drawing of grid level two is enabled.
     bool gridThreeEnabled; ///< Specify if drawing of grid level three is enabled.
@@ -388,6 +451,12 @@ private:
     int ogl_accumulation_buffer_size;
     int ogl_stencil_buffer_size;
     int ogl_multisample_buffer_size;
+
+
+    QString exportPath; ///< Allows to save image from the current view in directory specified in this path.
+    bool periodicalImgBackup; ///< Indicates if periodical image export from the view is enabled.
+    QString periodicalImgBackupPath; ///< Specifies the path for periodical export images.
+    unsigned int periodicalImgBackupInterval; ///< Interval in miliseconds that is passed to the timer evoking the periodical img export slot.
 
 };
 

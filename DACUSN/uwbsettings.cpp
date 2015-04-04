@@ -44,6 +44,8 @@ uwbSettings::uwbSettings()
 
     ogl_buffering_type = DOUBLE_BUFFERING;
 
+    visualization_enabled = true;
+
     ogl_direct_rendering = true;
     ogl_red_buffer_size = -1;
     ogl_green_buffer_size = -1;
@@ -61,7 +63,13 @@ uwbSettings::uwbSettings()
     ogl_stencil_buffer_size = -1;
     ogl_multisample_buffer_size = -1;
 
-    recordPathHistory = true;
+    recordPathHistory = false;
+
+    exportPath = QString("");
+
+    periodicalImgBackup = false;
+    periodicalImgBackupPath = QString("");
+    periodicalImgBackupInterval = 5000;
 }
 
 uwbSettings::uwbSettings(char *config)

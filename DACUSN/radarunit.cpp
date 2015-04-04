@@ -54,7 +54,7 @@ bool radarUnit::processNewData(rawData *data)
         //for(int j = 0; j<20; j++) test[j] = j;
 
         zeroEmptyPositions(data);
-        //this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+        this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
 
 
         /*qDebug() << "COORDINATES AFTER: ";

@@ -8,12 +8,17 @@ void MainWindow::visualizationSlot()
 {
     // PROTOTYPE OF THIS METHOD IS IN MAINWINDOW
 
-    QElapsedTimer timer;
-    timer.start();
+    //QElapsedTimer timer;
+    //timer.start();
 
+
+        // common variables that need be loaded from settings before we can start
+        bool visualization_enabled;
         bool history_enabled;
         visualization_schema vis_schema;
+
         settingsMutex->lock();
+            visualization_enabled = settings->getVisualizationEnabled();
             history_enabled = settings->getHistoryPath();
             vis_schema = settings->getVisualizationSchema();
         settingsMutex->unlock();
@@ -39,6 +44,11 @@ void MainWindow::visualizationSlot()
 
             visualizationDataMutex->unlock();
         }
+
+        // If visualization is turned off, we must return before the rendering sequence starts. This is good for situations
+        // when a passive observation is desired. Data will be recieved, but not rendered in the scene. Background processing
+        // like saving data on disk, MTT, or in-operator-coordinate system transformation... will remain running.
+        if(!visualization_enabled) return;
 
         //settingsMutex->lock(); // UNLOCK MUTEX IMMEDIATELY AFTER IF/CASE BLOCK STARTS SO OTHER THREADS CAN ACCESS SETTINGS IF NEEDED!!!!!!!
 

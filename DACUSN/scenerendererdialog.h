@@ -6,6 +6,7 @@
 #include <QColorDialog>
 #include <QColor>
 #include <QDebug>
+#include <QFileDialog>
 
 #include "stddefs.h"
 #include "uwbsettings.h"
@@ -37,6 +38,10 @@ private:
 
     Ui::sceneRendererDialog *ui;
 
+    QString imageExportPath;
+    QString imagePeriodicalExportPath;
+
+
 private slots:
     void accepted(void);
 
@@ -45,8 +50,12 @@ private slots:
     void colorSelectGridThreeSlot(void);
     void colorSelectionBackgroundSlot(void);
 
+    void imageExportPathDialogSlot(void);
+    void imagePeriodicalExportPathDialogSlot(void);
+
 signals:
     void renderingEngineChanged(rendering_engine);
+    void periodicalImgBackup(bool);
 };
 
 #endif // SCENERENDERERDIALOG_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>954</width>
-    <height>734</height>
+    <height>630</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -362,6 +362,89 @@ QPushButton:checked{
                 </property>
                </widget>
               </item>
+              <item row="0" column="3">
+               <widget class="QPushButton" name="exportImageButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border:none;
+	image: url(&quot;:/mainToolbar/icons/export_icon.png&quot;);
+}
+QPushButton:hover{
+	image: url(&quot;:/mainToolbar/icons/export_icon_hover.png&quot;);
+}
+QPushButton:checked{
+	image: url(&quot;:/mainToolbar/icons/export_icon_hover.png&quot;);
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QPushButton" name="enableRenderingButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border:none;
+	image: url(&quot;:/mainToolbar/icons/rendering_icon.png&quot;);
+}
+QPushButton:hover{
+	image: url(&quot;:/mainToolbar/icons/rendering_icon_hover.png&quot;);
+}
+QPushButton:checked{
+	image: url(&quot;:/mainToolbar/icons/rendering_icon_hover.png&quot;);
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -372,8 +455,8 @@ QPushButton:checked{
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>232</width>
+            <height>258</height>
            </rect>
           </property>
           <attribute name="label">
@@ -393,7 +476,7 @@ QPushButton:checked{
      <x>0</x>
      <y>0</y>
      <width>954</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

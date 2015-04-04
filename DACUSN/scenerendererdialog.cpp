@@ -34,6 +34,14 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
 
     ui->realTimeRecordingCheckBox->setChecked(settings->getHistoryPath());
 
+    imageExportPath = settings->getExportPath();
+    ui->periodicalImgBackupCheckBox->setChecked(settings->getPeriodicalImgBackup());
+    ui->periodicalImgBackupSpinBox->setValue(settings->getPeriodicalImgBackupInterval());
+    imagePeriodicalExportPath = settings->getPeriodicalImgBackupPath();
+    connect(ui->periodicalImgBackupButton, SIGNAL(clicked()), this, SLOT(imagePeriodicalExportPathDialogSlot()));
+    connect(ui->exportImagePathButton, SIGNAL(clicked()), this, SLOT(imageExportPathDialogSlot()));
+
+
     // OpenGL settings
 
     if(settings->oglGetBufferType() == DOUBLE_BUFFERING) ui->doubleBufferingRadio->setChecked(true);
@@ -112,6 +120,12 @@ void sceneRendererDialog::accepted()
 
     settings->setHistoryPath(ui->realTimeRecordingCheckBox->isChecked());
 
+    settings->setExportPath(imageExportPath);
+
+    settings->setPeriodicalImgBackup(ui->periodicalImgBackupCheckBox->isChecked());
+    settings->setPeriodicalImgBackupInterval(ui->periodicalImgBackupSpinBox->value());
+    settings->setPeriodicalImgBackupPath(imagePeriodicalExportPath);
+
     settings->setTappingRenderMethod((visualization_tapping_options)(ui->backgroundRenderingComboBox->currentIndex()));
 
     settings->setVisualizationSchema((visualization_schema)(ui->targetDisplayMethodComboBox->currentIndex()));
@@ -141,6 +155,7 @@ void sceneRendererDialog::accepted()
     settingsMutex->unlock();
 
     emit renderingEngineChanged((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
+    emit periodicalImgBackup(ui->periodicalImgBackupCheckBox->isChecked());
 }
 
 void sceneRendererDialog::colorSelectGridTwoSlot()
@@ -173,4 +188,23 @@ void sceneRendererDialog::colorSelectionBackgroundSlot()
     backgroundColor = new QColor(QColorDialog::getColor(*backgroundColor, this, tr("Select color for scene background")));
     if(backgroundColor) delete temp;
     else backgroundColor = temp;
+}
+
+void sceneRendererDialog::imageExportPathDialogSlot()
+{
+    QString temp = imageExportPath;
+    imageExportPath = QFileDialog::getExistingDirectory (this, tr("Select path for exported images"), imageExportPath, QFileDialog::ShowDirsOnly);
+
+    // if canceled
+    if(imageExportPath=="") imageExportPath = temp;
+}
+
+void sceneRendererDialog::imagePeriodicalExportPathDialogSlot()
+{
+    QString temp = imageExportPath;
+    imagePeriodicalExportPath = QFileDialog::getExistingDirectory (this, tr("Select path for periodical export images"), imagePeriodicalExportPath, QFileDialog::ShowDirsOnly);
+
+    // if canceled
+    if(imagePeriodicalExportPath=="") imagePeriodicalExportPath = temp;
+
 }

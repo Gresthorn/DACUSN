@@ -65,13 +65,6 @@ MainWindow::MainWindow(QWidget *parent) :
     visualizationTimer = new QTimer(this);
     visualizationScene = new radarScene(settings, settingsMutex, this);
 
-    /*QGraphicsTextItem * testText = new QGraphicsTextItem("Hello world");
-    testText->setPos(50.0, 50.0);
-    QTransform textTransform;
-    textTransform.scale(1.0, -1.0);
-    testText->setTransform(textTransform);
-    visualizationScene->addItem(testText);*/
-
     visualizationView = new radarView(visualizationScene, settings, settingsMutex, this);
 
     visualizationView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -83,6 +76,20 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
     visualizationTimer->setInterval(settings->getVisualizationInterval());
 
+    if(settings->getPeriodicalImgBackup())
+    {
+        periodicalExportTimer = new QTimer;
+        connect(periodicalExportTimer, SIGNAL(timeout()), this, SLOT(periodicalExportViewImageSlot()));
+        periodicalExportTimer->start(settings->getPeriodicalImgBackupInterval());
+    }
+    else periodicalExportTimer = NULL;
+
+    if(settings->getHistoryPath()) ui->pathHistoryCheckButton->setChecked(true);
+    else ui->pathHistoryCheckButton->setChecked(false);
+
+    if(settings->getVisualizationEnabled()) ui->enableRenderingButton->setChecked(true);
+    else ui->enableRenderingButton->setChecked(false);
+
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 
 
@@ -93,6 +100,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->moveToXYButton, SIGNAL(clicked()), this, SLOT(sceneMoveToXYSlot()));
     connect(ui->centerToZeroButton, SIGNAL(clicked()), this, SLOT(centerToZeroSlot()));
     connect(ui->pathHistoryCheckButton, SIGNAL(clicked()), this, SLOT(pathHistoryShow()));
+    connect(ui->exportImageButton, SIGNAL(clicked()), this, SLOT(exportViewImageSlot()));
+    connect(ui->enableRenderingButton, SIGNAL(clicked()), this, SLOT(enableRenderingSlot()));
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
@@ -137,6 +146,8 @@ void MainWindow::pauseDataInputSlot()
 
             // pause visualization
             visualizationTimer->stop();
+            // if periodical image generation was selected, stop the timer
+            if(periodicalExportTimer!=NULL) periodicalExportTimer->stop();
         }
         else
         {
@@ -149,6 +160,8 @@ void MainWindow::pauseDataInputSlot()
 
             // return visualization running state
             visualizationTimer->start();
+            // if periodical image generation was selected, continue in timing
+            if(periodicalExportTimer!=NULL) periodicalExportTimer->start();
         }
     }
 }
@@ -196,6 +209,8 @@ void MainWindow::establishDataInputThreadSlot()
 
     // turn visualization on
     visualizationTimer->start();
+    // turn image periodical generation on, if selected
+    if(periodicalExportTimer!=NULL) periodicalExportTimer->start();
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -261,6 +276,8 @@ void MainWindow::destroyDataInputThreadSlot()
 
     // stop visualization
     visualizationTimer->stop();
+    // turn off timer causing periodical image generation
+    if(periodicalExportTimer!=NULL) periodicalExportTimer->stop();
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -562,6 +579,125 @@ void MainWindow::pathHistoryShow()
     }
 }
 
+void MainWindow::periodicalImgBackupSlot(bool enabled)
+{
+    if(enabled)
+    {
+        settingsMutex->lock();
+        unsigned int ms = settings->getPeriodicalImgBackupInterval();
+        settingsMutex->unlock();
+
+        if(periodicalExportTimer==NULL)
+        {
+            periodicalExportTimer = new QTimer;
+            // if visualization is running, activate backup
+            if(visualizationTimer->isActive())
+            {
+                connect(periodicalExportTimer, SIGNAL(timeout()), this, SLOT(periodicalExportViewImageSlot()));
+                periodicalExportTimer->start(ms);
+            }
+            else
+            {
+                // if visualization is not running, we only create timer without starting it
+                connect(periodicalExportTimer, SIGNAL(timeout()), this, SLOT(periodicalExportViewImageSlot()));
+                periodicalExportTimer->setInterval(ms);
+            }
+        }
+        else
+        {
+            // if timer is not NULL, that means that timer is created and we should turn it on if visualization is running/off if not
+            if(visualizationTimer->isActive())
+            {
+                // start timer
+                if(!periodicalExportTimer->isActive()) periodicalExportTimer->start(ms);
+                else
+                {
+                    // if timer is already running, we will stop it and change the interval according to the newly set value
+                    periodicalExportTimer->stop();
+                    periodicalExportTimer->start(ms); // !!!
+                }
+            }
+            else
+            {
+                // stopping timer to save CPU from unnecessary processing
+                periodicalExportTimer->stop();
+                periodicalExportTimer->setInterval(ms); // !!!!!
+            }
+        }
+    }
+    else
+    {
+        if(periodicalExportTimer!=NULL)
+        {
+            periodicalExportTimer->stop();
+            disconnect(periodicalExportTimer, SIGNAL(timeout()), this, SLOT(periodicalExportViewImageSlot()));
+            delete periodicalExportTimer;
+        }
+
+        periodicalExportTimer = NULL;
+    }
+}
+
+void MainWindow::enableRenderingSlot()
+{
+    settingsMutex->lock();
+    settings->setVisualizationEnabled(!settings->getVisualizationEnabled());
+    settingsMutex->unlock();
+}
+
+/* EXPORT VIEW TO IMAGE */
+void MainWindow::exportViewImageSlot()
+{
+    QString path;
+    settingsMutex->lock();
+    path = settings->getExportPath();
+    settingsMutex->unlock();
+
+    QString file = QString("/EXPORT_%1.png").arg(QDateTime::currentDateTime().toString());
+
+    // coordinates in window
+    QRect windowRect;
+    windowRect.setTopLeft(visualizationView->mapTo(visualizationView->window(), visualizationView->rect().topLeft()));
+    windowRect.setBottomRight(visualizationView->mapTo(visualizationView->window(), visualizationView->rect().bottomRight()));
+
+    QPixmap filePixmap = QWidget::grab(windowRect);
+
+    file.replace(" ", "_");
+    file.replace(":", "_");
+
+    path.append(file);
+
+    qDebug() << "Saving to: " << path;
+
+    filePixmap.save(path);
+}
+
+/* PERIODICAL EXPORT VIEW TO IMAGE */
+void MainWindow::periodicalExportViewImageSlot()
+{
+    QString path;
+    settingsMutex->lock();
+    path = settings->getPeriodicalImgBackupPath();
+    settingsMutex->unlock();
+
+    QString file = QString("/EXPORT_%1.png").arg(QDateTime::currentDateTime().toString());
+
+    // coordinates in window
+    QRect windowRect;
+    windowRect.setTopLeft(visualizationView->mapTo(visualizationView->window(), visualizationView->rect().topLeft()));
+    windowRect.setBottomRight(visualizationView->mapTo(visualizationView->window(), visualizationView->rect().bottomRight()));
+
+    QPixmap filePixmap = QWidget::grab(windowRect);
+
+    file.replace(" ", "_");
+    file.replace(":", "_");
+
+    path.append(file);
+
+    qDebug() << "Saving to: " << path;
+
+    filePixmap.save(path);
+}
 
 
 /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
@@ -591,6 +727,7 @@ void MainWindow::openSceneRendererDialog()
 {
     sceneRendererDialog dialog(settings, settingsMutex, visualizationScene, visualizationView, this);
     connect(&dialog, SIGNAL(renderingEngineChanged(rendering_engine)), this, SLOT(renderingEngineChangedSlot(rendering_engine)));
+    connect(&dialog, SIGNAL(periodicalImgBackup(bool)), this, SLOT(periodicalImgBackupSlot(bool)));
 
     dialog.exec();
 }

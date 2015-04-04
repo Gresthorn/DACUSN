@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QPointF>
 #include <QGraphicsEllipseItem>
+#include <QImage>
 #include <QGLWidget>
 
 #include <QDebug>
@@ -49,8 +50,8 @@ public:
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
 
-    radarScene * visualizationScene; ///< Is the scene where all items/objects are rendered on
-    radarView * visualizationView; ///< The view widget where the viewport of 'visualizationScene' will be placed;
+    radarScene * visualizationScene; ///< Is the scene where all items/objects are rendered on.
+    radarView * visualizationView; ///< The view widget where the viewport of 'visualizationScene' will be placed.
     animationManager * visualizationManager; ///< Is the object that handles all methods for different visualization schemas.
 
     explicit MainWindow(QWidget *parent = 0);
@@ -141,6 +142,17 @@ public slots:
      */
     void pathHistoryShow(void);
 
+    /**
+     * @brief Slot will start/ends timer and creates/deletes QTimer object if the periodical image export is enabled/disabled.
+     * @param[in] enabled Specifies the periodical image export status.
+     */
+    void periodicalImgBackupSlot(bool enabled);
+
+    /**
+     * @brief This slot is called after user clicks the checkable rendering button in basic scene controls list. Function will negotiate the current rendering status.
+     */
+    void enableRenderingSlot(void);
+
 private slots:
 
     /**
@@ -163,6 +175,15 @@ private slots:
      */
     void openSceneRendererDialog(void);
 
+    /**
+     * @brief After clicking the 'export' controll button, this slot will ensure that present view will be exported in directory at in settings specified location.
+     */
+    void exportViewImageSlot(void);
+
+    /**
+     * @brief If the user selects the periodical image backup option, specalized timer is created, which will evoke this slot for exporting image from current view.
+     */
+    void periodicalExportViewImageSlot(void);
 
 
 private:
@@ -187,6 +208,7 @@ private:
     visualization_tapping_options lastKnownTappingOptions; ///< The lastly used tapping option before switching to draw history regime.
     bool lastKnownSmoothTransitionsState; ///< Saves the smooth transitions state for time when user is switched into path drawing mode.
 
+    QTimer * periodicalExportTimer; ///< If user selected the periodical backup, this timer manages 'periodicalExportSlot()' to generate new image.
     // HELPER VARIABLES
 };
 
