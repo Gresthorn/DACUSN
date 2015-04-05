@@ -16,6 +16,8 @@ stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_
     maxStackWarningCount = 10;
     lastStackCount = 0;
 
+    processingIterator = currentProcessingSpeed = averageProcessingSpeed = 0;
+
     rescueEnabled = true;
 
     pauseState = false;
@@ -218,6 +220,26 @@ void stackManager::releaseIfInPauseState()
     pauseMutex->unlock();
 }
 
+qint64 stackManager::getAverageProcessingSpeed()
+{
+    // WE CAN USE RADARLIST MUTEX SINCE TIME IS CALCULATED INSIDE ITS PROTECTED AREA
+    qint64 val;
+    radarListMutex->lock();
+    val = averageProcessingSpeed;
+    radarListMutex->unlock();
+    return val;
+}
+
+qint64 stackManager::getCurrentProcessingSpeed()
+{
+    // WE CAN USE RADARLIST MUTEX SINCE TIME IS CALCULATED INSIDE ITS PROTECTED AREA
+    qint64 val;
+    radarListMutex->lock();
+    val = currentProcessingSpeed;
+    radarListMutex->unlock();
+    return val;
+}
+
 void stackManager::dataProcessing(rawData *data)
 {
     if(data==NULL) return;
@@ -228,6 +250,11 @@ void stackManager::dataProcessing(rawData *data)
     if(method==SYNTHETIC) radar_id = data->getSyntheticRadarId();
 
     radarListMutex->lock();
+
+    // the timer is used for calculating the average or current processing speed
+    QElapsedTimer timer;
+    timer.start();
+
     // find the correct radarUnit
     int i = -1;
     if(!radarList->isEmpty())
@@ -261,6 +288,10 @@ void stackManager::dataProcessing(rawData *data)
         // if all radars are updated its time for fusion and visualization list update
         applyFusion();
     }
+
+    // update time information
+    currentProcessingSpeed = timer.nsecsElapsed();
+    averageProcessingSpeed = (averageProcessingSpeed*processingIterator + currentProcessingSpeed)/(++processingIterator);
 
     radarListMutex->unlock();
 }

@@ -8,8 +8,8 @@ void MainWindow::visualizationSlot()
 {
     // PROTOTYPE OF THIS METHOD IS IN MAINWINDOW
 
-    //QElapsedTimer timer;
-    //timer.start();
+    QElapsedTimer timer;
+    timer.start();
 
 
         // common variables that need be loaded from settings before we can start
@@ -112,6 +112,10 @@ void MainWindow::visualizationSlot()
 
     // repaint scene
     if(vis_schema!=PATH_HISTORY) visualizationScene->update();
+
+
+    // calculate average render time
+    averageRenderTime = (averageRenderTime*renderIterationCount + timer.nsecsElapsed())/(++renderIterationCount);
 
     //qDebug() << "Items in scene: " << visualizationScene->items().count();
     //qDebug() << "ELAPSED " << timer.nsecsElapsed();

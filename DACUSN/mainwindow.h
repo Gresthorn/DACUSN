@@ -10,6 +10,8 @@
 #include <QGraphicsEllipseItem>
 #include <QImage>
 #include <QGLWidget>
+#include <QElapsedTimer>
+
 
 #include <QDebug>
 
@@ -153,6 +155,16 @@ public slots:
      */
     void enableRenderingSlot(void);
 
+    /**
+     * @brief This slot is evoked by timer each second to update time measurement labels.
+     */
+    void timeMeasureSlot(void);
+
+    /**
+     * @brief Following slot will take updated data and converts them into string while updating information table.
+     */
+    void informationTableUpdateSlot(void);
+
 private slots:
 
     /**
@@ -187,6 +199,14 @@ private slots:
 
 
 private:
+
+    /**
+     * @brief This function can convert time expressed in miliseconds to QString in format hh:mm:ss
+     * @param[in] timems Time expressed in miliseconds.
+     * @return Time in readable QString form.
+     */
+    QString timeToString(qint64 timems);
+
     Ui::MainWindow *ui;
 
     QTimer * pauseBlinkEffect; ///< Blink effect is used to warn user that the data inpu is paused
@@ -209,7 +229,15 @@ private:
     bool lastKnownSmoothTransitionsState; ///< Saves the smooth transitions state for time when user is switched into path drawing mode.
 
     QTimer * periodicalExportTimer; ///< If user selected the periodical backup, this timer manages 'periodicalExportSlot()' to generate new image.
-    // HELPER VARIABLES
+    QTimer * timerElapsed; ///< This timer each second evokes 'timeMeasureSlot()' to update timer label in user interface.
+    QTimer * informationTableTimer; ///< This timer is evoking the 'informationTableUpdateSlot()' aproximately each 5 seconds to update all indicators in information table.
+
+    QElapsedTimer * totalElapsedTimer; ///< This timer is created and started immediately when the program starts. Therefore it indicates the time elapsed from the initializing program.
+    QElapsedTimer * instanceElapsedTimer; ///< This timer is started when the measurement/observing starts. When observing is stopped/paused, timer follows this signals as well.
+    qint64 instanceTimerAccumulator; ///< Since QElapsedTimer cannot be paused, after pause button is clicked we save currently elapsed time to accumulator and after instance timer restart we still add this value to elapsed time befor converting to string.
+
+    qint64 averageRenderTime; ///< Average time from all rendering iterations since the one measurement instance started.
+    qint64 renderIterationCount; ///< Holds the information about how many rendering iteration were done so far.
 };
 
 #endif // MAINWINDOW_H

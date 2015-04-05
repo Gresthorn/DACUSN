@@ -38,6 +38,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setWindowTitle(tr("Centrum asociácie dát v UWB sensorovej sieti"));
 
+    totalElapsedTimer = new QElapsedTimer;
+    instanceElapsedTimer = NULL;
+    instanceTimerAccumulator = 0;
+
+    totalElapsedTimer->start();
+
+    timerElapsed = new QTimer;
+    timerElapsed->setInterval(1000);
+    timerElapsed->start();
+    connect(timerElapsed, SIGNAL(timeout()), this, SLOT(timeMeasureSlot()));
+
+
     /* ------------------------------------------------- THREADS ------------------------------------------------- */
 
 
@@ -61,6 +73,10 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- STACK MANAGER ------------------------------------------- */
 
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
+
+    averageRenderTime = renderIterationCount = 0;
+    informationTableTimer = NULL;
+
 
     visualizationTimer = new QTimer(this);
     visualizationScene = new radarScene(settings, settingsMutex, this);
@@ -144,10 +160,18 @@ void MainWindow::pauseDataInputSlot()
             connect(pauseBlinkEffect, SIGNAL(timeout()), this, SLOT(changeDataInputPauseButtonSlot()));
             pauseBlinkEffect->start();
 
+            // pausing instance time measurement
+            if(instanceElapsedTimer!=NULL)
+            {
+                instanceTimerAccumulator += instanceElapsedTimer->elapsed();
+                instanceElapsedTimer->invalidate();
+            }
             // pause visualization
             visualizationTimer->stop();
             // if periodical image generation was selected, stop the timer
             if(periodicalExportTimer!=NULL) periodicalExportTimer->stop();
+            // stop the information table update timer
+            informationTableTimer->stop();
         }
         else
         {
@@ -158,10 +182,14 @@ void MainWindow::pauseDataInputSlot()
             blinker = true;
             ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
 
+            // resuming instance time measurement
+            if(instanceElapsedTimer!=NULL) instanceElapsedTimer->restart();
             // return visualization running state
             visualizationTimer->start();
             // if periodical image generation was selected, continue in timing
             if(periodicalExportTimer!=NULL) periodicalExportTimer->start();
+            // resume information table timer
+            informationTableTimer->start(5000);
         }
     }
 }
@@ -211,6 +239,14 @@ void MainWindow::establishDataInputThreadSlot()
     visualizationTimer->start();
     // turn image periodical generation on, if selected
     if(periodicalExportTimer!=NULL) periodicalExportTimer->start();
+    // start time measurement
+    if(instanceElapsedTimer!=NULL) delete instanceElapsedTimer;
+    instanceElapsedTimer = new QElapsedTimer;
+    instanceElapsedTimer->start();
+    // create and start information table update timer
+    informationTableTimer = new QTimer;
+    connect(informationTableTimer, SIGNAL(timeout()), this, SLOT(informationTableUpdateSlot()));
+    informationTableTimer->start(5000);
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -278,6 +314,16 @@ void MainWindow::destroyDataInputThreadSlot()
     visualizationTimer->stop();
     // turn off timer causing periodical image generation
     if(periodicalExportTimer!=NULL) periodicalExportTimer->stop();
+    // deleting time measurement timer
+    if(instanceElapsedTimer!=NULL) delete instanceElapsedTimer;
+    instanceElapsedTimer=NULL;
+    instanceTimerAccumulator = 0;
+    // zero variables hodling helper values for average render time calculation
+    averageRenderTime = renderIterationCount = 0;
+    // delete information table update timer
+    informationTableTimer->stop();
+    disconnect(informationTableTimer, SIGNAL(timeout()), this, SLOT(informationTableUpdateSlot()));
+    delete informationTableTimer;
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -645,6 +691,29 @@ void MainWindow::enableRenderingSlot()
     settingsMutex->unlock();
 }
 
+void MainWindow::timeMeasureSlot()
+{
+    // update global timer
+    ui->globalTimeCounterLabel->setText(timeToString(totalElapsedTimer->elapsed()));
+    // update instance timer
+    if(instanceElapsedTimer!=NULL && instanceElapsedTimer->isValid()) ui->instanceTimeCounterLabel->setText(timeToString(instanceElapsedTimer->elapsed()+instanceTimerAccumulator));
+}
+
+void MainWindow::informationTableUpdateSlot()
+{
+    qDebug() << "Updating information table...";
+    // NOTE THAT ALSO 'visualizationSlot()', WHERE AVERAGE RENDER TIME VARIABLE IS UPDATED IS SLOT AS WELL AS THIS FUNCTION, SO THANKS TO THE SIGNAL-SLOT QUEUE
+    // MECHANISM WE DO NOT NEED USE MUTEXES HERE.
+    ui->averageRenderTimeLabel->setText(QString("%1").arg(averageRenderTime));
+
+    visualizationDataMutex->lock();
+    ui->targetsCountLabel->setText(QString("%1").arg(visualizationData->count()));
+    visualizationDataMutex->unlock();
+
+    // we do not have to use mutexes since it is done in 'getAverageProcessingSpeed()' method
+    ui->averageProcessingTimeLabel->setText(QString("%1").arg(stackManagerWorker->getAverageProcessingSpeed()));
+}
+
 /* EXPORT VIEW TO IMAGE */
 void MainWindow::exportViewImageSlot()
 {
@@ -697,6 +766,20 @@ void MainWindow::periodicalExportViewImageSlot()
     qDebug() << "Saving to: " << path;
 
     filePixmap.save(path);
+}
+
+QString MainWindow::timeToString(qint64 timems)
+{
+    qint64 g_elapsed_secs = (timems/1000)%60;
+    qint64 g_elapsed_mins = (timems/1000/60)%60;
+    qint64 g_elapsed_hrs = (timems/1000/60/60);
+
+    QString time_string("");
+    (g_elapsed_hrs < 10) ? time_string.append(QString("0%1").arg(g_elapsed_hrs)) : time_string.append(QString("%1").arg(g_elapsed_hrs));
+    (g_elapsed_mins < 10) ? time_string.append(QString(":0%1").arg(g_elapsed_mins)) : time_string.append(QString(":%1").arg(g_elapsed_mins));
+    (g_elapsed_secs < 10) ? time_string.append(QString(":0%1").arg(g_elapsed_secs)) : time_string.append(QString(":%1").arg(g_elapsed_secs));
+
+    return time_string;
 }
 
 

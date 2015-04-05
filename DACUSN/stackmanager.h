@@ -8,6 +8,7 @@
 #include <QList>
 #include <QThread>
 #include <QWaitCondition>
+#include <QElapsedTimer>
 #include <limits>
 
 #include <QDebug>
@@ -86,6 +87,18 @@ public:
      */
     void releaseIfInPauseState(void);
 
+    /**
+     * @brief Returns the avarage processing time in nanoseconds. Mutexes and all needed stuff is done inside, therefore upper classes does not need to take care about mutex protection.
+     * @return The avarage processing time in nanoseconds.
+     */
+    qint64 getAverageProcessingSpeed(void);
+
+    /**
+     * @brief Returns the last iteration processing time in nanoseconds. Mutexes and all needed stuff is done inside, therefore upper classes does not need to take care about mutex protection.
+     * @return The lastly calculated processing time in nanoseconds.
+     */
+    qint64 getCurrentProcessingSpeed(void);
+
 private:
     QVector<rawData * > * rawDataStack; ///< Pointer to the stack
     QMutex * rawDataStackMutex; ///< Pointer to the mutex locking the stack
@@ -115,6 +128,10 @@ private:
 
     QVector<radar_handler * > * radarList; ///< Is the list with all radar handler structures that are currently registered by application.
     QMutex * radarListMutex; ///< The mutex locking the radar_list object during reading/writing values or doing some processing on recieved data.
+
+    qint64 averageProcessingSpeed; ///< Holds the average processing time since the stack manager started.
+    qint64 currentProcessingSpeed; ///< Holds the last processing time in nanoseconds.
+    qint64 processingIterator; ///< Counts how many processing iterations there were so far.
 
     /**
      * @brief This function will control the stack situation and its behaviour in time (checks for speed of data input) and prevent the stack from being filled too fastly.
