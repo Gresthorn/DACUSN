@@ -89,6 +89,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     visualizationManager = new animationManager(visualizationScene, visualizationView, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
 
+    //lt->addWidget(t);
+
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
     visualizationTimer->setInterval(settings->getVisualizationInterval());
 
