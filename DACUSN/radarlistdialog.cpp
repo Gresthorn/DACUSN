@@ -365,4 +365,6 @@ void radarListDialog::accepted()
     }
 
     radarListMutex->unlock();
+
+    emit radarListUpdated();
 }

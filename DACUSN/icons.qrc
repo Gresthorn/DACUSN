@@ -22,5 +22,7 @@
         <file>icons/export_icon_hover.png</file>
         <file>icons/rendering_icon.png</file>
         <file>icons/rendering_icon_hover.png</file>
+        <file>icons/refresh_icon.png</file>
+        <file>icons/refresh_icon_hover.png</file>
     </qresource>
 </RCC>

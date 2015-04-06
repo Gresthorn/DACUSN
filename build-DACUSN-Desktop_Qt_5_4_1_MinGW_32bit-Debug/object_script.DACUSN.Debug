@@ -13,6 +13,7 @@ INPUT(
 ./debug\visualization.o
 ./debug\scenerendererdialog.o
 ./debug\coordinatesinputdialog.o
+./debug\radarsubwindow.o
 ./debug\qrc_icons.o
 ./debug\moc_mainwindow.o
 ./debug\moc_datainputthreadworker.o
@@ -23,4 +24,5 @@ INPUT(
 ./debug\moc_visualization.o
 ./debug\moc_scenerendererdialog.o
 ./debug\moc_coordinatesinputdialog.o
+./debug\moc_radarsubwindow.o
 );

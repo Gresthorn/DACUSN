@@ -61,6 +61,9 @@ private slots:
     void rowSelectionSlot(void);
     void deleteRadarUnitSlot(void);
     void accepted(void);
+
+signals:
+    void radarListUpdated(void);
 };
 
 #endif // RADARLISTDIALOG_H

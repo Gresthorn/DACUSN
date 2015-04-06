@@ -123,6 +123,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
+    /* ------------------------------------------------- RADARS CONTROLS ----------------------------------------- */
+
+    connect(ui->refreshRadarListButton, SIGNAL(clicked()), this, SLOT(radarListUpdated()));
+
+    /* ------------------------------------------------- RADARS CONTROLS ----------------------------------------- */
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -805,6 +810,8 @@ void MainWindow::openRadarListDialog()
 {
     radarListDialog dialog(radarList, radarListMutex, settings, settingsMutex, this);
 
+    connect(&dialog, SIGNAL(radarListUpdated()), this, SLOT(radarListUpdated()));
+
     dialog.exec();
 }
 
@@ -815,4 +822,39 @@ void MainWindow::openSceneRendererDialog()
     connect(&dialog, SIGNAL(periodicalImgBackup(bool)), this, SLOT(periodicalImgBackupSlot(bool)));
 
     dialog.exec();
+}
+
+/* ------------------------------------------------- RADAR SUBWINDOWS MANAGEMENT ----------------------------- */
+
+void MainWindow::radarListUpdated()
+{
+    // delete all items in list
+    for(int i=0; i<ui->radarListWidget->count(); i++)
+    {
+        delete ui->radarListWidget->item(i);
+    }
+    ui->radarListWidget->clear();
+
+    // fill with new records (mutexes, just in case)
+    radarListMutex->lock();
+    for(int a = 0; a<radarList->count(); a++)
+    {
+        QListWidgetItem * item = new QListWidgetItem;
+        item->setText(QString("Radar unit id: %1").arg(radarList->at(a)->id));
+        // data will be used when user clicks the display in subwindow or central view to enable this functionality, for identifying radar unit.
+        item->setData(Qt::UserRole, radarList->at(a)->id);
+        ui->radarListWidget->addItem(item);
+    }
+
+    radarListMutex->unlock();
+}
+
+void MainWindow::deleteRadarSubWindow(radarSubWindow *subWindow)
+{
+
+}
+
+void MainWindow::addRadarSubWindow()
+{
+
 }

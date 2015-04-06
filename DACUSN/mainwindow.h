@@ -31,6 +31,7 @@
 #include "radarunit.h"
 #include "radar_handler.h"
 #include "visualization.h"
+#include "radarsubwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -165,6 +166,11 @@ public slots:
      */
     void informationTableUpdateSlot(void);
 
+    /**
+     * @brief If radar list is updated, this slot will update the list widget in front panel.
+     */
+    void radarListUpdated(void);
+
 private slots:
 
     /**
@@ -197,6 +203,16 @@ private slots:
      */
     void periodicalExportViewImageSlot(void);
 
+    /**
+     * @brief Deletes radar subwindow when is closed.
+     * @param[in] subWindow Is the pointer to subwindow. This is passed when subwindow is closed, so mainwindow can find it in list and delete record.
+     */
+    void deleteRadarSubWindow(radarSubWindow * subWindow);
+
+    /**
+     * @brief Creates new subWindow and adds it into list.
+     */
+    void addRadarSubWindow(void);
 
 private:
 
@@ -208,6 +224,8 @@ private:
     QString timeToString(qint64 timems);
 
     Ui::MainWindow *ui;
+
+    QList<radarSubWindow * > radarSubWindowList; ///< Lists all radar subwindows displaying data from specific radar unit in current use.
 
     QTimer * pauseBlinkEffect; ///< Blink effect is used to warn user that the data inpu is paused
     bool blinker; ///< Boolean value which is changed periodically when 'pauseBlinkEffect' timer emits signal. Used for changing pause action button style.
