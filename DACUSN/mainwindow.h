@@ -171,6 +171,14 @@ public slots:
      */
     void radarListUpdated(void);
 
+    /**
+     * @brief Destroys all subwindows and deletes all dependencies.
+     */
+
+protected:
+
+    void closeEvent(QCloseEvent *event);
+
 private slots:
 
     /**
@@ -256,6 +264,7 @@ private:
 
     qint64 averageRenderTime; ///< Average time from all rendering iterations since the one measurement instance started.
     qint64 renderIterationCount; ///< Holds the information about how many rendering iteration were done so far.
+
 };
 
 #endif // MAINWINDOW_H

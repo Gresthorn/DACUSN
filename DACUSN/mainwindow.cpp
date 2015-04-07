@@ -111,6 +111,9 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- VISUALIZATION ------------------------------------------- */
 
 
+    // update radar list widget with initial records and operator record
+    radarListUpdated();
+
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
     connect(ui->rotationControlDial, SIGNAL(sliderMoved(int)), this, SLOT(sceneRotationChangedSlot(int)));
@@ -126,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- RADARS CONTROLS ----------------------------------------- */
 
     connect(ui->refreshRadarListButton, SIGNAL(clicked()), this, SLOT(radarListUpdated()));
+    connect(ui->showInSubWindowButton, SIGNAL(clicked()), this, SLOT(addRadarSubWindow()));
 
     /* ------------------------------------------------- RADARS CONTROLS ----------------------------------------- */
 
@@ -139,10 +143,29 @@ MainWindow::MainWindow(QWidget *parent) :
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // destroy all subwindows if exist
+    while(!radarSubWindowList.isEmpty())
+    {
+        radarSubWindowList.first()->close();
+        delete radarSubWindowList.first();
+        radarSubWindowList.removeFirst();
+    }
+}
+
 MainWindow::~MainWindow()
 {
     // if some of data recieving is still runnning, stopping it
     this->destroyDataInputThreadSlot();
+
+    // destroy all subwindows if exist
+    while(!radarSubWindowList.isEmpty())
+    {
+        radarSubWindowList.first()->close();
+        delete radarSubWindowList.first();
+        radarSubWindowList.removeFirst();
+    }
 
     delete ui;
 }
@@ -836,6 +859,13 @@ void MainWindow::radarListUpdated()
     ui->radarListWidget->clear();
 
     // fill with new records (mutexes, just in case)
+
+    // firstly create operator item
+    QListWidgetItem * item = new QListWidgetItem;
+    item->setText(QString("OPERATOR"));
+    item->setData(Qt::UserRole, -1);
+    ui->radarListWidget->addItem(item);
+
     radarListMutex->lock();
     for(int a = 0; a<radarList->count(); a++)
     {
@@ -856,5 +886,17 @@ void MainWindow::deleteRadarSubWindow(radarSubWindow *subWindow)
 
 void MainWindow::addRadarSubWindow()
 {
+    // if selected item is OPERATOR
+    if(ui->radarListWidget->currentItem()->text()==QString("OPERATOR")) { qDebug() << "Cannot create OPERATOR sub window."; return; }
 
+    int selectedRadarId = ui->radarListWidget->currentItem()->data(Qt::UserRole).toInt();
+
+    // If window for this radar already exist, no need to create another one.
+    for(int i = 0; i<radarSubWindowList.count(); i++) if(radarSubWindowList.at(i)->getRadarId()==selectedRadarId) { qDebug() << "Sub window for this radar unit already exists."; return; }
+
+
+    radarSubWindow * newRadarWindow = new radarSubWindow(selectedRadarId, settings, settingsMutex, radarList, radarListMutex, visualizationColor, visualizationDataMutex, 0);
+
+    radarSubWindowList.append(newRadarWindow);
+    newRadarWindow->show();
 }
