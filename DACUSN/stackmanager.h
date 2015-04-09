@@ -17,6 +17,7 @@
 #include "stddefs.h"
 #include "uwbsettings.h"
 #include "radar_handler.h"
+#include "radarsubwindow.h"
 
 /**
  * @file reciever.h
@@ -58,7 +59,8 @@ public:
      * default values (later they are rewritten by settings values if they are specified).
      */
     stackManager(QVector<rawData * > * raw_data_stack, QMutex * raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex,
-                 QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QMutex * visualization_data_mutex, uwbSettings * setts, QMutex * settings_mutex);
+                 QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QList<radarSubWindow * >  * radar_Sub_Window_List, QMutex * radar_Sub_Window_List_Mutex, QMutex * visualization_data_mutex,
+                 uwbSettings * setts, QMutex * settings_mutex);
     ~stackManager();
 
     /**
@@ -105,8 +107,10 @@ private:
     uwbSettings * settings; ///< Pointer to the basic application settings object
     QMutex * settingsMutex; ///< Pointer to the mutex locking the settings object
     QList<QPointF * > * visualizationData; ///< The final positions of targets
+    QList<radarSubWindow * >  * radarSubWindowList; ///< If some subwindows for displaying specific radar data are created, we need to push relevant values into their prive vectors.
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time
+    QMutex * radarSubWindowListMutex; ///< Mutex protecting radar sub windows vectors from being accessed by multiple threads at the same time
 
     unsigned int idleTime; ///< The idle time, during the thread is sleeping after it find out that the stack is empty
     unsigned int stackControlPeriodicity; ///< Number of cycles that must pass until the 'stackControl' function is run
@@ -160,6 +164,11 @@ private:
      * @brief Clears all vector with positions of targets in the scene and prepares the vector for new data.
      */
     void clearVisualizationData(void);
+
+    /**
+     * @brief While updating data, we must add specific radar data to the privet vectors contained in radar subwindows.
+     */
+    void updateRadarSubWindowList(void);
 
 public slots:
     /**

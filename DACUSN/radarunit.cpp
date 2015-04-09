@@ -91,6 +91,8 @@ bool radarUnit::processNewData(rawData *data)
 
 int radarUnit::getNumberOfTargetsLast()
 {
+    if(dataList->isEmpty()) return -1; // default return
+
     reciever_method method = dataList->last()->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->last()->getSyntheticTargetsCount();
     else return NULL;
@@ -99,6 +101,8 @@ int radarUnit::getNumberOfTargetsLast()
 
 float *radarUnit::getCoordinatesLast()
 {
+    if(dataList->isEmpty()) return NULL; // default return
+
     reciever_method method = dataList->last()->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->last()->getSyntheticCoordinates();
     else return NULL;
@@ -107,6 +111,8 @@ float *radarUnit::getCoordinatesLast()
 
 int radarUnit::getNumberOfTargetsAt(int index)
 {
+    if(dataList->isEmpty()) return -1; // default return
+
     reciever_method method = dataList->at(index)->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->at(index)->getSyntheticTargetsCount();
     else return NULL;
@@ -115,6 +121,8 @@ int radarUnit::getNumberOfTargetsAt(int index)
 
 float *radarUnit::getCoordinatesAt(int index)
 {
+    if(dataList->isEmpty()) return NULL; // default return
+
     reciever_method method = dataList->at(index)->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
     else return NULL;

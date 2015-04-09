@@ -62,6 +62,46 @@ public:
      */
     int getRadarId(void) { return radarId; }
 
+    /**
+     * @brief Function will extract data from array and passes them into 'thisVisualizationData' list. Private visualization manager will then access them as the one in main window.
+     * @param[in] data_array Pointer to the array containing data
+     * @param[in] count Number of [x,y] points in array.
+     */
+    void addVisualizationData(float * data_array, int count);
+
+    /**
+     * @brief Overloaded function. Function will extract data from array and passes them into 'thisVisualizationData' list. Private visualization manager will then access them as the one in main window.
+     * @param[in] data_array Input array with data to be extracted.
+     * @param[in] count Number of [x,y] points in array.
+     */
+    void addVisualizationData(double * data_array, int count);
+
+    /**
+     * @brief Overloaded function. Function will extract data from input list and passes them into 'thisVisualizationData' list. Private visualization manager will then access them as the one in main window.
+     * @param[in] data_list Input lsit with data to be extracted.
+     */
+    void addVisualizationData(QList<QPointF *> data_list);
+
+    /**
+     * @brief Updates local/private color list, which is prefered rather than periodical loading from main color list because of performance issues. List is updated when there is not enough color for target displaying.
+     */
+    void updateColorList(void);
+
+    /**
+     * @brief Ensures correct removal of all points in 'thisVisualizationData' list
+     */
+    void clearRadarData(void);
+
+    /**
+     * @brief Ensures correct removal of all colors in 'thisVisualizationColor' list.
+     */
+    void clearColorList(void);
+
+
+protected:
+
+    void closeEvent(QCloseEvent *event) { emit radarSubWindowClosed(this); }
+
 private:
     Ui::radarSubWindow *ui;
 
@@ -83,6 +123,11 @@ private:
     radarView * thisVisualizationView; ///< This window's own view.
 
     QList<QPointF * > * thisVisualizationData; ///< Own visualizationData list. Must be filled by higher classes.
+    QList<QColor * > * thisVisualizationColor; ///< Color list used for data displaying. Is updated only if not enough color are availible.
+    QMutex * thisVisualizationDataMutex; ///< Mutex protecting visualization data from being accessed by few threads at once.
+
+signals:
+    void radarSubWindowClosed(radarSubWindow *); ///< Signal is emitted on close event and pointer to THIS subwindow is passed.
 };
 
 #endif // RADARSUBWINDOW_H

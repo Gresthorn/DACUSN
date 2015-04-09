@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     dataStackMutex = new QMutex;
 
     radarList = new QVector<radar_handler * >;
+    radarSubWindowList = new QList<radarSubWindow * >;
+    radarSubWindowListMutex = new QMutex;
     radarListMutex = new QMutex;
 
     visualizationData = new QList<QPointF * >;
@@ -146,12 +148,13 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // destroy all subwindows if exist
-    while(!radarSubWindowList.isEmpty())
+    radarSubWindowListMutex->lock();
+    while(!radarSubWindowList->isEmpty())
     {
-        radarSubWindowList.first()->close();
-        delete radarSubWindowList.first();
-        radarSubWindowList.removeFirst();
+        // close will automatically emit signal which is passed into delete window slot. There also all deletions in list/vectors are done.
+        radarSubWindowList->first()->close();
     }
+    radarSubWindowListMutex->unlock();
 }
 
 MainWindow::~MainWindow()
@@ -160,12 +163,13 @@ MainWindow::~MainWindow()
     this->destroyDataInputThreadSlot();
 
     // destroy all subwindows if exist
-    while(!radarSubWindowList.isEmpty())
+    radarSubWindowListMutex->lock();
+    while(!radarSubWindowList->isEmpty())
     {
-        radarSubWindowList.first()->close();
-        delete radarSubWindowList.first();
-        radarSubWindowList.removeFirst();
+        // close will automatically emit signal which is passed into delete window slot. There also all deletions in list/vectors are done.
+        radarSubWindowList->first()->close();
     }
+    radarSubWindowListMutex->unlock();
 
     delete ui;
 }
@@ -368,7 +372,7 @@ void MainWindow::establishStackManagementThread()
     qDebug() << "Starting stack management thread...";
 
     stackManagerThread = new QThread(this);
-    stackManagerWorker = new stackManager(dataStack, dataStackMutex, radarList, radarListMutex, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
+    stackManagerWorker = new stackManager(dataStack, dataStackMutex, radarList, radarListMutex, visualizationData, visualizationColor, radarSubWindowList, radarSubWindowListMutex, visualizationDataMutex, settings, settingsMutex);
     stackManagerWorker->moveToThread(stackManagerThread);
     stackManagerThread->start(QThread::HighestPriority);
     QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);
@@ -876,12 +880,64 @@ void MainWindow::radarListUpdated()
         ui->radarListWidget->addItem(item);
     }
 
+    // now we need to go throught all opened subwindows and check if theier radar units still exist. If not, delete them.
+    int id;
+    bool found;
+    QVector<int> rem_index; // stores all indexes where deletion is about to be applied (cannot delete immediately because list will change it size and 'for' loop will then go outside of list)
+
+    radarSubWindowListMutex->lock();
+
+    for(int i=0; i<radarSubWindowList->count(); i++)
+    {
+        found = false;
+        id = radarSubWindowList->at(i)->getRadarId();
+        qDebug() << "ID: " << id;
+        // iterate over all radars and try to find such id
+        for(int j = 0; j<radarList->count(); j++)
+        {
+            if(radarList->at(j)->id==id)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        // radar unit do not exist, delete
+        if(!found)
+        {
+            rem_index.append(i);
+        }
+    }
+
+    // now remove all items in list that in fact handles no window
+    if(!rem_index.isEmpty())
+    {
+        for(int h = 0; h<rem_index.count(); h++)
+        {
+            // close signal will automatically call delete function/slot
+            radarSubWindowList->at(rem_index.at(h))->close();
+        }
+    }
+
+    radarSubWindowListMutex->unlock();
+
     radarListMutex->unlock();
 }
 
 void MainWindow::deleteRadarSubWindow(radarSubWindow *subWindow)
 {
-
+    // find opened subwindow and delete it
+    for(int i = 0; i<radarSubWindowList->count(); i++)
+    {
+        if(radarSubWindowList->at(i)==subWindow)
+        {
+            subWindow->close();
+            delete subWindow;
+            radarSubWindowList->removeAt(i);
+            qDebug() << "Sub window successfuly closed.";
+            return;
+        }
+    }
 }
 
 void MainWindow::addRadarSubWindow()
@@ -892,11 +948,18 @@ void MainWindow::addRadarSubWindow()
     int selectedRadarId = ui->radarListWidget->currentItem()->data(Qt::UserRole).toInt();
 
     // If window for this radar already exist, no need to create another one.
-    for(int i = 0; i<radarSubWindowList.count(); i++) if(radarSubWindowList.at(i)->getRadarId()==selectedRadarId) { qDebug() << "Sub window for this radar unit already exists."; return; }
-
+    radarSubWindowListMutex->lock();
+    for(int i = 0; i<radarSubWindowList->count(); i++) if(radarSubWindowList->at(i)->getRadarId()==selectedRadarId) { qDebug() << "Sub window for this radar unit already exists."; radarSubWindowListMutex->unlock(); return; }
+    radarSubWindowListMutex->unlock();
 
     radarSubWindow * newRadarWindow = new radarSubWindow(selectedRadarId, settings, settingsMutex, radarList, radarListMutex, visualizationColor, visualizationDataMutex, 0);
 
-    radarSubWindowList.append(newRadarWindow);
+    // connect close event signal, so main window can safely remove object
+    connect(newRadarWindow, SIGNAL(radarSubWindowClosed(radarSubWindow*)), this, SLOT(deleteRadarSubWindow(radarSubWindow*)));
+
+    radarSubWindowListMutex->lock();
+    radarSubWindowList->append(newRadarWindow);
+    radarSubWindowListMutex->unlock();
+
     newRadarWindow->show();
 }

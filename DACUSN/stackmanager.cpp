@@ -1,13 +1,16 @@
 #include "stackmanager.h"
 
 stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, QVector<radar_handler * > * radar_list, QMutex * radar_list_mutex,
-                           QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QMutex * visualization_data_mutex, uwbSettings *setts, QMutex *settings_mutex)
+                           QList<QPointF * > * visualization_data, QList<QColor * > * visualization_color, QList<radarSubWindow * >  * radar_Sub_Window_List, QMutex * radar_Sub_Window_List_Mutex, QMutex * visualization_data_mutex,
+                           uwbSettings *setts, QMutex *settings_mutex)
 {
     rawDataStack = raw_data_stack;
     rawDataStackMutex = raw_data_stack_mutex;
     settings = setts;
     settingsMutex = settings_mutex;
     visualizationData = visualization_data;
+    radarSubWindowList = radar_Sub_Window_List;
+    radarSubWindowListMutex = radar_Sub_Window_List_Mutex;
     visualizationColor = visualization_color;
     visualizationDataMutex = visualization_data_mutex;
 
@@ -283,6 +286,9 @@ void stackManager::dataProcessing(rawData *data)
     // Here another data processing should take place if needed
     // It is supposed that some data fusion from all radarUnits will be placed here
 
+    // Update subWindow vectors if user wants to see specific radar view
+    updateRadarSubWindowList();
+
     if(checkRadarDataUpdateStatus())
     {
         // if all radars are updated its time for fusion and visualization list update
@@ -414,5 +420,39 @@ void stackManager::clearVisualizationData()
         visualizationData->removeFirst();
     }
     visualizationDataMutex->unlock();
+}
+
+void stackManager::updateRadarSubWindowList()
+{
+    // NOTE THAT WE DO NOT NEED TO LOCK RADARLIST MUTEX SINCE THIS FUNCTION IS CALLED IN FUSION FUNCTION OR IN AREA ALREADY PROTECTED BY RADARLIST MUTEXES
+
+    // iterate over all subwindows
+    int id, targets_number;
+    float * coordinates;
+    radarSubWindowListMutex->lock();
+
+    if(radarSubWindowList->isEmpty()) { radarSubWindowListMutex->unlock(); return; }
+
+    for(int a = 0; a<radarSubWindowList->count(); a++)
+    {
+        id = radarSubWindowList->at(a)->getRadarId();
+        // find radar unit
+        for(int b = 0; b<radarList->count(); b++)
+        {
+
+            if(id==radarList->at(b)->id)
+            {
+                // update points vector with new values
+                coordinates = radarList->at(b)->radar->getCoordinatesLast();
+                targets_number = radarList->at(b)->radar->getNumberOfTargetsLast();
+
+                // if corrupted, or unavailible data
+                if(targets_number<0 || coordinates==NULL) break;
+
+                //radarSubWindowList->at(a)->addVisualizationData(coordinates, targets_number);
+            }
+        }
+    }
+    radarSubWindowListMutex->unlock();
 }
 

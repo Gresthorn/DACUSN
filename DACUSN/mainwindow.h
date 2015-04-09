@@ -233,7 +233,8 @@ private:
 
     Ui::MainWindow *ui;
 
-    QList<radarSubWindow * > radarSubWindowList; ///< Lists all radar subwindows displaying data from specific radar unit in current use.
+    QList<radarSubWindow * >  * radarSubWindowList; ///< Lists all radar subwindows displaying data from specific radar unit in current use.
+    QMutex * radarSubWindowListMutex; ///< Mutex protecting sub windows during update seqence.
 
     QTimer * pauseBlinkEffect; ///< Blink effect is used to warn user that the data inpu is paused
     bool blinker; ///< Boolean value which is changed periodically when 'pauseBlinkEffect' timer emits signal. Used for changing pause action button style.
