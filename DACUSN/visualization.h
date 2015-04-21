@@ -21,6 +21,7 @@
 #include <QDateTime>
 
 #include "uwbsettings.h"
+#include "radar_handler.h"
 
 /**
  * @file visualization.h
@@ -128,7 +129,44 @@ private:
 
     QColor crossColor; ///< The color being used for item drawing.
 
-    QGraphicsScene * graphicsScene; ///< The pointer to graphics scene where the item is places.
+    QGraphicsScene * graphicsScene; ///< The pointer to graphics scene where the item is placed.
+};
+
+class radarMarker : public QObject, public QGraphicsPixmapItem
+{
+    Q_OBJECT
+
+public:
+
+    QRectF boundingRect() const;
+
+    /**
+     * @brief This object represents the radar in the scene. Marker is designed to indicate radars position and orientation.
+     * @param x Is the x-coordinate of radar unit.
+     * @param y Is the y-coordinate of radar unit.
+     * @param name The string displayed together with icon.
+     */
+    radarMarker(qreal x, qreal y, const QString &name);
+
+    /**
+     * @brief Sets the new description or name displyed under marker
+     * @param[in] desc New value for description or name.
+     */
+    void setMarkerDescription(const QString &desc);
+
+    ~radarMarker();
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+private:
+    qreal xPos, yPos; ///< Represents the real position of target without any conversions to pixels.
+
+    QPixmap * marker; ///< Pixmap with marker design to indicate radar position and orientation.
+
+    QString description; ///< Text displayed together with marker, usually name of radar or ID.
+
+    QGraphicsScene * graphicsScene; ///< The pointer to graphics scene where the item is placed.
 };
 
 /******************************************* ANIMATION MANAGER CLASS *****************************************/
@@ -198,9 +236,12 @@ public:
     void appendPathItem(crossItem * item) { pathHandler->append(item); }
 
     /**
-     * @brief Returns the group of all crossItems in scene.
-     * @return Return value is pointer to the group.
+     * @brief This function is called very rarely. Usually only in situation when radar list changes and radar markers need to be updated. Function will compare its local list and sets updated data.
+     * @param[in] radarList Pointer to the vector where all radar info is stored.
+     * @param[in] radarListMutex Mutex for radar vector protection.
+     * @param[in] id Specifies which radar ID belongs to currently central radar (e.g in subwindows central radar can be radar N) so radar can read an transform other radar units position to its own.
      */
+    void updateRadarMarkerList(QVector<radar_handler * > * radarList, QMutex * radarListMutex, int id);
 
 private:
     int meter_to_pixel_ratio;
@@ -209,6 +250,7 @@ private:
     uwbSettings * settings; ///< Pointer to the basic application settings object
     QMutex * settingsMutex; ///< Pointer to the mutex locking the settings object
 
+    QList<radarMarker * > * radarMarkerList; ///< Holds all objects visualizating radar unit's positions and orientation
     QList<QPointF * > * visualizationData; ///< The final positions of targets
     QList<QColor * > * visualizationColor; ///< The colors assigned to all targets
     QMutex * visualizationDataMutex; ///< Mutex protecting visualization data from being accessed by multiple threads at the same time

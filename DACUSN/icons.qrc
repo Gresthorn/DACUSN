@@ -25,5 +25,7 @@
         <file>icons/refresh_icon.png</file>
         <file>icons/refresh_icon_hover.png</file>
         <file>icons/backup.png</file>
+        <file>icons/radar_position.png</file>
+        <file>icons/radar_position_mini.png</file>
     </qresource>
 </RCC>

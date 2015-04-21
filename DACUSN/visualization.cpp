@@ -136,6 +136,8 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QGraphi
     ellipseList = new QList<QGraphicsEllipseItem * >;
     ellipseListInvisible = true;
 
+    radarMarkerList = new QList<radarMarker * >;
+
     settings = setts;
     settingsMutex = settings_mutex;
 
@@ -736,7 +738,16 @@ void animationManager::launchPathDrawing()
             visualizationView->viewport()->update(QRect(itemRectViewTopLeft, itemRectViewBottomRight));
         }
 
-    visualizationDataMutex->unlock();
+        visualizationDataMutex->unlock();
+}
+
+void animationManager::updateRadarMarkerList(QVector<radar_handler *> *radarList, QMutex *radarListMutex, int id)
+{
+    if(id==0)
+    {
+        // OPERATOR RADAR, NO TRANSFORMATION IS REQUIRED
+
+    }
 }
 
 void animationManager::clearPathsList()
@@ -842,4 +853,46 @@ void crossItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->setPen(QPen(QBrush(crossColor), 1.0));
 
     painter->drawLines(*lines);
+}
+
+radarMarker::radarMarker(qreal x, qreal y, const QString &name)
+{
+    xPos = x;
+    yPos = y;
+
+    marker = new QPixmap(":/mainToolbar/icons/radar_position_mini.png");
+
+    description.append(name);
+
+    setPixmap(*marker);
+    setTransform(QTransform::fromScale(1.0, -1.0));
+    setPos(x, y);
+}
+
+void radarMarker::setMarkerDescription(const QString &desc)
+{
+    description.clear();
+    description.append(desc);
+}
+
+radarMarker::~radarMarker()
+{
+    delete marker;
+}
+
+void radarMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    //QGraphicsPixmapItem::paint(painter, option, widget);
+
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    painter->drawPixmap(-17.5, -17.5, 35.0, 35.0, *marker); // draw pixmap
+
+    painter->drawText(-17.5, 30.0, this->description); // add text description
+}
+
+
+QRectF radarMarker::boundingRect() const
+{
+    return QRectF(QPointF(-17.5, -17.5), QPointF(17.5, 17.5));
 }
