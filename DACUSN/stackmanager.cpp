@@ -345,6 +345,16 @@ void stackManager::applyFusion()
     int counter; // used for averaging;
     if(!arrays.isEmpty() && !targets_count.isEmpty())
     {
+
+        // if data backup is enabled we need to start new record
+        settingsMutex->lock();
+            if(settings->getDiskBackupEnabled())
+            {
+                makeDataBackup(QDateTime::currentMSecsSinceEpoch(), true, true);
+                makeDataBackup((float)(maximum_targets_visible));
+            }
+        settingsMutex->unlock();
+
         // so far only averaging of coordinates is used: no fusion algorithm availible
         // it is also supposed that indexes of coordinates are the same for specific target
 
@@ -389,17 +399,30 @@ void stackManager::applyFusion()
             x_average /= (float)(counter);
             y_average /= (float)(counter);
 
+            settingsMutex->lock();
+                if(settings->getDiskBackupEnabled())
+                {
+                    makeDataBackup(x_average);
+                    makeDataBackup(y_average);
+                }
+            settingsMutex->unlock();
 
             // append to visualization vector if counter is more than one (at least one radar had value)
             if(counter>=1)
             {
                 QPointF * temp_point = new QPointF(x_average, y_average);
+
                 visualizationDataMutex->lock();
                 visualizationData->append(temp_point);
                 //qDebug() << temp_point->x() << " " << temp_point->y();
                 visualizationDataMutex->unlock();
             }
         }
+
+        // if data backup is enabled we need end record by adding end-of-line sign
+        settingsMutex->lock();
+            if(settings->getDiskBackupEnabled()) makeDataBackup((float)(0.0), false, false, true);
+        settingsMutex->unlock();
     }
 
     visualizationDataMutex->lock();
@@ -449,10 +472,46 @@ void stackManager::updateRadarSubWindowList()
                 // if corrupted, or unavailible data
                 if(targets_number<0 || coordinates==NULL) break;
 
-                //radarSubWindowList->at(a)->addVisualizationData(coordinates, targets_number);
+                radarSubWindowList->at(a)->addVisualizationData(coordinates, targets_number);
             }
         }
     }
     radarSubWindowListMutex->unlock();
+}
+
+void stackManager::makeDataBackup(float val, bool write_val, bool newline, bool endline)
+{
+    // MUTEX IS NOT CALLED HERE SINCE IT IS SUPPOSED THAT MUTEX WAS ALREADY CALLED IN PARENT FUNCTION
+    // if data backup is enabled we need to write all recieved coordinates
+
+    if(!newline) (*settings->getBackupFileHandler()) << "%";
+
+    if(write_val) (*settings->getBackupFileHandler()) << val;
+
+    if(endline) (*settings->getBackupFileHandler()) << "\n";
+}
+
+void stackManager::makeDataBackup(QString val, bool write_val, bool newline, bool endline)
+{
+    // MUTEX IS NOT CALLED HERE SINCE IT IS SUPPOSED THAT MUTEX WAS ALREADY CALLED IN PARENT FUNCTION
+    // if data backup is enabled we need to write all recieved coordinates
+
+    if(!newline) (*settings->getBackupFileHandler()) << "%";
+
+    if(write_val) (*settings->getBackupFileHandler()) << val;
+
+    if(endline) (*settings->getBackupFileHandler()) << "\n";
+}
+
+void stackManager::makeDataBackup(qint64 val, bool write_val, bool newline, bool endline)
+{
+    // MUTEX IS NOT CALLED HERE SINCE IT IS SUPPOSED THAT MUTEX WAS ALREADY CALLED IN PARENT FUNCTION
+    // if data backup is enabled we need to write all recieved coordinates
+
+    if(!newline) (*settings->getBackupFileHandler()) << "%";
+
+    if(write_val) (*settings->getBackupFileHandler()) << val;
+
+    if(endline) (*settings->getBackupFileHandler()) << "\n";
 }
 

@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     visualization.cpp \
     scenerendererdialog.cpp \
     coordinatesinputdialog.cpp \
-    radarsubwindow.cpp
+    radarsubwindow.cpp \
+    backupoptionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -43,7 +44,8 @@ HEADERS  += mainwindow.h \
     visualization.h \
     scenerendererdialog.h \
     coordinatesinputdialog.h \
-    radarsubwindow.h
+    radarsubwindow.h \
+    backupoptionsdialog.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \
@@ -51,7 +53,8 @@ FORMS    += mainwindow.ui \
     radarlistdialog.ui \
     scenerendererdialog.ui \
     coordinatesinputdialog.ui \
-    radarsubwindow.ui
+    radarsubwindow.ui \
+    backupoptionsdialog.ui
 
 RESOURCES += \
     icons.qrc

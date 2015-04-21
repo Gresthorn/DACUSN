@@ -170,6 +170,33 @@ private:
      */
     void updateRadarSubWindowList(void);
 
+    /**
+     * @brief Function will make backup (write to file) in file specified in settings object from value passed as parameter.
+     * @param[in] val Value to be written.
+     * @param[in] write_val If is set to true, value will be written.
+     * @param[in] newline If new line is true, no separator will be prepended.
+     * @param[in] endline If end line is true, '\n' will be appended.
+     */
+    void makeDataBackup(float val, bool write_val=true, bool newline=false, bool endline=false);
+
+    /**
+     * @brief This is overloaded function. Allows writing strings into file instead the float numbers. Used primarily for proving time information.
+     * @param[in] val String value to be written.
+     * @param[in] write_val If is set to true, value will be written.
+     * @param[in] newline If new line is true, no separator will be prepended.
+     * @param[in] endline If end line is true, '\n' will be appended.
+     */
+    void makeDataBackup(QString val, bool write_val=true, bool newline=false, bool endline=false);
+
+    /**
+     * @brief This is overloaded function. Allows writing epochal time in qint64 format into file.
+     * @param[in] val qint64 value to be written.
+     * @param[in] write_val If is set to true, value will be written.
+     * @param[in] newline If new line is true, no separator will be prepended.
+     * @param[in] endline If end line is true, '\n' will be appended.
+     */
+    void makeDataBackup(qint64 val, bool write_val=true, bool newline=false, bool endline=false);
+
 public slots:
     /**
      * @brief This function is called always when the processing is slower than the data obtaining and there is a danger that stack will be overflowed.

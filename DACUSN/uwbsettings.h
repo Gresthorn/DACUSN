@@ -3,6 +3,10 @@
 
 #include <stdlib.h>
 #include <QColor>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
 
 #include "stddefs.h"
 
@@ -363,6 +367,71 @@ public:
      */
     void setVisualizationEnabled(bool enabled) { visualization_enabled = enabled; }
 
+    /**
+     * @brief Returns the file path (without file name) where the backup text file is going to be placed.
+     */
+    QString getDiskBackupFilePath(void) { return diskBackupFilePath.path(); }
+
+    /**
+     * @brief Sets the backup file path by string passed to it.
+     * @param[in] path String with new file path.
+     */
+    void setDiskBackupFilePath(QString path) { diskBackupFilePath.setPath(path); }
+
+    /**
+     * @brief Returns the copy of 'QDir' object with file path already set. May be usefull by some functions.
+     * @return The return value is QDir object.
+     */
+    QDir getDiskBackupFilePathObject(void) { return diskBackupFilePath; }
+
+    /**
+     * @brief Returns the string with backup file name without the path prepended.
+     * @return The return value is QString object.
+     */
+    QString getBackupFileName(void) { return backupFileName; }
+
+    /**
+     * @brief Sets the new file name of target's backup file without prepended path or appended file type.
+     * @param[in] path String with new file name.
+     */
+    void setBackupFileName(QString filename) { backupFileName.clear(); backupFileName.append(filename); }
+
+    /**
+     * @brief Returns boolean indicator for checking if the backup was allowed or not.
+     * @return Boolean value representing the backup sequence enabled/disabled status.
+     */
+    bool getDiskBackupEnabled(void) { return diskBackupEnabled; }
+
+    /**
+     * @brief Sets the new status for backup sequence.
+     * @param[in] enabled Boolean status. If true, backup sequence is running.
+     */
+    void setDiskBackupEnabled(bool enabled) { diskBackupEnabled = enabled; }
+
+    /**
+     * @brief Returns the file object that was opened for the backup sequence.
+     * @return Pointer to the opened file object.
+     */
+    QFile * getBackupMainFileHandler(void) { return backupMainFileHandler; }
+
+    /**
+     * @brief Sets the new file handler. This file handler/object must be opened in text mode and has the write in privileges.
+     * @param[in] New 'QFile handler' opened in text mode and set up for writing.
+     */
+    void setBackupMainFileHandler(QFile * file) { backupMainFileHandler = file; }
+
+    /**
+     * @brief Returns the pointer to the 'QTextStream' object currently used for data writing.
+     * @return The return value QTextStream pointer.
+     */
+    QTextStream * getBackupFileHandler(void) { return backupFileHandler; }
+
+    /**
+     * @brief Sets the new stream object pointer for data backup use.
+     * @param[in] handler Is the pointer to the newly created stream used for data backup.
+     */
+    void setBackupFileHandler(QTextStream * handler) { backupFileHandler = handler; }
+
     /** THE FOLLOWING FUNCTIONS ARE ABLE TO RETRIEVE BASIC OPENGL SETTINGS **/
 
     rendering_engine_buffer_type oglGetBufferType(void) { return ogl_buffering_type; }
@@ -458,6 +527,11 @@ private:
     QString periodicalImgBackupPath; ///< Specifies the path for periodical export images.
     unsigned int periodicalImgBackupInterval; ///< Interval in miliseconds that is passed to the timer evoking the periodical img export slot.
 
+    QDir diskBackupFilePath; ///< When saving data to disk is enabled, here the path to the file is stored.
+    QString backupFileName; ///< Backup file name used.
+    bool diskBackupEnabled; ///< Specifies if save to disk or not.
+    QFile * backupMainFileHandler; ///< FILE object of opened backup file.
+    QTextStream * backupFileHandler; ///< Stores the 'handler' where can new data be written and redirected to file.
 };
 
 #endif // UWBSETTINGS_H

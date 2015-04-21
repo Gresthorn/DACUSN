@@ -70,6 +70,12 @@ uwbSettings::uwbSettings()
     periodicalImgBackup = false;
     periodicalImgBackupPath = QString("");
     periodicalImgBackupInterval = 5000;
+
+    diskBackupEnabled = false;
+    diskBackupFilePath.setPath(QDir::currentPath());
+    backupFileName.append(QString("radar_backup_%1").arg(QString(QDateTime::currentDateTime().toString()).replace(QRegExp(" |:"), "_")));
+    backupMainFileHandler = NULL;
+    backupFileHandler = NULL;
 }
 
 uwbSettings::uwbSettings(char *config)

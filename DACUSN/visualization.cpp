@@ -65,6 +65,12 @@ void MainWindow::visualizationSlot()
 
 
             visualizationManager->launchCommonFlow();
+            radarSubWindowListMutex->lock();
+            if(!radarSubWindowList->isEmpty())
+            {
+                for(int i = 0; i<radarSubWindowList->count(); i++) radarSubWindowList->at(i)->getVisualizationManager()->launchCommonFlow();
+            }
+            radarSubWindowListMutex->unlock();
         }
         else if(vis_schema==COMET_EFFECT)
         {

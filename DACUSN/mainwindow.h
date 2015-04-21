@@ -21,6 +21,7 @@
 #include "radarlistdialog.h"
 #include "scenerendererdialog.h"
 #include "coordinatesinputdialog.h"
+#include "backupoptionsdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -174,6 +175,12 @@ public slots:
     /**
      * @brief Destroys all subwindows and deletes all dependencies.
      */
+    //?????????????????????????????????????????????????????????????
+
+    /**
+     * @brief Returns all disk backup dependencies to their initial state. Deletes all objects and close file used for backup.
+     */
+    void deleteDiskBackupDependencies(void);
 
 protected:
 
@@ -202,6 +209,11 @@ private slots:
     void openSceneRendererDialog(void);
 
     /**
+     * @brief Opens dialog window for setting the data backup. The backup target file is set up here and enable/disable option is added.
+     */
+    void openDataBackupDialog(void);
+
+    /**
      * @brief After clicking the 'export' controll button, this slot will ensure that present view will be exported in directory at in settings specified location.
      */
     void exportViewImageSlot(void);
@@ -221,6 +233,11 @@ private slots:
      * @brief Creates new subWindow and adds it into list.
      */
     void addRadarSubWindow(void);
+
+    /**
+     * @brief This slot ensures creation of file handlers and streams for the write into file sequence when user desires saving all recieved data from all radars. If backup is not enabled, frees all memory reserved by file handlers/streams etc.
+     */
+    void manageDiskBackupSlot(void);
 
 private:
 

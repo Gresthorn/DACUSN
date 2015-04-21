@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Data association center in UWB sensor network</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -721,7 +721,7 @@ QPushButton:checked{
      <x>0</x>
      <y>0</y>
      <width>954</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -752,6 +752,7 @@ QPushButton:checked{
    <addaction name="actionStack_Manager_Dialog"/>
    <addaction name="actionRadar_List_Dialog"/>
    <addaction name="actionScene_renderer"/>
+   <addaction name="actionData_backup"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
@@ -841,6 +842,21 @@ QPushButton:checked{
    </property>
    <property name="toolTip">
     <string>Render settings dialog</string>
+   </property>
+  </action>
+  <action name="actionData_backup">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/mainToolbar/icons/backup.png</normaloff>:/mainToolbar/icons/backup.png</iconset>
+   </property>
+   <property name="text">
+    <string>Data backup</string>
+   </property>
+   <property name="toolTip">
+    <string>Data backup options</string>
    </property>
   </action>
  </widget>

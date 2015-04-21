@@ -57,6 +57,12 @@ public:
     ~radarSubWindow();
 
     /**
+     * @brief Function returns pointer to the local visualization manager, so we can run rendering and visualization seqence from the outside of the object.
+     * @return The return value is pointer to the object of class animationManager.
+     */
+    animationManager * getVisualizationManager(void) { return thisVisualizationManager; }
+
+    /**
      * @brief Function returns the radar ID of unit which values are being displayed in the window. This is primarily used for higher classes to check if the specific radar unit has already its own subwindow in use.
      * @return The return value is integer number representing the radar unit which values are being rendered here.
      */

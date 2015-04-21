@@ -141,6 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionStack_Manager_Dialog, SIGNAL(triggered()), this, SLOT(openStackManagerDialog()));
     connect(ui->actionRadar_List_Dialog, SIGNAL(triggered()), this, SLOT(openRadarListDialog()));
     connect(ui->actionScene_renderer, SIGNAL(triggered()), this, SLOT(openSceneRendererDialog()));
+    connect(ui->actionData_backup, SIGNAL(triggered()), this, SLOT(openDataBackupDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 }
@@ -281,6 +282,9 @@ void MainWindow::establishDataInputThreadSlot()
     informationTableTimer = new QTimer;
     connect(informationTableTimer, SIGNAL(timeout()), this, SLOT(informationTableUpdateSlot()));
     informationTableTimer->start(5000);
+
+    // starting/closing data backup on disk according to user settings
+    manageDiskBackupSlot();
 }
 
 void MainWindow::destroyDataInputThreadSlot()
@@ -358,6 +362,9 @@ void MainWindow::destroyDataInputThreadSlot()
     informationTableTimer->stop();
     disconnect(informationTableTimer, SIGNAL(timeout()), this, SLOT(informationTableUpdateSlot()));
     delete informationTableTimer;
+
+    // if data backup is enabled, on stopping data recieving we should close the file and delete file handlers (return the program to the initiall state)
+    deleteDiskBackupDependencies();
 }
 
 void MainWindow::changeDataInputPauseButtonSlot()
@@ -816,6 +823,52 @@ QString MainWindow::timeToString(qint64 timems)
     return time_string;
 }
 
+void MainWindow::manageDiskBackupSlot()
+{
+    // if data backup is enabled we need to open/create file in write in mode and prepare QTextStream object
+    settingsMutex->lock();
+    bool backupIsEnabled = settings->getDiskBackupEnabled();
+    settingsMutex->unlock();
+
+    if(backupIsEnabled)
+    {
+        settingsMutex->lock();
+        // if enabled backup, we need to prepare all objects required for writing into file
+        QString filePath(settings->getDiskBackupFilePath());
+        filePath.append(QString("//%1.txt").arg(settings->getBackupFileName()));
+        QFile * backup_file = new QFile(filePath);
+        backup_file->open(QFile::Text | QIODevice::WriteOnly); // if doeas not exist, it will be created
+
+        QTextStream * in_file_stream = new QTextStream(backup_file); // since now we can use just this stream object to write into file
+
+        // saving new objects
+        settings->setBackupFileHandler(in_file_stream);
+        settings->setBackupMainFileHandler(backup_file);
+        settingsMutex->unlock();
+    }
+    else deleteDiskBackupDependencies();
+}
+
+void MainWindow::deleteDiskBackupDependencies()
+{
+
+    settingsMutex->lock();
+    // if file pointers are not NULL, some of previous backup is still pending and we should close the file securely
+    if(settings->getBackupFileHandler()!=NULL)
+    {
+        settings->getBackupFileHandler()->device()->close(); // equivalent to closing MainFileHandler directly.
+        delete settings->getBackupFileHandler();
+        delete settings->getBackupMainFileHandler();
+    }
+
+    // now we will set back to NULL so program will cannot use old (unexisting) pointers to files/streams
+    settings->setBackupFileHandler(NULL);
+    settings->setBackupMainFileHandler(NULL);
+
+    settingsMutex->unlock();
+}
+
+
 
 /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 
@@ -848,6 +901,13 @@ void MainWindow::openSceneRendererDialog()
     connect(&dialog, SIGNAL(renderingEngineChanged(rendering_engine)), this, SLOT(renderingEngineChangedSlot(rendering_engine)));
     connect(&dialog, SIGNAL(periodicalImgBackup(bool)), this, SLOT(periodicalImgBackupSlot(bool)));
 
+    dialog.exec();
+}
+
+void MainWindow::openDataBackupDialog()
+{
+    backupOptionsDialog dialog(settings, settingsMutex, this);
+    connect(&dialog, SIGNAL(acceptedSignal()), this, SLOT(manageDiskBackupSlot()));
     dialog.exec();
 }
 
