@@ -1638,7 +1638,3 @@ float* radarUnit::MTT(float* P_mem,float r[], float q[],float dif_d,float dif_fi
     }
     return P_mem;
 }
-
-
-
-

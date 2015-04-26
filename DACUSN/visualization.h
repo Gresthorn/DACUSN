@@ -132,7 +132,7 @@ private:
     QGraphicsScene * graphicsScene; ///< The pointer to graphics scene where the item is placed.
 };
 
-class radarMarker : public QObject, public QGraphicsPixmapItem
+class radarMarker : public QObject, public QGraphicsItem
 {
     Q_OBJECT
 
@@ -154,15 +154,21 @@ public:
      */
     void setMarkerDescription(const QString &desc);
 
+    /**
+     * @brief Gets the angle expressed in radians, converts it to degrees and sets the item angle. If angle is expressed in degrees, common 'setRotation()' function can be used.
+     * @param[in] angle New angle to be set up.
+     */
+    void setRotationRadians(double angle);
+
     ~radarMarker();
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
-    qreal xPos, yPos; ///< Represents the real position of target without any conversions to pixels.
+    const double pi; ///< PI constant
 
-    QPixmap * marker; ///< Pixmap with marker design to indicate radar position and orientation.
+    qreal xPos, yPos; ///< Represents the real position of target without any conversions to pixels.
 
     QString description; ///< Text displayed together with marker, usually name of radar or ID.
 
@@ -241,14 +247,28 @@ public:
      * @param[in] radarListMutex Mutex for radar vector protection.
      * @param[in] id Specifies which radar ID belongs to currently central radar (e.g in subwindows central radar can be radar N) so radar can read an transform other radar units position to its own.
      */
-    void updateRadarMarkerList(QVector<radar_handler * > * radarList, QMutex * radarListMutex, int id);
+    void updateRadarMarkerList(QVector<radar_handler * > * radarList, QMutex * radarListMutex, int id = -1);
+
+    /**
+     * @brief Returns currently set radar id. When updating radar markers, this radar is used as reference/base for transformation.
+     * @return Id of currently set radar id.
+     */
+    int getActiveRadarId(void) { return active_radar; }
+
+    /**
+     * @brief Sets new radar id. When updating radar markers, this radar is used as reference/base for transformation.
+     * @param[in] id New radar id. Will be used primarily by 'updateRadarMarkerList()' function if no id is explicitly set.
+     */
+    void setActiveRadarId(int id) { active_radar = id; }
 
 private:
     int meter_to_pixel_ratio;
     int x_pixel, y_pixel, x_width, y_width;
 
-    uwbSettings * settings; ///< Pointer to the basic application settings object
-    QMutex * settingsMutex; ///< Pointer to the mutex locking the settings object
+    int active_radar; ///< Holds the ID of radar to which view other radar markers should be transformated. Default value is zero.
+
+    uwbSettings * settings; ///< Pointer to the basic application settings object.
+    QMutex * settingsMutex; ///< Pointer to the mutex locking the settings object.
 
     QList<radarMarker * > * radarMarkerList; ///< Holds all objects visualizating radar unit's positions and orientation
     QList<QPointF * > * visualizationData; ///< The final positions of targets

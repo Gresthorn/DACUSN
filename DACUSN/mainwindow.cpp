@@ -132,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->refreshRadarListButton, SIGNAL(clicked()), this, SLOT(radarListUpdated()));
     connect(ui->showInSubWindowButton, SIGNAL(clicked()), this, SLOT(addRadarSubWindow()));
+    connect(ui->showInCentralButton, SIGNAL(clicked()), this, SLOT(showInCentral()));
 
     /* ------------------------------------------------- RADARS CONTROLS ----------------------------------------- */
 
@@ -915,6 +916,8 @@ void MainWindow::openDataBackupDialog()
 
 void MainWindow::radarListUpdated()
 {
+    visualizationManager->updateRadarMarkerList(radarList, radarListMutex);
+
     // delete all items in list
     for(int i=0; i<ui->radarListWidget->count(); i++)
     {
@@ -1022,4 +1025,20 @@ void MainWindow::addRadarSubWindow()
     radarSubWindowListMutex->unlock();
 
     newRadarWindow->show();
+}
+
+void MainWindow::showInCentral(int id)
+{
+    int selectedRadarId = 0;
+    if(id<0)
+    {
+        // check which radar is selected in radar list
+        selectedRadarId = ui->radarListWidget->currentItem()->data(Qt::UserRole).toInt();
+    }
+    else selectedRadarId = id;
+
+    if(selectedRadarId<0) selectedRadarId = 0;
+
+    visualizationManager->setActiveRadarId(selectedRadarId);
+    visualizationManager->updateRadarMarkerList(radarList, radarListMutex, selectedRadarId);
 }

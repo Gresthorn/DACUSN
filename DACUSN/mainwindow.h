@@ -235,6 +235,11 @@ private slots:
     void addRadarSubWindow(void);
 
     /**
+     * @brief Sets new radar data to be displayed in central view.
+     */
+    void showInCentral(int id = -1);
+
+    /**
      * @brief This slot ensures creation of file handlers and streams for the write into file sequence when user desires saving all recieved data from all radars. If backup is not enabled, frees all memory reserved by file handlers/streams etc.
      */
     void manageDiskBackupSlot(void);

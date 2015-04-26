@@ -149,6 +149,8 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QGraphi
     x_pixel = y_pixel = 0;
     x_width = y_width = 10;
 
+    active_radar = 0;
+
     // Allocate space for path history list
 
     pathHandler = new QList<crossItem * >;
@@ -743,10 +745,135 @@ void animationManager::launchPathDrawing()
 
 void animationManager::updateRadarMarkerList(QVector<radar_handler *> *radarList, QMutex *radarListMutex, int id)
 {
-    if(id==0)
-    {
-        // OPERATOR RADAR, NO TRANSFORMATION IS REQUIRED
+    int ID = 0;
+    (id<0) ? (ID=active_radar) : (ID=id);
 
+    if(ID==0)
+    {
+        // after considering different possibilities I decided rather to update all radar markers with absolutely new values
+        // then finding existing id to a concrete radar unit and update just changed values.
+
+        // OPERATOR RADAR, NO TRANSFORMATION IS REQUIRED
+        radarListMutex->lock();
+        int rdListCount = radarList->count()+1; // we can delete unnecessary markers without having mutex locked, plus one is because of OPERATOR
+                                                // which is not displayed between radar list
+        radarListMutex->unlock();
+
+        while(rdListCount<radarMarkerList->count())
+        {
+            delete radarMarkerList->last();
+            radarMarkerList->removeLast();
+        }
+
+        // if from some reason we do not have enough markers we will create them
+        while(rdListCount>radarMarkerList->count()) // plus one because of OPERATOR
+        {
+            radarMarker * marker = new radarMarker(0.0, 0.0, ""); // initialize with default values
+            radarMarkerList->append(marker);
+            // new markers must be inserted into scene.
+            visualizationScene->addItem(marker);
+        }
+
+        // now we have the same amount of markers as radars
+        radarListMutex->lock();
+        for(int i=0; i<radarList->count(); i++)
+        {
+            radarMarkerList->at(i)->setPos(radarList->at(i)->radar->getXpos()*METER_TO_PIXEL_RATIO, radarList->at(i)->radar->getYpos()*METER_TO_PIXEL_RATIO);
+            radarMarkerList->at(i)->setRotationRadians((-1.0)*radarList->at(i)->radar->getRotAngle()); // multiplication by -1.0 is because mathematically clockwise rotation
+                                                                                                       // is negative, but in Qt framework/in graphics scene this rotation is positive
+            if(radarList->at(i)->id>0) radarMarkerList->at(i)->setMarkerDescription(QString("Radar %1").arg(radarList->at(i)->id));
+            else radarMarkerList->at(i)->setMarkerDescription(QString("ERROR")); // Cannot have 0 or another ID in radar list as far as its reserved for OPERATOR
+        }
+        radarListMutex->unlock();
+
+        // finally the last marker in list is not updated but it is OPERATOR RADAR which needs to be set to [0.0, 0.0] and angle 0.0
+        radarMarkerList->last()->setPos(0.0, 0.0);
+        radarMarkerList->last()->setRotationRadians(0.0);
+        radarMarkerList->last()->setMarkerDescription(QString("M A I N"));
+    }
+    else
+    {
+        // finding transformation parameters for our radar id
+        qreal angle;
+        qreal r1, r2;
+        bool found = false; // check if we found needed radar unit
+        for(int i=0; i<radarList->count(); i++)
+        {
+            if(radarList->at(i)->id==ID)
+            {
+                angle = radarList->at(i)->radar->getRotAngle();
+                r1 = radarList->at(i)->radar->getXpos();
+                r2 = radarList->at(i)->radar->getYpos();
+                found = true;
+                break; // end cycle
+            }
+        }
+
+        if(!found) return;
+
+        // after considering different possibilities I decided rather to update all radar markers with absolutely new values
+        // then finding existing id to a concrete radar unit and update just changed values.
+
+        // OPERATOR RADAR, NO TRANSFORMATION IS REQUIRED
+        radarListMutex->lock();
+        int rdListCount = radarList->count()+1; // we can delete unnecessary markers without having mutex locked, plus one is because of OPERATOR
+                                                // which is not displayed between radar list
+        radarListMutex->unlock();
+
+        while(rdListCount<radarMarkerList->count())
+        {
+            delete radarMarkerList->last();
+            radarMarkerList->removeLast();
+        }
+
+        // if from some reason we do not have enough markers we will create them
+        while(rdListCount>radarMarkerList->count())
+        {
+            radarMarker * marker = new radarMarker(0.0, 0.0, ""); // initialize with default values
+            radarMarkerList->append(marker);
+            // new markers must be inserted into scene.
+            visualizationScene->addItem(marker);
+        }
+
+        // now we have the same amount of markers as radars
+        radarListMutex->lock();
+        for(int i=0; i<radarList->count(); i++)
+        {
+            // update radar ID itself
+            if(radarList->at(i)->id==ID)
+            {
+                radarMarkerList->at(i)->setPos(0.0, 0.0);
+                radarMarkerList->at(i)->setRotationRadians(0.0);
+                if(ID>0) radarMarkerList->at(i)->setMarkerDescription(QString("Radar %1").arg(ID));
+                else radarMarkerList->at(i)->setMarkerDescription(QString("ERROR"));
+                continue;
+            }
+
+            // !!! Equations need to have positive angle when rotation is against clockwise (see transformation theory) but program interprets
+            // positive values of rotation in clockwise direction. We need to multiply angles by (-1.0). SEE MULTIPLICATION WHEN INITIALIZING ANGLE
+            // VARIABLE !!!
+
+            // since our angle is already multiplied by -1.0 we can modify angles by simple adding
+            // Also conversion to degrees from radians is needed.
+            qreal r_angle = angle - radarList->at(i)->radar->getRotAngle();
+            qreal x = cos(angle)*(radarList->at(i)->radar->getXpos()-r1) + sin(angle)*(radarList->at(i)->radar->getYpos()-r2);
+            qreal y = (-1.0)*(radarList->at(i)->radar->getXpos()-r1)*sin(angle) + (radarList->at(i)->radar->getYpos()-r2)*cos(angle);
+
+            radarMarkerList->at(i)->setPos(x*METER_TO_PIXEL_RATIO, y*METER_TO_PIXEL_RATIO);
+            radarMarkerList->at(i)->setRotationRadians(r_angle);
+            if(radarList->at(i)->id>0) radarMarkerList->at(i)->setMarkerDescription(QString("Radar %1").arg(radarList->at(i)->id));
+            else radarMarkerList->at(i)->setMarkerDescription(QString("ERROR"));
+        }
+        radarListMutex->unlock();
+
+        // finally the last marker in list is not updated but it is OPERATOR RADAR which has initiall position at [0.0, 0.0] and angle 0.0
+        qreal r_angle = angle;
+        qreal x = cos(angle)*(0.0-r1) + sin(angle)*(0.0-r2);
+        qreal y = (-1.0)*(0.0-r1)*sin(angle) + (0.0-r2)*cos(angle);
+
+        radarMarkerList->last()->setPos(x*METER_TO_PIXEL_RATIO, y*METER_TO_PIXEL_RATIO);
+        radarMarkerList->last()->setRotationRadians(r_angle);
+        radarMarkerList->last()->setMarkerDescription(QString("M A I N"));
     }
 }
 
@@ -855,16 +982,14 @@ void crossItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->drawLines(*lines);
 }
 
-radarMarker::radarMarker(qreal x, qreal y, const QString &name)
+radarMarker::radarMarker(qreal x, qreal y, const QString &name) :
+    pi(3.141592653589793238462643383279502884197169399375105820974944592307816406286)
 {
     xPos = x;
     yPos = y;
 
-    marker = new QPixmap(":/mainToolbar/icons/radar_position_mini.png");
-
     description.append(name);
 
-    setPixmap(*marker);
     setTransform(QTransform::fromScale(1.0, -1.0));
     setPos(x, y);
 }
@@ -875,9 +1000,14 @@ void radarMarker::setMarkerDescription(const QString &desc)
     description.append(desc);
 }
 
+void radarMarker::setRotationRadians(double angle)
+{
+    setRotation((angle/pi)*180.0);
+}
+
 radarMarker::~radarMarker()
 {
-    delete marker;
+    // so far nothing to do
 }
 
 void radarMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -886,7 +1016,18 @@ void radarMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     painter->setRenderHint(QPainter::Antialiasing);
 
-    painter->drawPixmap(-17.5, -17.5, 35.0, 35.0, *marker); // draw pixmap
+    painter->setPen(QPen(QBrush(Qt::black), 3.0));
+    painter->drawEllipse(-17.5, -17.5, 35.0, 35.0);
+    painter->drawEllipse(-8.75, -8.75, 17.5, 17.5);
+
+    painter->setBrush(QBrush(Qt::black));
+    QPainterPath triangle(QPointF(0.0, 0.0));
+    triangle.lineTo(-8.0, -22.0);
+    triangle.lineTo(8.0, -22.0);
+    triangle.lineTo(0.0, 0.0);
+    triangle.setFillRule(Qt::WindingFill);
+
+    painter->drawPath(triangle);
 
     painter->drawText(-17.5, 30.0, this->description); // add text description
 }
@@ -894,5 +1035,5 @@ void radarMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 QRectF radarMarker::boundingRect() const
 {
-    return QRectF(QPointF(-17.5, -17.5), QPointF(17.5, 17.5));
+    return QRectF(QPointF(-17.5, -22.0), QPointF(17.5, 30.0));
 }
