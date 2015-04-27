@@ -102,6 +102,9 @@ public:
     qint64 getCurrentProcessingSpeed(void);
 
 private:
+    int active_radar_ID; ///< This variable holds information about, what radar data should be pumped into visualizationData list.
+    int active_radar_ID_index; ///< This variable stores index of active radar specified by active_radar_ID in radarList.
+
     QVector<rawData * > * rawDataStack; ///< Pointer to the stack
     QMutex * rawDataStackMutex; ///< Pointer to the mutex locking the stack
     uwbSettings * settings; ///< Pointer to the basic application settings object
@@ -202,6 +205,12 @@ public slots:
      * @brief This function is called always when the processing is slower than the data obtaining and there is a danger that stack will be overflowed.
      */
     void rescue(void);
+
+    /**
+     * @brief Changes active radar ID so data from specified radar will be pumped into visualizationData list
+     * @param[in] id New radar to be considered when filling visualizationData list with new values.
+     */
+    void changeActiveRadarId(int id);
 };
 
 #endif // STACKMANAGER_H

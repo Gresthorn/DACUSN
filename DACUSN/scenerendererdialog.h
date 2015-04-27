@@ -50,12 +50,15 @@ private slots:
     void colorSelectGridThreeSlot(void);
     void colorSelectionBackgroundSlot(void);
 
+    void showAdvancedOglSlot(void);
+
     void imageExportPathDialogSlot(void);
     void imagePeriodicalExportPathDialogSlot(void);
 
 signals:
     void renderingEngineChanged(rendering_engine);
     void periodicalImgBackup(bool);
+    void realTimeRecordingStatus(bool);
 };
 
 #endif // SCENERENDERERDIALOG_H

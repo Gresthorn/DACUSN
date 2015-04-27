@@ -35,6 +35,9 @@ stackManager::stackManager(QVector<rawData *> *raw_data_stack, QMutex *raw_data_
 
     radarList = radar_list;
     radarListMutex = radar_list_mutex;
+
+    active_radar_ID = 0;
+    active_radar_ID_index = -1;
 }
 
 stackManager::~stackManager()
@@ -176,6 +179,29 @@ void stackManager::rescue(void)
 
     // return warning count to zero again... Stack is safe for now
     stackWarningCount = 0;
+}
+
+void stackManager::changeActiveRadarId(int id)
+{
+    if(id<=0)
+    {
+        // if less or equall to zero, we will consider this as operator radar
+        active_radar_ID_index = -1;
+        active_radar_ID = 0;
+        return;
+    }
+    else active_radar_ID = id;
+
+    active_radar_ID_index = -1;
+    // find index of desired radar in radarList
+    radarListMutex->lock();
+    for(int i=0; i<radarList->count(); i++)
+    {
+        if(active_radar_ID==radarList->at(i)->id) active_radar_ID_index = i;
+    }
+    radarListMutex->unlock();
+
+    qDebug() << "New radar id : " << active_radar_ID << " index : " << active_radar_ID_index;
 }
 
 void stackManager::switchPauseState()
@@ -340,6 +366,23 @@ void stackManager::applyFusion()
 
     clearVisualizationData();
 
+    // if specific radar is used to be displayed in main/central view, we will push only its values into visualizationData
+    qDebug() << active_radar_ID_index << active_radar_ID;
+    if(active_radar_ID_index>=0 && active_radar_ID>0)
+    {
+        qDebug() << "Pumpujem radarove...";
+        float * radar_coords = radarList->at(active_radar_ID_index)->radar->getCoordinatesLast();
+        int targets = radarList->at(active_radar_ID_index)->radar->getNumberOfTargetsLast();
+        visualizationDataMutex->lock();
+        for(int i=0; i<targets; i++)
+        {
+            QPointF * temp_point = new QPointF(radar_coords[i*2], radar_coords[i*2+1]);
+
+            visualizationData->append(temp_point);
+        }
+        visualizationDataMutex->unlock();
+    }
+
     float x_average; // the averaged value from all radars
     float y_average; // the averaged value from all radars
     int counter; // used for averaging;
@@ -408,13 +451,14 @@ void stackManager::applyFusion()
             settingsMutex->unlock();
 
             // append to visualization vector if counter is more than one (at least one radar had value)
-            if(counter>=1)
+            // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
+            if(active_radar_ID_index<0 || active_radar_ID<=0) if(counter>=1)
             {
+                qDebug() << "Pumpujem spriemernene...";
                 QPointF * temp_point = new QPointF(x_average, y_average);
 
                 visualizationDataMutex->lock();
                 visualizationData->append(temp_point);
-                //qDebug() << temp_point->x() << " " << temp_point->y();
                 visualizationDataMutex->unlock();
             }
         }
@@ -428,10 +472,6 @@ void stackManager::applyFusion()
     visualizationDataMutex->lock();
     qDebug() << visualizationData->count();
     visualizationDataMutex->unlock();
-
-    //visualizationDataMutex->lock();
-    //for(i=0; i<visualizationData->count(); i++) qDebug() << i << " " << visualizationData->at(i)->x() << " " << visualizationData->at(i)->y();
-    //visualizationDataMutex->unlock();
 }
 
 void stackManager::clearVisualizationData()

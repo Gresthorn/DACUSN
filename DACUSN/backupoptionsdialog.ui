@@ -83,8 +83,7 @@
      </property>
      <property name="text">
       <string>Enable data backup on disk. If enabled, next measurement will create
-new file with name in format 'filename_(datetime).txt' where all data
-will be saved.</string>
+new file with name in format 'filename.txt' where all data will be saved.</string>
      </property>
     </widget>
    </item>

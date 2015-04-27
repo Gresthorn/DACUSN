@@ -7,6 +7,9 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
 {
     ui->setupUi(this);
 
+    // hiding advanced settings
+    ui->advancedOglGroupBox->setVisible(false);
+
     settings = setts;
     settingsMutex = settings_mutex;
 
@@ -91,6 +94,8 @@ sceneRendererDialog::sceneRendererDialog(uwbSettings * setts, QMutex * settings_
 
     connect(ui->backgroundColorButton, SIGNAL(clicked()), SLOT(colorSelectionBackgroundSlot()));
 
+    connect(ui->showAdvancedOglButton, SIGNAL(clicked()), SLOT(showAdvancedOglSlot()));
+
     connect(this, SIGNAL(accepted()), this, SLOT(accepted()));
 }
 
@@ -156,6 +161,7 @@ void sceneRendererDialog::accepted()
 
     emit renderingEngineChanged((rendering_engine)(ui->renderingEngineComboBox->currentIndex()));
     emit periodicalImgBackup(ui->periodicalImgBackupCheckBox->isChecked());
+    emit realTimeRecordingStatus(ui->realTimeRecordingCheckBox->isChecked());
 }
 
 void sceneRendererDialog::colorSelectGridTwoSlot()
@@ -188,6 +194,20 @@ void sceneRendererDialog::colorSelectionBackgroundSlot()
     backgroundColor = new QColor(QColorDialog::getColor(*backgroundColor, this, tr("Select color for scene background")));
     if(backgroundColor) delete temp;
     else backgroundColor = temp;
+}
+
+void sceneRendererDialog::showAdvancedOglSlot()
+{
+    if(ui->advancedOglGroupBox->isVisible())
+    {
+        ui->advancedOglGroupBox->setVisible(false);
+        ui->showAdvancedOglButton->setIcon(QIcon(":mainToolbar/icons/more_icon.png"));
+    }
+    else
+    {
+        ui->advancedOglGroupBox->setVisible(true);
+        ui->showAdvancedOglButton->setIcon(QIcon(":mainToolbar/icons/less_icon.png"));
+    }
 }
 
 void sceneRendererDialog::imageExportPathDialogSlot()

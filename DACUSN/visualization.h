@@ -261,6 +261,18 @@ public:
      */
     void setActiveRadarId(int id) { active_radar = id; }
 
+    /**
+     * @brief Clears all pointers to all marker objects. May be usefull when refreshing scene and all objects are deleted by some global function. Then we need to call this to prevent animationManager from trying to access existing objects.
+     * @param[in] deletion If set to true, function will also try to delete objects, not only clearing the list.
+     */
+    void clearRadarMarkerList(bool deletion);
+
+    /**
+     * @brief Clears all pointers to all ellipse objects. May be usefull when refreshing scene and all objects are deleted by some global function. Then we need to call this to prevent animationManager from trying to access existing objects.
+     * @param[in] deletion If set to true, function will also try to delete objects, not only clearing the list.
+     */
+    void clearEllipseList(bool deletion);
+
 private:
     int meter_to_pixel_ratio;
     int x_pixel, y_pixel, x_width, y_width;

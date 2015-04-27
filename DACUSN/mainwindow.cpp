@@ -416,7 +416,6 @@ void MainWindow::destroyStackManagementThread()
     if(stackManagerThread!=NULL) stackManagerThread->terminate();
 
     // deleting objects
-
     if(stackManagerWorker!=NULL) delete stackManagerWorker;
     if(stackManagerThread!=NULL) delete stackManagerThread;
 
@@ -607,8 +606,17 @@ void MainWindow::pathHistoryShow()
 
         // Global update
         // Delete/hide all items that should be not displayed during path drawing mode.
+        visualizationManager->clearRadarMarkerList(true); // clear marker list and delete related objects
+        visualizationManager->clearEllipseList(true); // clear all ellipse items representing objects and clearing list holding pointers to them
         QList<QGraphicsItem * > item_list = visualizationScene->items();
-        for(int i = 0; i<item_list.count(); i++) visualizationScene->removeItem(item_list.at(i));
+        for(int i = 0; i<item_list.count(); i++)
+        {
+            delete item_list.at(i);
+            visualizationScene->removeItem(item_list.at(i));
+        }
+
+        // Note, that also radar markers are now deleted. But we can easily refresh them by calling radar list update function.
+        visualizationManager->updateRadarMarkerList(radarList, radarListMutex);
 
         // Now if the history protocol is switched on, we can add all data from list to scene and do a global update.
         // If no history protocol was saved, if some data are availible in list, delete them.
@@ -632,16 +640,22 @@ void MainWindow::pathHistoryShow()
 
         // NOW WE HAVE SUCCESSFULY SWITCHED TO HISTORY DRAWING SCHEMA
         // NOTE: SINCE NOW EVERY ITEM ADDED OR SCROLLING/ZOOMING MUST BE UPDATED MANUALLY.
+
+        // enable or disable show in central view button
+        realTimeRecordingChanged(true);
     }
     else
     {
         // stop drawing paths
+        bool pathHistorySaveEnabled = false;
         settingsMutex->lock();
         // setup back visualization schema, tapping options and engine to lastly used ones
         settings->setVisualizationSchema(lastKnownSchema);
         settings->setRenderingEngine(lastKnownEngine);
         settings->setTappingRenderMethod(lastKnownTappingOptions);
         settings->setSmootheTransitions(lastKnownSmoothTransitionsState);
+        // Check if so far history saving has been enabled.
+        pathHistorySaveEnabled = settings->getHistoryPath();
         settingsMutex->unlock();
 
         // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
@@ -660,10 +674,16 @@ void MainWindow::pathHistoryShow()
         // Now reveal all common flow objects
         if(lastKnownSchema==COMMON_FLOW) visualizationManager->revealAllCommonFlowSchemaObjects();
 
+        // Note, that also radar markers are now deleted. But we can easily refresh them by calling radar list update function.
+        visualizationManager->updateRadarMarkerList(radarList, radarListMutex);
+
         // Finally update scene without cross items
         visualizationScene->update();
 
         // NOW WE HAVE SUCCESSFULY SWITCHED BACK TO PREVIOUS REGIME
+
+        // enable or disable show in central view button
+        realTimeRecordingChanged(pathHistorySaveEnabled);
     }
 }
 
@@ -850,6 +870,20 @@ void MainWindow::manageDiskBackupSlot()
     else deleteDiskBackupDependencies();
 }
 
+void MainWindow::realTimeRecordingChanged(bool status)
+{
+    // If user decides to display also all history, we need to prevent from switching to another radar data visualization in central
+    // view since only one buffer/memory is used to store data. If user could switch during memorizing, data would be mixed and no
+    // reasonable result would be achieved. So then, only one view can be allowed when recording data.
+    // !!! NOTE: This function is also called when user enters the recording mode although history recording (after switching back)
+    // is turned off. The reason is same. If user could switch view during this mode, only mixing of absolutely different coordinates
+    // !!! NOTE: YOU CAN PLAY WITH THIS PROBLEM IF YOU WANT, BUT CAREFULY. THIS 'SWITCHING' FEATURE WAS NOT IMPLEMENTED FOR NOW BECAUSE
+    // OF TIME LIMITS.
+
+    if(status) ui->showInCentralButton->setDisabled(true);
+    else ui->showInCentralButton->setDisabled(false);
+}
+
 void MainWindow::deleteDiskBackupDependencies()
 {
 
@@ -901,7 +935,7 @@ void MainWindow::openSceneRendererDialog()
     sceneRendererDialog dialog(settings, settingsMutex, visualizationScene, visualizationView, this);
     connect(&dialog, SIGNAL(renderingEngineChanged(rendering_engine)), this, SLOT(renderingEngineChangedSlot(rendering_engine)));
     connect(&dialog, SIGNAL(periodicalImgBackup(bool)), this, SLOT(periodicalImgBackupSlot(bool)));
-
+    connect(&dialog, SIGNAL(realTimeRecordingStatus(bool)), this, SLOT(realTimeRecordingChanged(bool)));
     dialog.exec();
 }
 
@@ -1005,6 +1039,8 @@ void MainWindow::deleteRadarSubWindow(radarSubWindow *subWindow)
 
 void MainWindow::addRadarSubWindow()
 {
+    if(ui->radarListWidget->currentItem()==NULL) return; // if no item was selected yet
+
     // if selected item is OPERATOR
     if(ui->radarListWidget->currentItem()->text()==QString("OPERATOR")) { qDebug() << "Cannot create OPERATOR sub window."; return; }
 
@@ -1029,6 +1065,8 @@ void MainWindow::addRadarSubWindow()
 
 void MainWindow::showInCentral(int id)
 {
+    if(ui->radarListWidget->currentItem()==NULL) return; // if no item was selected yet
+
     int selectedRadarId = 0;
     if(id<0)
     {
@@ -1041,4 +1079,8 @@ void MainWindow::showInCentral(int id)
 
     visualizationManager->setActiveRadarId(selectedRadarId);
     visualizationManager->updateRadarMarkerList(radarList, radarListMutex, selectedRadarId);
+
+
+    // if stackManagerWorker is not NULL we need to update its active radar  variable
+    if(stackManagerWorker!=NULL) stackManagerWorker->changeActiveRadarId(selectedRadarId);
 }

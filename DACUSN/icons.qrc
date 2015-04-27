@@ -27,5 +27,7 @@
         <file>icons/backup.png</file>
         <file>icons/radar_position.png</file>
         <file>icons/radar_position_mini.png</file>
+        <file>icons/less_icon.png</file>
+        <file>icons/more_icon.png</file>
     </qresource>
 </RCC>

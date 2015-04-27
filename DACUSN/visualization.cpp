@@ -706,10 +706,12 @@ void animationManager::revealAllCommonFlowSchemaObjects()
     // NOTE THIS FUNCTION HAS BEEN MODIFIED!!! SINCE PATH PAINTING MODE WILL ALSO DELETE OBJECTS FROM SCENE THIS FUNCTION MUST ADD THEM BACK AGAIN
     // YOU CAN ALSO USE SET VISIBLE TO TRUE, BUT LAUNCHING FUNCTION WILL DO THAT AS WELL SO PRACTICALLY THIS STEP HAS NO POINT.
 
-    for(int i = 0; i<ellipseList->count(); i++)
-    {
-        visualizationScene->addItem(ellipseList->at(i));
-    }
+    launchCommonFlow();
+
+    //for(int i = 0; i<ellipseList->count(); i++)
+    //{
+        //visualizationScene->addItem(ellipseList->at(i));
+    //}
 
     ellipseListInvisible = false;
 }
@@ -874,6 +876,24 @@ void animationManager::updateRadarMarkerList(QVector<radar_handler *> *radarList
         radarMarkerList->last()->setPos(x*METER_TO_PIXEL_RATIO, y*METER_TO_PIXEL_RATIO);
         radarMarkerList->last()->setRotationRadians(r_angle);
         radarMarkerList->last()->setMarkerDescription(QString("M A I N"));
+    }
+}
+
+void animationManager::clearRadarMarkerList(bool deletion)
+{
+    while(!radarMarkerList->isEmpty())
+    {
+        if(deletion) delete radarMarkerList->first();
+        radarMarkerList->removeFirst();
+    }
+}
+
+void animationManager::clearEllipseList(bool deletion)
+{
+    while(!ellipseList->isEmpty())
+    {
+        if(deletion) delete ellipseList->first();
+        ellipseList->removeFirst();
     }
 }
 

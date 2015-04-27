@@ -244,6 +244,14 @@ private slots:
      */
     void manageDiskBackupSlot(void);
 
+    /**
+     * @brief The following slot is called when user accepts new settings in renderer dialog. Real time recording current status is passed as parameter. If true, function will disable option for displaying another radar data in central view.
+     * @param[in] status Will recieve new status of real time recording setting.
+     */
+    void realTimeRecordingChanged(bool status);
+
+signals:
+
 private:
 
     /**
