@@ -50,6 +50,10 @@ radarSubWindow::radarSubWindow(int radar_Id, uwbSettings *setts, QMutex *setting
 
     ui->radarSubWindowViewLayout->addWidget(thisVisualizationView);
 
+    // update radar markers in private visualization scene
+    thisVisualizationManager->setActiveRadarId(radarId);
+    thisVisualizationManager->updateRadarMarkerList(radarList, radarListMutex);
+
     this->setWindowTitle(tr("Radar %1 view").arg(radarId));
 }
 
@@ -155,6 +159,11 @@ void radarSubWindow::updateColorList()
     //visualizationDataMutex->lock();
 
     //thisVisualizationDataMutex->lock();
+}
+
+void radarSubWindow::updateRadarMarkers()
+{
+    thisVisualizationManager->updateRadarMarkerList(radarList, radarListMutex);
 }
 
 void radarSubWindow::clearRadarData()

@@ -473,6 +473,7 @@ bool radarScene::isOpenGL(QPainter *painter)
 
 void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
+
     // draw background with needed colors
     bool drawBackgroundEnabled;
     settingsMutex->lock();
@@ -542,7 +543,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
             painter->setPen(QPen(QBrush(*settings->getGridThreeColor()), 1.0, Qt::SolidLine));
             settingsMutex->unlock();
 
-            painter->drawLines(detailedLines.data(), detailedLines.size());
+            painter->drawLines(detailedLines.data(), detailedLines.size());     
         }
     }
 
@@ -574,6 +575,51 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
             settingsMutex->unlock();
 
             painter->drawLines(middleDetailedLines.data(), middleDetailedLines.size());
+
+            // we can draw number markers -> 1m = METER_TO_PIXEL_RATIO pixels
+
+            float step = ((float)(middleDetailedGridSize))/METER_TO_PIXEL_RATIO;
+            float first_left = ((float)(left))/METER_TO_PIXEL_RATIO; // first left x-coordinate to draw
+
+            painter->scale(1.0, -1.0);
+            painter->setPen(QPen(Qt::darkGray));
+            QFont fontBackup(painter->font()); // save old font so we can restore it (in time of programming this, such backup is not important
+                                               // since numbers at axis are the only text drawn, but later some indicators may be added and restoring
+                                               // fonts will be necessary)
+            QFont newFont;
+            newFont.setWeight(QFont::Bold);
+            painter->setFont(newFont);
+
+            // x - coordinates
+            for (qreal x = left; x < rect.right(); x += middleDetailedGridSize)
+            {
+                if(qFuzzyCompare(0.0, first_left)) {
+                    first_left+=step;
+                    continue;
+                }
+
+                painter->drawText(x+5, 15, QString("%1").arg(first_left));
+
+                first_left+=step;
+            }
+
+            float first_bottom = ((float)(top))/METER_TO_PIXEL_RATIO; // first left x-coordinate to draw
+
+            // y - coordinates
+            for (qreal y = (-1.0)*top; y > (-1.0)*rect.bottom(); y -= middleDetailedGridSize)
+            {
+                if(qFuzzyCompare(0.0, first_bottom)) {
+                    first_bottom+=step;
+                    continue;
+                }
+                painter->drawText(-22, y-5, QString("%1").arg(first_bottom));
+
+                first_bottom+=step;
+            }
+
+            // restore old settings
+            painter->scale(1.0, -1.0);
+            painter->setFont(fontBackup);
         }
     }
 

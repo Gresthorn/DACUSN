@@ -1006,6 +1006,8 @@ void MainWindow::radarListUpdated()
         }
     }
 
+    radarListMutex->unlock();
+
     // now remove all items in list that in fact handles no window
     if(!rem_index.isEmpty())
     {
@@ -1016,9 +1018,13 @@ void MainWindow::radarListUpdated()
         }
     }
 
-    radarSubWindowListMutex->unlock();
+    // since we have only relevant sub windows, we can now update radar markers in their local managers
+    for(int j=0; j<radarSubWindowList->count(); j++)
+    {
+        radarSubWindowList->at(j)->updateRadarMarkers();
+    }
 
-    radarListMutex->unlock();
+    radarSubWindowListMutex->unlock();
 }
 
 void MainWindow::deleteRadarSubWindow(radarSubWindow *subWindow)

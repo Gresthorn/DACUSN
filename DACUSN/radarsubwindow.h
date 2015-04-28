@@ -94,6 +94,11 @@ public:
     void updateColorList(void);
 
     /**
+     * @brief Function will call local animation manager update function to refresh positions and rotation of existing radars in local scene.
+     */
+    void updateRadarMarkers(void);
+
+    /**
      * @brief Ensures correct removal of all points in 'thisVisualizationData' list
      */
     void clearRadarData(void);

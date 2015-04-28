@@ -19,6 +19,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneHoverEvent>
 #include <QDateTime>
+#include <QGraphicsTextItem>
 
 #include "uwbsettings.h"
 #include "radar_handler.h"
