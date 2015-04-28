@@ -525,7 +525,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 
         if(render_decision)
         {
-            int detailedGridSize = 20;
+            int detailedGridSize = METER_TO_PIXEL_RATIO*0.25;
 
             left = int(rect.left()) - (int(rect.left()) % detailedGridSize);
             top = int(rect.top()) - (int(rect.top()) % detailedGridSize);
@@ -557,7 +557,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 
         if(render_decision)
         {
-            int middleDetailedGridSize = 100;
+            int middleDetailedGridSize = METER_TO_PIXEL_RATIO*2.0;
 
             left = int(rect.left()) - (int(rect.left()) % middleDetailedGridSize);
             top = int(rect.top()) - (int(rect.top()) % middleDetailedGridSize);
@@ -578,8 +578,8 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
 
             // we can draw number markers -> 1m = METER_TO_PIXEL_RATIO pixels
 
-            float step = ((float)(middleDetailedGridSize))/METER_TO_PIXEL_RATIO;
-            float first_left = ((float)(left))/METER_TO_PIXEL_RATIO; // first left x-coordinate to draw
+            qreal step = ((qreal)(middleDetailedGridSize))/METER_TO_PIXEL_RATIO;
+            qreal first_left = ((qreal)(left))/METER_TO_PIXEL_RATIO; // first left x-coordinate to draw
 
             painter->scale(1.0, -1.0);
             painter->setPen(QPen(Qt::darkGray));
@@ -940,6 +940,20 @@ void animationManager::clearEllipseList(bool deletion)
     {
         if(deletion) delete ellipseList->first();
         ellipseList->removeFirst();
+    }
+}
+
+void animationManager::updateObjectsScales(double OLD_METER_TO_PIXEL_RATIO)
+{
+
+    meter_to_pixel_ratio = METER_TO_PIXEL_RATIO; // this is kind of security,
+                                                 // each animation manager rather access its own variable then global
+                                                 // can prevent crashes when programmer forgets to set up signal/slot/mutex mechanism for accessing global variable
+    QList<QGraphicsItem * > items_list = visualizationScene->items();
+    for(int i=0; i<items_list.count(); i++)
+    {
+        items_list.at(i)->setPos((items_list.at(i)->pos().x()/OLD_METER_TO_PIXEL_RATIO)*METER_TO_PIXEL_RATIO,
+                                 (items_list.at(i)->pos().y()/OLD_METER_TO_PIXEL_RATIO)*METER_TO_PIXEL_RATIO);
     }
 }
 

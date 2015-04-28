@@ -3,7 +3,7 @@
 
 #define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
                                         ///< (max number of targets)
-#define METER_TO_PIXEL_RATIO 50.0         ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO
+extern double METER_TO_PIXEL_RATIO;            ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO
 
 /**
  * @brief The reciever_method enum covers all possible kinds of recieve methods for UWB sensor network.

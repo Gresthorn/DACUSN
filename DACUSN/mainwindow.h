@@ -16,6 +16,7 @@
 #include <QDebug>
 
 #include <QInputDialog>
+#include "stddefs.h"
 #include "datainputdialog.h"
 #include "stackmanagerdialog.h"
 #include "radarlistdialog.h"
@@ -25,7 +26,6 @@
 
 #include "reciever.h"
 #include "rawdata.h"
-#include "stddefs.h"
 #include "uwbsettings.h"
 #include "datainputthreadworker.h"
 #include "stackmanager.h"
@@ -33,6 +33,7 @@
 #include "radar_handler.h"
 #include "visualization.h"
 #include "radarsubwindow.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -244,6 +245,11 @@ private slots:
      * @param[in] status Will recieve new status of real time recording setting.
      */
     void realTimeRecordingChanged(bool status);
+
+    /**
+     * @brief This function reacts on slider changes in main window and change global METER_TO_PIXEL_RATIO variable to new scale value.
+     */
+    void gridScaleValueChanged(int m_to_pix_ratio);
 
 signals:
 

@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+double METER_TO_PIXEL_RATIO = 100.0;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -125,6 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pathHistoryCheckButton, SIGNAL(clicked()), this, SLOT(pathHistoryShow()));
     connect(ui->exportImageButton, SIGNAL(clicked()), this, SLOT(exportViewImageSlot()));
     connect(ui->enableRenderingButton, SIGNAL(clicked()), this, SLOT(enableRenderingSlot()));
+    connect(ui->gridScaleSpinBox, SIGNAL(valueChanged(int)), this, SLOT(gridScaleValueChanged(int)));
 
     /* ------------------------------------------------- SCENE CONTROLS ------------------------------------------ */
 
@@ -882,6 +885,20 @@ void MainWindow::realTimeRecordingChanged(bool status)
 
     if(status) ui->showInCentralButton->setDisabled(true);
     else ui->showInCentralButton->setDisabled(false);
+}
+
+void MainWindow::gridScaleValueChanged(int m_to_pix_ratio)
+{
+    // NOTE: METER_TO_PIXEL_RATIO IS A GLOBAL VARIABLE!!! USE SIGNAL/SLOT MECHANISM TO MODIFY IT, OTHERWISE PROGRAM MAY CRASH
+
+    double OLD_METER_TO_PIXEL_RATIO = METER_TO_PIXEL_RATIO;
+    METER_TO_PIXEL_RATIO = m_to_pix_ratio;
+
+    // move all objects in central view to correct, new position
+    visualizationManager->updateObjectsScales(OLD_METER_TO_PIXEL_RATIO);
+
+    visualizationView->viewport()->update(); // we need to update manually, otherwise if no data recieving is running, scene will not be updated.
+
 }
 
 void MainWindow::deleteDiskBackupDependencies()

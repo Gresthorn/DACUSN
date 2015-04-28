@@ -24,6 +24,7 @@
 #include "uwbsettings.h"
 #include "radar_handler.h"
 
+
 /**
  * @file visualization.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -273,6 +274,12 @@ public:
      * @param[in] deletion If set to true, function will also try to delete objects, not only clearing the list.
      */
     void clearEllipseList(bool deletion);
+
+    /**
+     * @brief If scale of scene in meter to pixel conversion is changed, we need to update positions of all objects in scene by this function.
+     * @param[in] OLD_METER_TO_PIXEL_RATIO The lastly used meter to pixel ratio for converstion.
+     */
+    void updateObjectsScales(double OLD_METER_TO_PIXEL_RATIO);
 
 private:
     int meter_to_pixel_ratio;
