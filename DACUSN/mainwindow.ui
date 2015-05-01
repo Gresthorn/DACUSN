@@ -198,8 +198,11 @@ QPushButton:hover{
               </item>
               <item row="2" column="2">
                <widget class="QSpinBox" name="gridScaleSpinBox">
+                <property name="wrapping">
+                 <bool>false</bool>
+                </property>
                 <property name="buttonSymbols">
-                 <enum>QAbstractSpinBox::PlusMinus</enum>
+                 <enum>QAbstractSpinBox::UpDownArrows</enum>
                 </property>
                 <property name="minimum">
                  <number>40</number>
@@ -461,8 +464,8 @@ QPushButton:checked{
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>178</width>
-            <height>234</height>
+            <width>232</width>
+            <height>258</height>
            </rect>
           </property>
           <attribute name="label">
