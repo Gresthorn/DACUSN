@@ -218,8 +218,9 @@ public:
 
     /**
      * @brief Function will hide all items in ellipse list.
+     * @param[in] delete_items If parameter is set to true, function will not only hide items, but will completely delete them. Old functionality - only setting items invisible can be accessed by passing false as parameter.
      */
-    void hideAllCommonFlowSchemaObjects(void);
+    void hideAllCommonFlowSchemaObjects(bool delete_items = true);
 
     /**
      * @brief Function will reveal all items in ellipse list.
@@ -275,12 +276,6 @@ public:
      */
     void clearEllipseList(bool deletion);
 
-    /**
-     * @brief If scale of scene in meter to pixel conversion is changed, we need to update positions of all objects in scene by this function.
-     * @param[in] OLD_METER_TO_PIXEL_RATIO The lastly used meter to pixel ratio for converstion.
-     */
-    void updateObjectsScales(double OLD_METER_TO_PIXEL_RATIO);
-
 private:
     int meter_to_pixel_ratio;
     int x_pixel, y_pixel, x_width, y_width;
@@ -323,6 +318,12 @@ public slots:
      * @brief This method will remove all cross items from scene but will not remove objects itself.
      */
     void removePathsFromScene(void);
+
+    /**
+     * @brief If scale of scene in meter to pixel conversion is changed, we need to update positions of all objects in scene by this function.
+     * @param[in] OLD_METER_TO_PIXEL_RATIO The lastly used meter to pixel ratio for converstion.
+     */
+    void updateObjectsScales(double OLD_METER_TO_PIXEL_RATIO);
 };
 
 /******************************************* CUSTOM OPENGL WIDGET ********************************************/

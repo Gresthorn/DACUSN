@@ -367,10 +367,9 @@ void stackManager::applyFusion()
     clearVisualizationData();
 
     // if specific radar is used to be displayed in main/central view, we will push only its values into visualizationData
-    qDebug() << active_radar_ID_index << active_radar_ID;
+
     if(active_radar_ID_index>=0 && active_radar_ID>0)
     {
-        qDebug() << "Pumpujem radarove...";
         float * radar_coords = radarList->at(active_radar_ID_index)->radar->getCoordinatesLast();
         int targets = radarList->at(active_radar_ID_index)->radar->getNumberOfTargetsLast();
         visualizationDataMutex->lock();
@@ -454,7 +453,6 @@ void stackManager::applyFusion()
             // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
             if(active_radar_ID_index<0 || active_radar_ID<=0) if(counter>=1)
             {
-                qDebug() << "Pumpujem spriemernene...";
                 QPointF * temp_point = new QPointF(x_average, y_average);
 
                 visualizationDataMutex->lock();

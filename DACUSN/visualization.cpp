@@ -79,7 +79,13 @@ void MainWindow::visualizationSlot()
             {
                 if(lastKnownSchema==COMMON_FLOW)
                 {
-                    visualizationManager->hideAllCommonFlowSchemaObjects();
+                    visualizationManager->hideAllCommonFlowSchemaObjects(false);
+                    radarSubWindowListMutex->lock();
+                    if(!radarSubWindowList->isEmpty())
+                    {
+                        for(int i = 0; i<radarSubWindowList->count(); i++) radarSubWindowList->at(i)->getVisualizationManager()->hideAllCommonFlowSchemaObjects(false);
+                    }
+                    radarSubWindowListMutex->unlock();
                 }
 
                 lastKnownSchema = COMET_EFFECT;
@@ -88,6 +94,12 @@ void MainWindow::visualizationSlot()
             //settingsMutex->unlock();
 
             visualizationManager->launchCometItems();
+            radarSubWindowListMutex->lock();
+            if(!radarSubWindowList->isEmpty())
+            {
+                for(int i = 0; i<radarSubWindowList->count(); i++) radarSubWindowList->at(i)->getVisualizationManager()->launchCometItems();
+            }
+            radarSubWindowListMutex->unlock();
 
         }
         else if(vis_schema==PATH_HISTORY)
@@ -736,14 +748,18 @@ void animationManager::launchCommonFlow()
     visualizationDataMutex->unlock();
 }
 
-void animationManager::hideAllCommonFlowSchemaObjects()
+void animationManager::hideAllCommonFlowSchemaObjects(bool delete_items)
 {
     // NOTE THIS FUNCTION HAS BEEN MODIFIED!!! SINCE PATH PAINTING MODE WILL NEED TO DELETE OBJECTS FROM SCENE THIS FUNCTION MUST DO THAT
     // INSTEAD SIMPLY HIDING THEM. PRACTICALLY NEW CYCLE WAS ADDED WHEN STARTING PATH PAINTING MODE WHICH WILL DELETE ALL OBJECTS FROM SCENE
     // ITSELF. THIS FUNCTION WAS NOT DELETED ONLY BECAUSE OF REVEAL FUNCTION WITH WHICH THIS FUNCTION PROVIDES SOMETHING LIKE SET. MAYBE CAN
     // BE USED IN FUTURE.
     // YOU CAN ALSO USE SET VISIBILITY TO FALSE, BUT LAUNCHING FUNCTION WILL MODIFY ELLIPSE ITEMS AS NEEDED SO THIS STEP HAS NO REASONAL POINT AT ALL.
-    for(int i=0; i<ellipseList->count(); i++) visualizationScene->removeItem(ellipseList->at(i));
+    for(int i=0; i<ellipseList->count(); i++)
+    {
+        if(delete_items) visualizationScene->removeItem(ellipseList->at(i));
+        else ellipseList->at(i)->setVisible(false);
+    }
     ellipseListInvisible = true;
 }
 
@@ -955,6 +971,8 @@ void animationManager::updateObjectsScales(double OLD_METER_TO_PIXEL_RATIO)
         items_list.at(i)->setPos((items_list.at(i)->pos().x()/OLD_METER_TO_PIXEL_RATIO)*METER_TO_PIXEL_RATIO,
                                  (items_list.at(i)->pos().y()/OLD_METER_TO_PIXEL_RATIO)*METER_TO_PIXEL_RATIO);
     }
+
+    visualizationView->viewport()->update();
 }
 
 void animationManager::clearPathsList()

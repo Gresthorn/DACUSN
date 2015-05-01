@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->radarViewLayout->addWidget(visualizationView, 0, 0);
 
     visualizationManager = new animationManager(visualizationScene, visualizationView, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
+    connect(this, SIGNAL(gridScaleValueUpdate(double)), visualizationManager, SLOT(updateObjectsScales(double)));
 
     //lt->addWidget(t);
 
@@ -597,7 +598,7 @@ void MainWindow::pathHistoryShow()
         pathHistorySaveEnabled = settings->getHistoryPath();
         settingsMutex->unlock();
 
-        // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
+        // Now because of performance issues we need to switch to basic Qt 2D painting engine.
         if(lastKnownEngine==OPEN_GL_ENGINE)
         {
             visualizationView->setViewport(new QWidget);
@@ -664,7 +665,7 @@ void MainWindow::pathHistoryShow()
         // Now because of performance issues we need to switch to basic Qt 2D painting engine because of performance issues.
         if(lastKnownEngine==OPEN_GL_ENGINE)
         {
-            visualizationView->setViewport(new QGLWidget);
+            renderingEngineChangedSlot(OPEN_GL_ENGINE);
         }
 
         // Restore the rendering methods
@@ -895,10 +896,7 @@ void MainWindow::gridScaleValueChanged(int m_to_pix_ratio)
     METER_TO_PIXEL_RATIO = m_to_pix_ratio;
 
     // move all objects in central view to correct, new position
-    visualizationManager->updateObjectsScales(OLD_METER_TO_PIXEL_RATIO);
-
-    visualizationView->viewport()->update(); // we need to update manually, otherwise if no data recieving is running, scene will not be updated.
-
+    emit gridScaleValueUpdate(OLD_METER_TO_PIXEL_RATIO);
 }
 
 void MainWindow::deleteDiskBackupDependencies()
@@ -1082,6 +1080,9 @@ void MainWindow::addRadarSubWindow()
     radarSubWindowListMutex->lock();
     radarSubWindowList->append(newRadarWindow);
     radarSubWindowListMutex->unlock();
+
+    // Connect gridScaleValueUpdate signal to updateObjectsScales slot in case that user globally changes meter to pixel ratio
+    connect(this, SIGNAL(gridScaleValueUpdate(double)), newRadarWindow->getVisualizationManager(), SLOT(updateObjectsScales(double)));
 
     newRadarWindow->show();
 }

@@ -253,6 +253,12 @@ private slots:
 
 signals:
 
+    /**
+     * @brief This signal should be connected to all animation managers (local or global) and inform them about user action, which changes METER_TO_PIXEL_RATIO global variable, so all positions of all items should be updatet.
+     * @param old_grid_scale_value
+     */
+    void gridScaleValueUpdate(double old_grid_scale_value);
+
 private:
 
     /**

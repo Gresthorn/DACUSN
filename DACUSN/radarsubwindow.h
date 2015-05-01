@@ -108,6 +108,12 @@ public:
      */
     void clearColorList(void);
 
+    /**
+     * @brief Since local animation manager seems to be important also for higher classes because of its growing functionality, it seems to be usefull to make it possible to recieve a pointer and connect some singal/slots.
+     * @return The return value is a pointer to local animation manager.
+     */
+    animationManager * getThisVisualizationManagerPointer(void) { return thisVisualizationManager; }
+
 
 protected:
 
