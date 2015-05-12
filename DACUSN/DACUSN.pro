@@ -27,7 +27,9 @@ SOURCES += main.cpp\
     scenerendererdialog.cpp \
     coordinatesinputdialog.cpp \
     radarsubwindow.cpp \
-    backupoptionsdialog.cpp
+    backupoptionsdialog.cpp \
+    uwbpacketclass.cpp \
+    rs232.c
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -45,7 +47,9 @@ HEADERS  += mainwindow.h \
     scenerendererdialog.h \
     coordinatesinputdialog.h \
     radarsubwindow.h \
-    backupoptionsdialog.h
+    backupoptionsdialog.h \
+    rs232.h \
+    uwbpacketclass.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \
