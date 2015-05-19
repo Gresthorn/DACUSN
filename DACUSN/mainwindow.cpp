@@ -15,6 +15,42 @@ MainWindow::MainWindow(QWidget *parent) :
     // creating protector mutex for settings
     settingsMutex = new QMutex;
 
+    // FOR TEST PURPOSES ONLY
+
+    /*char mode[] = "8N1";
+    reciever * recieverHandler = new reciever(settings->getRecieverMethod(), 3, 9600, mode);
+
+    qDebug() << settings->getRecieverMethod();
+
+    // checking if the selected method was successfully established
+    if(recieverHandler->calibration_status()) qDebug() << "The reciever was configured";
+    else qDebug() << recieverHandler->check_status_message();
+
+    while(1)
+    {
+        rawData * test = recieverHandler->listen();
+        if(test==NULL)
+        {
+            //qDebug() << recieverHandler->check_status_message();
+        }
+        else
+        {
+            qDebug() << "Packet number: " << test->getUwbPacketPacketNumber();
+            int targetsNumber = test->getUwbPacketTargetsCount();
+            float * targetsCoordinates = test->getUwbPacketCoordinates();
+            qDebug() << "Targets count: " << targetsNumber;
+            for(int i = 0; i<targetsNumber; i++)
+            {
+                qDebug() << targetsCoordinates[i*2] << " " << targetsCoordinates[i*2+1];
+            }
+
+            delete test;
+        }
+    }
+    return;*/
+
+    // FOR TEST PUSRPOSES ONLY
+
     dataStack = new QVector<rawData * >;
     dataStackMutex = new QMutex;
 

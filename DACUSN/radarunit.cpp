@@ -41,7 +41,7 @@ bool radarUnit::processNewData(rawData *data)
 
     //int i; // for cycle - test purposes
 
-    if(method==SYNTHETIC)
+    if(method==SYNTHETIC || method==RS232)
     {
         zeroEmptyPositions(data);
         //this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
@@ -77,6 +77,7 @@ int radarUnit::getNumberOfTargetsLast()
 
     reciever_method method = dataList->last()->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->last()->getSyntheticTargetsCount();
+    else if(method==RS232) return dataList->last()->getUwbPacketTargetsCount();
     else return NULL;
     return NULL;
 }
@@ -87,6 +88,7 @@ float *radarUnit::getCoordinatesLast()
 
     reciever_method method = dataList->last()->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->last()->getSyntheticCoordinates();
+    else if(method==RS232) return dataList->last()->getUwbPacketCoordinates();
     else return NULL;
     return NULL;
 }
@@ -97,6 +99,7 @@ int radarUnit::getNumberOfTargetsAt(int index)
 
     reciever_method method = dataList->at(index)->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->at(index)->getSyntheticTargetsCount();
+    else if(method==RS232) return dataList->at(index)->getUwbPacketTargetsCount();
     else return NULL;
     return NULL;
 }
@@ -107,6 +110,7 @@ float *radarUnit::getCoordinatesAt(int index)
 
     reciever_method method = dataList->at(index)->getRecieverMethod();
     if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
+    else if(method==RS232) return dataList->at(index)->getUwbPacketCoordinates();
     else return NULL;
     return NULL;
 }

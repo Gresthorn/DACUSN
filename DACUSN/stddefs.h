@@ -3,7 +3,7 @@
 
 #define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
                                         ///< (max number of targets)
-extern double METER_TO_PIXEL_RATIO;            ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO
+extern double METER_TO_PIXEL_RATIO;     ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO
 
 /**
  * @brief The reciever_method enum covers all possible kinds of recieve methods for UWB sensor network.
@@ -11,7 +11,8 @@ extern double METER_TO_PIXEL_RATIO;            ///< Sets the ratio between meter
 enum reciever_method
 {
     UNDEFINED = 0, ///< May be used for situations when no method is needed at all (idle method)
-    SYNTHETIC = 1 ///< Is used when the data are read by server application from file and sent throught pipe
+    SYNTHETIC = 1, ///< Is used when the data are read by server application from file and sent throught windows pipe
+    RS232 = 2 ///< This enum state is used when user wants to recieve data via serial connection
 };
 
 enum visualization_schema

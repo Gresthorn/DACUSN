@@ -277,6 +277,7 @@ void stackManager::dataProcessing(rawData *data)
     int radar_id = 0;
     // obtain radar id
     if(method==SYNTHETIC) radar_id = data->getSyntheticRadarId();
+    else if(method==RS232) radar_id = data->getUwbPacketRadarId();
 
     radarListMutex->lock();
 

@@ -6,6 +6,31 @@ reciever::reciever(reciever_method recieveMethod) : maximum_pipe_size(512)
     last_data_pt = NULL;
     statusMsg = NULL;
 
+    // since for now we are not using serial port, default values are set
+    comPort = -1;
+    comPortBaudRate = 9600;
+    comPortMode = NULL;
+    comPortCallibration = false;
+    packetReciever = NULL;
+
+    calibrationStatus = calibrate(recieveMethod);
+
+    if(calibrationStatus) set_msg("Calibration successfull.");
+    else set_msg("An error occured when trying to set up selected method.");
+}
+
+reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char *comport_mode) : maximum_pipe_size(0)
+{
+    r_method = UNDEFINED;
+    last_data_pt = NULL;
+    statusMsg = NULL;
+
+    comPort = comport_ID;
+    comPortBaudRate = baud_rate;
+    comPortMode = comport_mode;
+    comPortCallibration = false;
+    packetReciever = NULL;
+
     calibrationStatus = calibrate(recieveMethod);
 
     if(calibrationStatus) set_msg("Calibration successfull.");
@@ -14,7 +39,11 @@ reciever::reciever(reciever_method recieveMethod) : maximum_pipe_size(512)
 
 reciever::~reciever()
 {
+    if(comPortMode!=NULL) delete comPortMode;
     if(statusMsg != NULL) delete statusMsg;
+    if(packetReciever!=NULL) delete packetReciever;
+
+    if(r_method==RS232 && comPortCallibration) RS232_CloseComport(comPort);
 
     cancel_previous_method();
 }
@@ -59,6 +88,47 @@ rawData * reciever::listen()
         data = extract_synthetic(message);
         last_data_pt = data; // replacing last known data object pointer
     }
+    else if(r_method==RS232)
+    {
+
+        // recieve new packet for serial link
+        bool success;
+
+        // variables for time measurement
+        clock_t start = clock();
+        clock_t end;
+        double elapsed = 0.0;
+
+        while(1) {
+            success = packetReciever->recievePacket();
+
+            if(success) break; // if packet is read, break the loop so program can process it
+
+            end = clock();
+            elapsed = 1000.0*(double(end-start))/CLOCKS_PER_SEC; // time elapsed in miliseconds
+
+            qDebug() << "ELAPSED : " << elapsed;
+
+            if(elapsed>500.0) break; // time out
+        }
+
+        if(!success) {
+            set_msg("Could not read complete packet from serial link. Packet was obviously corrupted or there is a hardware problem.");
+            last_data_pt = NULL;
+            return NULL;
+        }
+
+        // if packet is unreadable, return NULL and save appropriate message
+        if(!packetReciever->readPacket())
+        {
+            // ADD MESSAGES ACCORDING TO CODE HERE!!!
+            return NULL;
+        }
+
+        // data recieved, now need to convert packet into rawData object
+        data = extract_RS232_radar_packet();
+        last_data_pt = data;
+    }
     else data = last_data_pt = NULL; // when no method was selected
 
     return data;
@@ -73,7 +143,7 @@ bool reciever::set_new_method_code(reciever_method recieveMethod, bool kill)
           // never come to this condition
           if(r_method!=UNDEFINED)
           {
-              if(kill) r_method = UNDEFINED; // if kill is true, then UNDEFINED is set neverthless an new method will try to start
+              if(kill) r_method = UNDEFINED; // if kill is true, then UNDEFINED is set neverthless and new method will try to start
               else
               {
                   set_msg("The old method could not be cancelled correctly, but was successfuly restarted.");
@@ -99,6 +169,16 @@ bool reciever::set_new_method_code(reciever_method recieveMethod, bool kill)
             return calibrationStatus;
 
             break;
+
+        case RS232:
+            calibrationStatus = calibrate(recieveMethod);
+            if(!calibrationStatus) set_msg("The COM port could not be opened. Check if COM index is correcly set or COM port is already in use.");
+            else r_method = RS232;
+
+            return calibrationStatus;
+
+            break;
+
         default:
             set_msg("You are trying to set up unavailible method. The old method is allowed.");
             return false;
@@ -127,6 +207,26 @@ bool reciever::calibrate(reciever_method recieveMethod)
             return true; // everything is ok and done
         }
     }
+    else if(recieveMethod==RS232)
+    {
+        // do callibration for RS232 communication
+        if(RS232_OpenComport(comPort, comPortBaudRate, comPortMode)>0)
+        {
+            // function returns number grater than zero if error occured
+            // reasons of error may differ: invalid comport number, invalid baudrate or mode, comport in use, etc.
+            comPortCallibration = false;
+            return false;
+        }
+        else
+        {
+            // comport opened successfuly and is ready for recieving data
+            comPortCallibration = true;
+            packetReciever = new uwbPacketRx(comPort);
+            r_method = recieveMethod;
+            return true;
+        }
+
+    }
     else return false;
 
     return false;
@@ -134,12 +234,30 @@ bool reciever::calibrate(reciever_method recieveMethod)
 
 bool reciever::cancel_previous_method()
 {
-    if(r_method==UNDEFINED) return true; // nothing speciall is required
+    if(r_method==UNDEFINED) return true; // nothing special is required
     else if(r_method==SYNTHETIC)
     {
         // closing pipe channel
         closeConnection(pipe_connection_handler);
         return true;
+    }
+    else if(r_method==RS232)
+    {
+        if(comPortCallibration)
+        {
+            // correclty close comport
+            RS232_CloseComport(comPort);
+            if(packetReciever!=NULL) delete packetReciever;
+            packetReciever = NULL;
+
+            return true;
+        }
+        else
+        {
+            if(packetReciever!=NULL) delete packetReciever;
+            packetReciever = NULL;
+            return true;
+        }
     }
 
     return true;
@@ -245,6 +363,19 @@ rawData * reciever::extract_synthetic(char * msg)
     data->setSyntheticCoordinates(coordinates);
     data->setSyntheticToas(toas);
     data->setRecieverMethod(SYNTHETIC);
+
+    return data;
+}
+
+rawData * reciever::extract_RS232_radar_packet()
+{
+    rawData * data = new rawData;
+
+    data->setUwbPacketRadarId(packetReciever->getRadarId());
+    data->setUwbPacketRadarTime(packetReciever->getRadarTime());
+    data->setUwbPacketPacketNumber(packetReciever->getPacketCount());
+    data->setUwbPacketTargetsCount(packetReciever->getDataCount()/2);
+    data->setUwbPacketCoordinates(packetReciever->getData());
 
     return data;
 }

@@ -64,3 +64,5 @@ RESOURCES += \
     icons.qrc
 
 CONFIG += qwt
+
+RC_FILE = iconrc.rc

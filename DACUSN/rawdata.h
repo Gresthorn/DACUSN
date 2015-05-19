@@ -2,6 +2,7 @@
 #define RAWDATA_H
 
 #include <stdlib.h>
+#include <QDebug>
 
 #include "stddefs.h"
 
@@ -136,6 +137,67 @@ public:
      */
     void setSyntheticToas(float * toas);
 
+    /**
+     * @brief Allows to set new radar ID to appropriate structure. If structure does not exist yet, it will be created.
+     * @param[in] id New radar id.
+     */
+    void setUwbPacketRadarId(int id);
+
+    /**
+     * @brief Sets the new radar time for packet.  If structure does not exist yet, it will be created.
+     * @param[in] time New radar time for packet.
+     */
+    void setUwbPacketRadarTime(int time);
+
+    /**
+     * @brief Allows to set new packet number. If structure does not exist yet, it will be created.
+     * @param[in] number New packet number.
+     */
+    void setUwbPacketPacketNumber(int number);
+
+    /**
+     * @brief Used when needed to update targets count in packet. Use carefully! If will not be equall to coordinates array count divided by 2, program may crash. If structure does not exist yet, it will be created.
+     * @param[in] count New number of targets in array.
+     */
+    void setUwbPacketTargetsCount(int count);
+
+    /**
+     * @brief Sets the new pointer to the array of coordinates [x, y]. If some array is already set, will be deleted first. If structure does not exist yet, it will be created.
+     * @param[in] coordinates New pointer to array of coordinates.
+     */
+    void setUwbPacketCoordinates(float * coordinates);
+
+    /**
+     * @brief Retrieves the radar id which was the packet send from.
+     * @return Radar id as integer number. If uwb packet structure was not created yet, return value is -1.
+     */
+    int getUwbPacketRadarId(void) { return (uwbPacketData!=NULL) ? uwbPacketData->radar_id : -1; }
+
+    /**
+     * @brief Retrieves radar time as integer number. This time is used for cross radar packet synchronization.
+     * @return Radar time as integer number. If uwb packet structure was not created yet, return value is -1.
+     */
+    int getUwbPacketRadarTime(void) { return (uwbPacketData!=NULL) ? uwbPacketData->radar_time : -1; }
+
+    /**
+     * @brief Allows to obtain packet number. Each next packet must have the previous packet number +1. If this rule is not holded, some packets are lost.
+     * @return Integer number of packet number.  If uwb packet structure was not created yet, return value is -1.
+     */
+    int getUwbPacketPacketNumber(void) { return (uwbPacketData!=NULL) ? uwbPacketData->packet_count : -1; }
+
+    /**
+     * @brief Retrieves the number of targets seen by specific radar.
+     * @return The return value is number of targets as integer number. If uwb packet structure was not created yet, return value is -1.
+     */
+    int getUwbPacketTargetsCount(void) { return (uwbPacketData!=NULL) ? uwbPacketData->targets_count : -1; }
+
+    /**
+     * @brief Function allows access to pointer of array where all [x, y] coordinates for each target is stored.
+     * @return Pointer to array of float numbers with [x, y] coordinates.
+     */
+    float * getUwbPacketCoordinates(void) { return (uwbPacketData!=NULL) ? uwbPacketData->coordinates : NULL; }
+
+
 private:
 
     reciever_method method;
@@ -160,7 +222,34 @@ private:
         float * toas; ///< The TOA value measured in time or distance depending on generator setup for left and right antenna gradually
     };
 
+    /**
+     * @brief Creates new uwb packet radar data.
+     *
+     * The structure contains all information extracted from one packet of one radar unit. Coordinates
+     * of targets are stored in array which can be easily read since also targets count is availible.
+     * Structure contains radar time and packet count information for synchronization and error check reasons.
+     */
+    void createUwbPcketDataStruct(void);
+
+    /**
+     * @brief The 'uwb_packet' structure holds data obtained from one packet (of one radar unit)
+     *
+     * The structure contains all information from one radar unit for all targets. The coordinates
+     * are stored in array and their count is twice the number of targets. Radar time is used for time
+     * synchronization and corrections when synchronizing data from few radars. Packet counts can
+     * detect if some packets were lost.
+     */
+    struct uwb_packet {
+        int radar_id; ///< Stores radar identifier (each radar must have own identifier, OPERATOR has 0)
+        float * coordinates; ///< Array of coordinates [x, y]
+        int targets_count; ///< Number of targets (or [x, y] combinations in array)
+        int radar_time; ///< Radar time, for synchronization
+        int packet_count; ///< Packet count, used for detecting lost packets
+    };
+
     synthetic_data * syntheticData; ///< The structure for storing synthetic data
+
+    uwb_packet * uwbPacketData; ///< The structure for storing uwb radar packet data
 };
 
 #endif // RAWDATA_H

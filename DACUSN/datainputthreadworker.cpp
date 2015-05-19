@@ -20,8 +20,10 @@ dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack,
     stoppedMutex = new QMutex;
     stoppedCheckMutex = new QMutex;
 
+    // create approprate reciever -> need to choose appropriate constructor
     settingsMutex->lock();
-    recieverHandler = new reciever(settings->getRecieverMethod());
+    if(settings->getRecieverMethod()==SYNTHETIC) recieverHandler = new reciever(settings->getRecieverMethod());
+    else if(settings->getRecieverMethod()==RS232) recieverHandler = new reciever(settings->getRecieverMethod(), settings->getComPortNumber(), settings->getComPortBaudRate(), settings->getComPortMode());
     settingsMutex->unlock();
 
     // checking if the selected method was successfully established
@@ -88,6 +90,8 @@ void dataInputThreadWorker::runWorker()
                 // if no UNDEFINED, the current method is probably corrupted
                 qDebug() << recieverHandler->check_status_message();
 
+                // if(recieverHandler->curr_method_code()==RS232) Sleep(500); // give user time to start transmitting - test purposes
+
                 errorCounter++;
                 errorCounterGlobal++;
 
@@ -103,6 +107,7 @@ void dataInputThreadWorker::runWorker()
         {
             // everything is OK, we can now get new data
             rawDataStackMutex->lock();
+            qDebug() << "Appending";
             rawDataStack->append(dataTempPointer);
             rawDataStackMutex->unlock();
             errorCounter = 0;

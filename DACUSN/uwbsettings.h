@@ -63,6 +63,42 @@ public:
     void setMaximumRecieverErrorCount(unsigned int error_count) { maximumRecieverErrorCount = error_count; }
 
     /**
+     * @brief Sets the new comport ID which will be used for communication initialization. Note that in Linux and Windows comport indexing is different.
+     * @param[in] com_port_id COM port ID (e. g. COM5 in windows has index 4)
+     */
+    void setComPortNumber(int com_port_id = -1) { comPort = com_port_id; }
+
+    /**
+     * @brief Sets the new baudrate for serial communication.
+     * @param[in] baud_rate New baudrate to be set. Default baudrate is 9600.
+     */
+    void setComPortBaudRate(int baud_rate = 9600) { comPortBaudRate = baud_rate; }
+
+    /**
+     * @brief Sets the new mode for serial communication. This mode is expressed as 3 characters long string. Possible modes are availible at RS232-library (author's) documentation at: http://www.teuniz.net/RS-232/
+     * @param[in] mode New string with required mode string pointer.
+     */
+    void setComPortMode(char * mode) { comPortMode[0] = mode[0]; comPortMode[1] = mode[1]; comPortMode[2] = mode[2]; }
+
+    /**
+     * @brief Returns currently used COM port index.
+     * @return The return value is COM port number.
+     */
+    int getComPortNumber(void) { return comPort; }
+
+    /**
+     * @brief Is used when discovery of currently used baudrate is needed.
+     * @return  The return value is baudrate expressed as integer number.
+     */
+    int getComPortBaudRate(void) { return comPortBaudRate; }
+
+    /**
+     * @brief Is used for obtaining currently set mode for serial communication. Note that the return value is the copy of string and needs to be released later.
+     * @return The return value is pointer to the copy of string holding the information of currently used RS232 mode.
+     */
+    char * getComPortMode(void) { return strdup(comPortMode); }
+
+    /**
      * @brief Is method used by higher classes to find out, what upper limit for maximum tolerable error count for reciever is used.
      * @return Returns the maximum tolerable error count value.
      */
@@ -476,6 +512,10 @@ private:
     unsigned int stackControlPeriodicity; ///< Determines the number of cycles of reading data from stack after the control of stack filling speed is checked
     unsigned int stackIdleTime; ///< Determines how long to wait in miliseconds in stack reader thread if the stack is empty
     unsigned int maxStackWarningCount; ///< Is the maximum tolarable warning count when doing the speed of stack filling revision
+
+    int comPort; ///< Specifies the index of COM port in operating system, which is used for data recieving
+    int comPortBaudRate; ///< Holds the information about speed used for serial link commuication
+    char comPortMode[4]; ///< Used for serial link communication initialization with some options. See this site for more information: http://www.teuniz.net/RS-232/
 
     unsigned int visualizationInterval; ///< Sets how often should be the scene updated.
     visualization_schema visualizationSchema; ///< Holds the user choice of visual effects in scene.

@@ -3,6 +3,7 @@
 rawData::rawData()
 {
     syntheticData = NULL;
+    uwbPacketData = NULL;
 }
 
 rawData::~rawData()
@@ -14,6 +15,10 @@ rawData::~rawData()
         if(syntheticData->toas != NULL) delete syntheticData->toas;
 
         delete syntheticData;
+    }
+    if(uwbPacketData!=NULL)
+    {
+        delete uwbPacketData;
     }
 }
 
@@ -81,11 +86,75 @@ void rawData::setSyntheticToas(float *toas)
     }
 }
 
+void rawData::setUwbPacketRadarId(int id)
+{
+    if(uwbPacketData!=NULL)
+    {
+        uwbPacketData->radar_id = id;
+    } else {
+        createUwbPcketDataStruct();
+        uwbPacketData->radar_id = id;
+    }
+}
+
+void rawData::setUwbPacketRadarTime(int time)
+{
+    if(uwbPacketData!=NULL)
+    {
+        uwbPacketData->radar_time = time;
+    } else {
+        createUwbPcketDataStruct();
+        uwbPacketData->radar_time = time;
+    }
+}
+
+void rawData::setUwbPacketPacketNumber(int number)
+{
+    if(uwbPacketData!=NULL)
+    {
+        uwbPacketData->packet_count = number;
+    } else {
+        createUwbPcketDataStruct();
+        uwbPacketData->packet_count = number;
+    }
+}
+
+void rawData::setUwbPacketTargetsCount(int count)
+{
+    if(uwbPacketData!=NULL)
+    {
+        uwbPacketData->targets_count = count;
+    } else {
+        createUwbPcketDataStruct();
+        uwbPacketData->targets_count = count;
+    }
+}
+
+void rawData::setUwbPacketCoordinates(float *coordinates)
+{
+    if(uwbPacketData!=NULL)
+    {
+        if(uwbPacketData->coordinates!=NULL) delete uwbPacketData->coordinates;
+
+        uwbPacketData->coordinates = coordinates;
+    } else {
+        createUwbPcketDataStruct();
+        uwbPacketData->coordinates = coordinates;
+    }
+}
+
 void rawData::createSyntheticDataStruct()
 {
     syntheticData = new synthetic_data;
     syntheticData->coordinates = NULL;
     syntheticData->toas = NULL;
     syntheticData->radar_id = syntheticData->targets_count = syntheticData->time = 0;
+}
+
+void rawData::createUwbPcketDataStruct()
+{
+    uwbPacketData = new uwb_packet;
+    uwbPacketData->coordinates = NULL;
+    uwbPacketData->packet_count = uwbPacketData->radar_id = uwbPacketData->radar_time = uwbPacketData->targets_count = 0;
 }
 

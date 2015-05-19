@@ -24,7 +24,7 @@
  * computer. The software must be able read and write into such packets as well as send them via RS232.
  *
  * This class provides functionality for both, recieving and sending packets. You can comment one of that
- * functionality to reduce size of compiled program if you do not need it.
+ * functionality to reduce the size of compiled program if you do not need it.
  *
  */
 
@@ -42,8 +42,8 @@ private:
     unsigned char makeCorrection(unsigned char ch); ///< Takes char and modifies it to 0-F form. According to asci table there is unwanted range between characters A-F and digits 0-9
 
 
-    unsigned short update_crc_16( unsigned short crc, char c );
-    void init_crc16_tab(void);
+    unsigned short update_crc_16( unsigned short crc, char c ); ///< CRC Calculation
+    void init_crc16_tab(void); ///< Initialization of CRC calculation arrays
     unsigned short crc_tab16[256];
     int crc_tab16_init;
 
@@ -78,14 +78,12 @@ private:
     int packetCount; ///< packet number
     int radarTime; ///< ???
 
-    //void incrementPacketCount(void); ///< Increment packet count and reset to zero if 8 bit maximum value is overflown
-    //void decrementPacketCount(void); ///< Decrement packet count and reset to 255 if value is less then zero
     int removeCorrection(unsigned char ch); ///< Takes char and modifies it into number representation which is the real number represented by obtained digit
+    void deleteLastPacket(void); ///< Deletes last packet and frees the memory
 
 
-
-    unsigned short update_crc_16( unsigned short crc, char c );
-    void init_crc16_tab(void);
+    unsigned short update_crc_16( unsigned short crc, char c ); ///< CRC Calculation
+    void init_crc16_tab(void); ///< Initialization of CRC calculation arrays
     unsigned short crc_tab16[256];
     int crc_tab16_init;
 
@@ -103,15 +101,14 @@ private:
     const float rounder; ///< Multiplier used for conversion float to int value.
 
     unsigned char * packet; ///< Packet string that was recieved
-    int packetLength; ///< Stores the number of characters currently in packet
+    int packetLength; ///< When packet is read completely, this value stores the lastly recieved packet length even when buffer packet is zeroed (what in fact is needed due to implementation)
     float * data; ///< Pointer to lastly recieved and parsed data (coordinates [x, y])
     int dataCount; ///< Specifies how many coordinates are in the data array
 
 public:
     uwbPacketRx(int port); ///< Constructor
 
-    void readPacket(void); ///< Reads the 'packet' array acoording to packet length and reads all information from it
-    void deleteLastPacket(void); ///< Deletes last packet and frees the memory
+    int readPacket(void); ///< Reads the 'packet' array acoording to packet length and reads all information from it
     bool recievePacket(void); ///< Takes 'packet' string and sends it via serial link. Returns true if success, false otherwise
 
     // functions for simple obtaining and changing common values
@@ -122,11 +119,8 @@ public:
     int getRadarTime(void) { return radarTime; }
     float * getData(void) { return data; }
     unsigned char * getPacket(void) { return packet; }
+    int getPacketLength(void) { return packetLength; }
     int getDataCount(void) { return dataCount; }
-
-    // TEMP
-    void setPacketLength(int val) { packetLength = val; }
-    void setPacket(unsigned char * pack) { packet = pack; }
 };
 
 #endif // UWBPACKETCLASS_H

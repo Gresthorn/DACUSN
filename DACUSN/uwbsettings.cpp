@@ -2,7 +2,7 @@
 
 uwbSettings::uwbSettings()
 {
-    recieverMethod = SYNTHETIC;
+    recieverMethod = RS232;
 
     maximumRecieverErrorCount = 13;
 
@@ -76,6 +76,13 @@ uwbSettings::uwbSettings()
     backupFileName.append(QString("radar_backup_%1").arg(QString(QDateTime::currentDateTime().toString()).replace(QRegExp(" |:"), "_")));
     backupMainFileHandler = NULL;
     backupFileHandler = NULL;
+
+    comPort = 3;//-1;
+    comPortBaudRate = 9600;
+    comPortMode[0] = '8';
+    comPortMode[1] = 'N';
+    comPortMode[2] = '1';
+    comPortMode[3] = '\0';
 }
 
 uwbSettings::uwbSettings(char *config)

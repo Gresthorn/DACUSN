@@ -5,9 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <ctime>
+#include <QDebug>
 
 #include "stddefs.h"
 #include "rawdata.h"
+#include "rs232.h"
+#include "uwbpacketclass.h"
 
 /**
  * @file reciever.h
@@ -45,6 +49,16 @@ public:
      * choices but can be changed at any time.
      */
     reciever(reciever_method recieveMethod);
+
+    /**
+     * @brief                       Specially if serial link communication is selected, also basic COM port configurations must be passed. This is overloaded constructor.
+     * @param[in] recieveMethod     Is used to identify the method by which data should be get
+     * @param[in] comport_ID        New comport index for opening the comport
+     * @param[in] baud_rate         New baudrate for serial link communication
+     * @param[in] comport_mode      Mode for comport communication (parity, stop bits, one send word length)
+     */
+    reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char * comport_mode);
+
     ~reciever();
 
     /**
@@ -145,6 +159,24 @@ private:
      * is specified by another functions. Else, previous state is set and the return value is false.
      */
     bool cancel_previous_method(void);
+
+    //------------------------------------------ SERIAL LINK METHOD -------------------------------------------
+
+    int comPort; ///< Specifies the index of COM port in operating system, which is used for data recieving
+
+    int comPortBaudRate; ///< Holds the information about speed used for serial link commuication
+
+    char * comPortMode; ///< Used for serial link communication initialization with some options. See this site for more information: http://www.teuniz.net/RS-232/
+
+    bool comPortCallibration; ///< If COM port was successfuly opened, this is set to TRUE, else is set to FALSE
+
+    uwbPacketRx * packetReciever; ///< If COM port communication is pending, this packet ensures data recieving (no more packet recieving objects are needed)
+
+    /**
+     * @brief When recieving data from the COM port, we are getting the UWB radar packet and so we need to read it and convert it to rawData format.
+     * @return Pointer to the new rawData object with all values being correctly set.
+     */
+    rawData * extract_RS232_radar_packet(void);
 
     //------------------------------------------ PIPE METHOD --------------------------------------------------
 
