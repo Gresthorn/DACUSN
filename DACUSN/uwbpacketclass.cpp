@@ -201,6 +201,7 @@ uwbPacketRx::uwbPacketRx(int port) : endingChar('$'), rounder(100.0), buffer_siz
     comPort = port;
     radarID = radarTime = packetCount = dataCount = 0;
     data = NULL;
+    packet = NULL;
 
     crc_tab16_init = FALSE;
 

@@ -78,7 +78,7 @@ void dataInputThreadWorker::runWorker()
             // something is wrong
             if(recieverHandler->curr_method_code()==UNDEFINED)
             {
-                // no method is specified, making an idle state for 2 seconds
+                // no method is specified, making an idle state for 2 or more seconds (settings specified)
                 qDebug() << "Reciever responds from idle state";
                 settingsMutex->lock();
                 idle = settings->getRecieverIdleTime();

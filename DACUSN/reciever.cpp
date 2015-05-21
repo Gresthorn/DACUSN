@@ -110,6 +110,8 @@ rawData * reciever::listen()
             qDebug() << "ELAPSED : " << elapsed;
 
             if(elapsed>500.0) break; // time out
+
+            Sleep(5); // we do not want to blow up CPU
         }
 
         if(!success) {
@@ -376,7 +378,7 @@ rawData * reciever::extract_RS232_radar_packet()
     data->setUwbPacketPacketNumber(packetReciever->getPacketCount());
     data->setUwbPacketTargetsCount(packetReciever->getDataCount()/2);
     data->setUwbPacketCoordinates(packetReciever->getData());
-
+    data->setRecieverMethod(RS232);
     return data;
 }
 
