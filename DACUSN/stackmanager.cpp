@@ -367,7 +367,7 @@ void stackManager::applyFusion()
 
         // if global MTT is enabled and radar unit is enabled as well, we can add to array size the number of coordinates.
         // In result, global_mtt_array_size will contain the size of array only for coordinates of active radar units.
-        if(enableGlobalMTT && radarList->at(i)->radar->isEnabled()) global_mtt_array_size+=radarList->at(i)->radar->getNumberOfTargetsLast()*2;
+        if(enableGlobalMTT && radarList->at(i)->radar->isEnabled()) global_mtt_array_size+=(radarList->at(i)->radar->getNumberOfTargetsLast()*2);
 
         // update maximum targets visible, this is usable only if averaging is selected instead of global MTT. If global MTT is set, no need of storing this information.
         if(targets_count.last()>maximum_targets_visible && !enableGlobalMTT) maximum_targets_visible = targets_count.last();
@@ -419,15 +419,14 @@ void stackManager::applyFusion()
             // fill array with coordinates
             for(j=0; j<arrays.count(); j++)
             {
-                if(!radarList->at(i)->radar->isEnabled()) continue; // do not copy coordinates from radar unit that is not allowed by user
+                if(!radarList->at(j)->radar->isEnabled()) continue; // do not copy coordinates from radar unit that is not allowed by user
 
                 for(i=0; i<targets_count.at(j); i++)
                 {
-                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(i)[i*2];
-                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(i)[i*2+1];
+                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(j)[i*2];
+                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(j)[i*2+1];
                 }
             }
-
             // HERE GLOBAL MTT ALGORITHM WILL BE PLACED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             float * global_mtt_array_result = global_mtt_array; // Result array of target coordinates from global MTT algorithm.
