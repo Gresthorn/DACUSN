@@ -504,6 +504,30 @@ public:
     void oglSetBlueBufferSize(int value) { ogl_blue_buffer_size = value; }
     void oglSetAlphaBufferSize(int value) { ogl_alpha_buffer_size = value; }
 
+    /**
+     * @brief This function will set new approval state for single radar MTT application. If set to false, no MTT algorithm will be applied for individuall radar unit's new data.
+     * @param[in] enable New MTT approval state.
+     */
+    void setSingleRadarMTT(bool enable) { enableSingleRadarMTT = enable; }
+
+    /**
+     * @brief This function will set new approval state for global MTT application. If set to true, MTT algorithm will be applied for all radar data instead of averaging.
+     * @param enable
+     */
+    void setGlobalRadarMTT(bool enable) { enableGlobalRadarMTT = enable; }
+
+    /**
+     * @brief Retrieves currently used single radar MTT algorithm state.
+     * @return Boolean value. If true, on each radar unit, after new data are recieved, MTT algorithm is applied.
+     */
+    bool getSingleRadarMTT(void) { return enableSingleRadarMTT; }
+
+    /**
+     * @brief Retrieves currently used global MTT algorithm state.
+     * @return Boolean value. If true, before data are passed into visualizationData list, instead of averaging, MTT algorithm will be applied.
+     */
+    bool getGlobalRadarMTT(void) { return enableGlobalRadarMTT; }
+
 private:
 
     reciever_method recieverMethod; ///< Method used for obtaining data from UWB network
@@ -543,7 +567,7 @@ private:
 
     rendering_engine_buffer_type ogl_buffering_type; ///< Specifies the buffer type if openGL rendering engine is on
 
-    ///< The following variables are basic options for openGL rendering engine.
+    ///< The following variables are basic options for openGL rendering engine. See documentation for more information.
     bool ogl_direct_rendering;
     int ogl_red_buffer_size;
     int ogl_green_buffer_size;
@@ -572,6 +596,9 @@ private:
     bool diskBackupEnabled; ///< Specifies if save to disk or not.
     QFile * backupMainFileHandler; ///< FILE object of opened backup file.
     QTextStream * backupFileHandler; ///< Stores the 'handler' where can new data be written and redirected to file.
+
+    bool enableSingleRadarMTT; ///< Switches on/off single radar MTT. If turned on, every radar will apply MTT on newly recieved data.
+    bool enableGlobalRadarMTT; ///< Switches on/off global MTT algorithm. If turned on, averaging data will be replaced with MTT algorithm.
 };
 
 #endif // UWBSETTINGS_H

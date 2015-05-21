@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // creating protector mutex for settings
     settingsMutex = new QMutex;
 
-    // FOR TEST PURPOSES ONLY
+    // FOR TEST PURPOSES ONLY - THIS SECTION IS USED FOR PACKET RECIEVING TEST - TEST IS DONE WITHOUT RUNNING THE REST OF APPLICATION
 
     /*char mode[] = "8N1";
     reciever * recieverHandler = new reciever(settings->getRecieverMethod(), 3, 9600, mode);
@@ -129,8 +129,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     visualizationManager = new animationManager(visualizationScene, visualizationView, visualizationData, visualizationColor, visualizationDataMutex, settings, settingsMutex);
     connect(this, SIGNAL(gridScaleValueUpdate(double)), visualizationManager, SLOT(updateObjectsScales(double)));
-
-    //lt->addWidget(t);
 
     connect(visualizationTimer, SIGNAL(timeout()), this, SLOT(visualizationSlot()));
     visualizationTimer->setInterval(settings->getVisualizationInterval());

@@ -60,7 +60,9 @@ void uwbPacketTx::generatePacket(float *data, int data_count)
         (num<0) ? num*=(-1) : sign=true;
 
         // if absolute value of number is greater than 2047, this is more than we can handle on 11 bits, so its rounded to 2047
-        if(num>2047) num=2047;
+        if(num>=2048) sign ? num=2047 : num=2048;
+        // prepare number for two's complement
+        if(!sign && num!=0) --num;
 
         std::bitset<12> b_temp(num);
 
@@ -69,12 +71,11 @@ void uwbPacketTx::generatePacket(float *data, int data_count)
         {
             if(j==8) // extract top 3 bits
             {
-                ch = ((b_temp>>j)&b_val_constant).to_ulong(); // since >2047 condition is set, 12 bit will be surely zero
-                if(!sign) ch+=8; // if negative number, set top bit to 1 what is represented by plus 8
+                ch = ((sign ? (b_temp>>j) : (b_temp>>j).flip())&b_val_constant).to_ulong();
                 ch = makeCorrection(ch);
             }
             else // other bits
-                ch = makeCorrection(((b_temp>>j)&b_val_constant).to_ulong());
+                ch = makeCorrection(((sign ? (b_temp>>j) : (b_temp>>j).flip())&b_val_constant).to_ulong());
 
             packet[packetLength++] = ch;
         }
@@ -303,8 +304,7 @@ int uwbPacketRx::readPacket()
             internal_counter = 0;
             // if sign bit is set to 1, need to create negative number
             bool sign = val_temp[11];
-            val_temp[11] = false;
-            data[value_counter++] = (sign ? (-1.0)*((float)(val_temp.to_ulong()))/rounder : ((float)(val_temp.to_ulong()))/rounder);
+            data[value_counter++] = (sign ? (-1.0)*((float)(val_temp.flip().to_ulong())+1.0)/rounder : ((float)(val_temp.to_ulong()))/rounder);
 
             val_temp &= 0; // reset temporary bit stream
         }

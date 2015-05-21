@@ -342,15 +342,22 @@ bool stackManager::checkRadarDataUpdateStatus()
 
 void stackManager::applyFusion()
 {
-    // apply the fusion algorithm (so far only simple averaging the values)
+    // apply the fusion algorithm (so far simple averaging the values or global MTT)
     int i, j;
 
     // specifies the maximum target count from all radar units
     int maximum_targets_visible = 0;
+    // if global MTT is used, we need to calculate array global array size (all coordinates in one array)
+    int global_mtt_array_size = 0;
 
     // temporary pointer handlers
     QVector<float * > arrays;
     QVector<int> targets_count;
+
+    bool enableGlobalMTT = false;
+    settingsMutex->lock();
+    enableGlobalMTT = settings->getGlobalRadarMTT();
+    settingsMutex->unlock();
 
     // for simplicity we suppose that all targets have same indexing in all radarUnits and coordinates are non-zero
     for(i=0; i<radarList->count(); i++)
@@ -358,8 +365,12 @@ void stackManager::applyFusion()
         arrays.append(radarList->at(i)->radar->getCoordinatesLast());
         targets_count.append(radarList->at(i)->radar->getNumberOfTargetsLast());
 
-        // update maximum targets visible
-        if(targets_count.last()>maximum_targets_visible) maximum_targets_visible = targets_count.last();
+        // if global MTT is enabled and radar unit is enabled as well, we can add to array size the number of coordinates.
+        // In result, global_mtt_array_size will contain the size of array only for coordinates of active radar units.
+        if(enableGlobalMTT && radarList->at(i)->radar->isEnabled()) global_mtt_array_size+=radarList->at(i)->radar->getNumberOfTargetsLast()*2;
+
+        // update maximum targets visible, this is usable only if averaging is selected instead of global MTT. If global MTT is set, no need of storing this information.
+        if(targets_count.last()>maximum_targets_visible && !enableGlobalMTT) maximum_targets_visible = targets_count.last();
 
         // restore updated status back to false so fusion can run again only after all radars has updated data
         radarList->at(i)->updated = false;
@@ -398,67 +409,125 @@ void stackManager::applyFusion()
             }
         settingsMutex->unlock();
 
-        // so far only averaging of coordinates is used: no fusion algorithm availible
-        // it is also supposed that indexes of coordinates are the same for specific target
 
-        for(j=0; j<maximum_targets_visible; j++)
+        if(enableGlobalMTT)
         {
-            x_average = 0.0;
-            y_average = 0.0;
-            counter = 0;
+            // If global MTT is enabled, create one array of all coordinates from all radars and pass newly created array to MTT
+            float * global_mtt_array = new float[global_mtt_array_size];
+            int global_mtt_array_pointer = 0; // still points to new empty array space
 
-            // iterating through all possible targets
-            for(i=0; i<arrays.count(); i++)
-            {    
-                //qDebug() << "-------------------------------------------------------------------------------------";
-                // if radar was disabled by user, do not use it in fusion algorithm
-                if(!radarList->at(i)->radar->isEnabled()) continue;
+            // fill array with coordinates
+            for(j=0; j<arrays.count(); j++)
+            {
+                if(!radarList->at(i)->radar->isEnabled()) continue; // do not copy coordinates from radar unit that is not allowed by user
 
-                // if is less the radar unit surely has information about target's coordinates
-                if(j<targets_count.at(i))
+                for(i=0; i<targets_count.at(j); i++)
                 {
-                    // apply transformation to operator coordinate system
-
-                    radarList->at(i)->radar->doTransformation(arrays.at(i)[j*2], arrays.at(i)[j*2+1]);
-
-                    // Usually if MTT produces invalid value, the "nan" or "inf/-inf" states were catched. Therefore it is much better to not consider such values
-                    float x = radarList->at(i)->radar->getTransformatedX();
-                    float y = radarList->at(i)->radar->getTransformatedY();
-
-                    if(x!=x || y!=y) continue;
-                    else if(x>std::numeric_limits<float>::max() || x<(-std::numeric_limits<float>::max())
-                            || y>std::numeric_limits<float>::max() || y<(-std::numeric_limits<float>::max())) continue;
-                    else if(qFuzzyCompare(0.0, x) || qFuzzyCompare(0.0, y)) continue;
-
-                    x_average += x;
-                    y_average += y;
-                    //qDebug() << radarList->at(i)->radar->getTransformatedX() << " " << radarList->at(i)->radar->getTransformatedY();
-
-                    ++counter;
+                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(i)[i*2];
+                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(i)[i*2+1];
                 }
             }
 
-            // calculate average value
-            x_average /= (float)(counter);
-            y_average /= (float)(counter);
+            // HERE GLOBAL MTT ALGORITHM WILL BE PLACED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+            float * global_mtt_array_result = global_mtt_array; // Result array of target coordinates from global MTT algorithm.
+            int global_mtt_array_result_pointer = global_mtt_array_pointer; // Holds the information about, how many numbers there are in array.
+
+            // Backup data on disk, if backup is enabled
+            bool backupEnabled = false;
             settingsMutex->lock();
-                if(settings->getDiskBackupEnabled())
-                {
-                    makeDataBackup(x_average);
-                    makeDataBackup(y_average);
-                }
+                backupEnabled = settings->getDiskBackupEnabled();
             settingsMutex->unlock();
-
-            // append to visualization vector if counter is more than one (at least one radar had value)
-            // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
-            if(active_radar_ID_index<0 || active_radar_ID<=0) if(counter>=1)
+            if(backupEnabled)
             {
-                QPointF * temp_point = new QPointF(x_average, y_average);
+                for(j=0; j<global_mtt_array_result_pointer; j++)
+                {
+                    makeDataBackup(global_mtt_array_result[j*2]);
+                    makeDataBackup(global_mtt_array_result[j*2+1]);
+                }
+            }
 
-                visualizationDataMutex->lock();
-                visualizationData->append(temp_point);
-                visualizationDataMutex->unlock();
+            // Append data to visualizationData list.
+            // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
+            if(active_radar_ID_index<0 || active_radar_ID<=0)
+            {
+                for(j=0; j<global_mtt_array_result_pointer; j++)
+                {
+                    QPointF * temp_point = new QPointF(global_mtt_array_result[j*2], global_mtt_array_result[j*2+1]);
+
+                    visualizationDataMutex->lock();
+                    visualizationData->append(temp_point);
+                    visualizationDataMutex->unlock();
+                }
+            }
+
+
+            // Do not forget to delete common array
+            delete[] global_mtt_array;
+        }
+        else
+        {
+
+            // The following cycle will do averaging of coordinates: no fusion algorithm availible
+            // it is also supposed that indexes of coordinates are the same for specific target
+
+            for(j=0; j<maximum_targets_visible; j++)
+            {
+                x_average = 0.0;
+                y_average = 0.0;
+                counter = 0;
+
+                // iterating through all possible targets
+                for(i=0; i<arrays.count(); i++)
+                {
+                    // if radar was disabled by user, do not use it in fusion algorithm
+                    if(!radarList->at(i)->radar->isEnabled()) continue;
+
+                    // if is less the radar unit surely has information about target's coordinates
+                    if(j<targets_count.at(i))
+                    {
+                        // apply transformation to operator coordinate system
+
+                        radarList->at(i)->radar->doTransformation(arrays.at(i)[j*2], arrays.at(i)[j*2+1]);
+
+                        // Usually if MTT produces invalid value, the "nan" or "inf/-inf" states were catched. Therefore it is much better to not consider such values
+                        float x = radarList->at(i)->radar->getTransformatedX();
+                        float y = radarList->at(i)->radar->getTransformatedY();
+
+                        if(x!=x || y!=y) continue;
+                        else if(x>std::numeric_limits<float>::max() || x<(-std::numeric_limits<float>::max())
+                                || y>std::numeric_limits<float>::max() || y<(-std::numeric_limits<float>::max())) continue;
+                        else if(qFuzzyCompare(0.0, x) || qFuzzyCompare(0.0, y)) continue;
+
+                        x_average += x;
+                        y_average += y;
+
+                        ++counter;
+                    }
+                }
+
+                // calculate average value
+                x_average /= (float)(counter);
+                y_average /= (float)(counter);
+
+                settingsMutex->lock();
+                    if(settings->getDiskBackupEnabled())
+                    {
+                        makeDataBackup(x_average);
+                        makeDataBackup(y_average);
+                    }
+                settingsMutex->unlock();
+
+                // append to visualization vector if counter is more than one (at least one radar had value)
+                // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
+                if(active_radar_ID_index<0 || active_radar_ID<=0) if(counter>=1)
+                {
+                    QPointF * temp_point = new QPointF(x_average, y_average);
+
+                    visualizationDataMutex->lock();
+                    visualizationData->append(temp_point);
+                    visualizationDataMutex->unlock();
+                }
             }
         }
 
