@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
+QT       += core gui opengl serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     radarsubwindow.cpp \
     backupoptionsdialog.cpp \
     uwbpacketclass.cpp \
-    rs232.c
+    rs232.c \
+    mttsettingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     radarsubwindow.h \
     backupoptionsdialog.h \
     rs232.h \
-    uwbpacketclass.h
+    uwbpacketclass.h \
+    mttsettingsdialog.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \
@@ -58,7 +60,8 @@ FORMS    += mainwindow.ui \
     scenerendererdialog.ui \
     coordinatesinputdialog.ui \
     radarsubwindow.ui \
-    backupoptionsdialog.ui
+    backupoptionsdialog.ui \
+    mttsettingsdialog.ui
 
 RESOURCES += \
     icons.qrc

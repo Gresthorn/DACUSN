@@ -83,9 +83,10 @@ public:
     /**
      * @brief This function will read data from the container and apply MTT processing functions.
      * @param[in] data Container with all data obtained by reciever and retrieved from stack.
+     * @param[in] enableMTT If is set to true, radar will internally use its own MTT algorithm to process data.
      * @return If the data processing was successful, the return value is true and the data in radarUnit are considered as updated.
      */
-    bool processNewData(class rawData * data);
+    bool processNewData(class rawData * data, bool enableMTT=false);
 
     /**
      * @brief This function returns the number of targets from latest data.

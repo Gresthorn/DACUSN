@@ -746,7 +746,7 @@ QPushButton:checked{
      <x>0</x>
      <y>0</y>
      <width>954</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
@@ -775,14 +775,16 @@ QPushButton:checked{
    <addaction name="separator"/>
    <addaction name="actionData_Input_Dialog"/>
    <addaction name="actionStack_Manager_Dialog"/>
-   <addaction name="actionRadar_List_Dialog"/>
    <addaction name="actionScene_renderer"/>
+   <addaction name="separator"/>
+   <addaction name="actionRadar_List_Dialog"/>
    <addaction name="actionData_backup"/>
+   <addaction name="actionMTT_Settings_Dialog"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/on.png</normaloff>:/mainToolbar/icons/on.png</iconset>
    </property>
    <property name="text">
@@ -826,7 +828,7 @@ QPushButton:checked{
   </action>
   <action name="actionData_Input_Dialog">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/input.png</normaloff>:/mainToolbar/icons/input.png</iconset>
    </property>
    <property name="text">
@@ -835,7 +837,7 @@ QPushButton:checked{
   </action>
   <action name="actionStack_Manager_Dialog">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/stack.png</normaloff>:/mainToolbar/icons/stack.png</iconset>
    </property>
    <property name="text">
@@ -847,7 +849,7 @@ QPushButton:checked{
   </action>
   <action name="actionRadar_List_Dialog">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/radar_list.png</normaloff>:/mainToolbar/icons/radar_list.png</iconset>
    </property>
    <property name="text">
@@ -859,7 +861,7 @@ QPushButton:checked{
   </action>
   <action name="actionScene_renderer">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/render.png</normaloff>:/mainToolbar/icons/render.png</iconset>
    </property>
    <property name="text">
@@ -874,7 +876,7 @@ QPushButton:checked{
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/mainToolbar/icons/backup.png</normaloff>:/mainToolbar/icons/backup.png</iconset>
    </property>
    <property name="text">
@@ -884,10 +886,17 @@ QPushButton:checked{
     <string>Data backup options</string>
    </property>
   </action>
+  <action name="actionMTT_Settings_Dialog">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/mainToolbar/icons/mtt.png</normaloff>:/mainToolbar/icons/mtt.png</iconset>
+   </property>
+   <property name="text">
+    <string>MTT Settings Dialog</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

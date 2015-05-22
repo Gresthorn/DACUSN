@@ -23,6 +23,7 @@
 #include "scenerendererdialog.h"
 #include "coordinatesinputdialog.h"
 #include "backupoptionsdialog.h"
+#include "mttsettingsdialog.h"
 
 #include "reciever.h"
 #include "rawdata.h"
@@ -208,6 +209,11 @@ private slots:
      * @brief Opens dialog window for setting the data backup. The backup target file is set up here and enable/disable option is added.
      */
     void openDataBackupDialog(void);
+
+    /**
+     * @brief Opens dialog window for setting the MTT algorithm and its parameters, if this configurable attitude is allowed.
+     */
+    void openMTTSettingsDialog(void);
 
     /**
      * @brief After clicking the 'export' controll button, this slot will ensure that present view will be exported in directory at in settings specified location.

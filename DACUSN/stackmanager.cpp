@@ -307,7 +307,11 @@ void stackManager::dataProcessing(rawData *data)
     }
 
     // in 'i' the correct index should be stored now, we can run
-    if(radarList->at(i)->radar->processNewData(data)) radarList->at(i)->updated = true;
+    bool localMTTEnabled = false;
+    settingsMutex->lock();
+    localMTTEnabled = settings->getSingleRadarMTT();
+    settingsMutex->unlock();
+    if(radarList->at(i)->radar->processNewData(data, localMTTEnabled)) radarList->at(i)->updated = true;
     else radarList->at(i)->updated = false;
 
     // Here another data processing should take place if needed
@@ -416,17 +420,35 @@ void stackManager::applyFusion()
             float * global_mtt_array = new float[global_mtt_array_size];
             int global_mtt_array_pointer = 0; // still points to new empty array space
 
+            qDebug() << "STARTING FILLING ARRAY " << global_mtt_array_size;
+
             // fill array with coordinates
+            qDebug() << "Total radars : " << arrays.count();
             for(j=0; j<arrays.count(); j++)
             {
                 if(!radarList->at(j)->radar->isEnabled()) continue; // do not copy coordinates from radar unit that is not allowed by user
 
+                qDebug() << "Running new filling of radar id : " << j << " while targets count is " << targets_count.at(j);
+
                 for(i=0; i<targets_count.at(j); i++)
                 {
-                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(j)[i*2];
-                    global_mtt_array[global_mtt_array_pointer++] = arrays.at(j)[i*2+1];
+                    qDebug() << "FILLING RADAR " << j << " ITERATION " << i;
+                    // apply transformation to operator coordinate system
+
+                    radarList->at(j)->radar->doTransformation(arrays.at(j)[i*2], arrays.at(j)[i*2+1]);
+
+                    // Usually if MTT produces invalid value, the "nan" or "inf/-inf" states were catched. Therefore it is much better to not consider such values
+                    float x = radarList->at(j)->radar->getTransformatedX();
+                    float y = radarList->at(j)->radar->getTransformatedY();
+
+                    qDebug() << "X: " << x << " Y: " << y;
+
+                    global_mtt_array[global_mtt_array_pointer++] = x;
+                    global_mtt_array[global_mtt_array_pointer++] = y;
                 }
             }
+
+            qDebug() << "FILLING FINISHED";
             // HERE GLOBAL MTT ALGORITHM WILL BE PLACED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             float * global_mtt_array_result = global_mtt_array; // Result array of target coordinates from global MTT algorithm.
@@ -450,7 +472,7 @@ void stackManager::applyFusion()
             // if active_radar_ID is not less or equal to zero, another data, from another radar are desired to be seen
             if(active_radar_ID_index<0 || active_radar_ID<=0)
             {
-                for(j=0; j<global_mtt_array_result_pointer; j++)
+                for(j=0; j<(global_mtt_array_result_pointer/2); j++)
                 {
                     QPointF * temp_point = new QPointF(global_mtt_array_result[j*2], global_mtt_array_result[j*2+1]);
 
@@ -463,6 +485,8 @@ void stackManager::applyFusion()
 
             // Do not forget to delete common array
             delete[] global_mtt_array;
+
+            qDebug() << "SEQUENCE FINISHED";
         }
         else
         {
@@ -537,7 +561,7 @@ void stackManager::applyFusion()
     }
 
     visualizationDataMutex->lock();
-    qDebug() << visualizationData->count();
+    qDebug() << "DATA COUNT " << visualizationData->count();
     visualizationDataMutex->unlock();
 }
 
@@ -546,7 +570,7 @@ void stackManager::clearVisualizationData()
     visualizationDataMutex->lock();
     while(!visualizationData->isEmpty())
     {
-        delete visualizationData->first();
+        delete[] visualizationData->first();
         visualizationData->removeFirst();
     }
     visualizationDataMutex->unlock();

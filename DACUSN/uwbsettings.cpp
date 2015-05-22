@@ -85,7 +85,7 @@ uwbSettings::uwbSettings()
     comPortMode[3] = '\0';
 
     enableSingleRadarMTT = true;
-    enableGlobalRadarMTT = false;
+    enableGlobalRadarMTT = true;
 }
 
 uwbSettings::uwbSettings(char *config)

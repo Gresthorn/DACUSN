@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QMutex>
 #include <QDebug>
+#include <QAbstractButton>
+#include <QtSerialPort>
 
 #include "uwbsettings.h"
 
@@ -25,8 +27,12 @@ private:
     uwbSettings * settings;
     QMutex * settingsMutex;
 
+    int baudrateLoaded; // loaded baudrate from settings (can be used to restore old baudrate if needed)
+    int portIndexLoaded; // loaded port index from settings (can be used to restore old port index if needed)
+
 private slots:
     void accepted(void);
+    void methodSelectionChangedSlot(QAbstractButton * button);
 };
 
 #endif // DATAINPUTDIALOG_H

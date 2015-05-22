@@ -26,7 +26,7 @@ radarUnit::~radarUnit()
     }
 }
 
-bool radarUnit::processNewData(rawData *data)
+bool radarUnit::processNewData(rawData *data, bool enableMTT)
 {
 
     reciever_method method = data->getRecieverMethod();
@@ -44,7 +44,7 @@ bool radarUnit::processNewData(rawData *data)
     if(method==SYNTHETIC || method==RS232)
     {
         zeroEmptyPositions(data);
-        //this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+        //if(enableMTT) this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
 
         if(dataList->count()==max_recursion)
         {

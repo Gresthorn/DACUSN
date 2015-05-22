@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>138</height>
+    <height>214</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,6 +40,16 @@
         </attribute>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="methodSerialRadioButton">
+        <property name="text">
+         <string>RS232</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">methodSelection</string>
+        </attribute>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -49,6 +59,36 @@
       <string>Reciever parameters</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="3" column="0" colspan="2">
+       <widget class="QWidget" name="recieverSerialWidget" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QGridLayout" name="recieverSerialGridLayer">
+           <item row="0" column="1">
+            <widget class="QComboBox" name="recieverSerialComPortComboBox"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="comPortLabel">
+             <property name="text">
+              <string>COM port</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="recieverSerialBaudRateComboBox"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="baudrateLabel">
+             <property name="text">
+              <string>Baudrate</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item row="0" column="1">
        <widget class="QSpinBox" name="recieverIdleTimeSpinBox">
         <property name="minimum">

@@ -181,6 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRadar_List_Dialog, SIGNAL(triggered()), this, SLOT(openRadarListDialog()));
     connect(ui->actionScene_renderer, SIGNAL(triggered()), this, SLOT(openSceneRendererDialog()));
     connect(ui->actionData_backup, SIGNAL(triggered()), this, SLOT(openDataBackupDialog()));
+    connect(ui->actionMTT_Settings_Dialog, SIGNAL(triggered()), this, SLOT(openMTTSettingsDialog()));
 
     /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
 }
@@ -992,6 +993,13 @@ void MainWindow::openDataBackupDialog()
 {
     backupOptionsDialog dialog(settings, settingsMutex, this);
     connect(&dialog, SIGNAL(acceptedSignal()), this, SLOT(manageDiskBackupSlot()));
+    dialog.exec();
+}
+
+void MainWindow::openMTTSettingsDialog()
+{
+    mttsettingsdialog dialog(settings, settingsMutex, this);
+
     dialog.exec();
 }
 
