@@ -1,6 +1,7 @@
 #ifndef STDDEFS
 #define STDDEFS
 
+#define MTT_ARRAY_FIT       (1)         ///< If this macro is set to 1, compiler will unlock code for array stretching to MAX_N macro, if one target is visible, still 20 float positions are allocated
 #define MAX_N               (10)        ///< max dimension of cost matrix in Munkres algorithm
                                         ///< (max number of targets)
 extern double METER_TO_PIXEL_RATIO;     ///< Sets the ratio between meters and pixels. Pixels are then calculated as x*METER_TO_PIXEL_RATIO

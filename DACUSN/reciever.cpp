@@ -107,8 +107,6 @@ rawData * reciever::listen()
             end = clock();
             elapsed = 1000.0*(double(end-start))/CLOCKS_PER_SEC; // time elapsed in miliseconds
 
-            qDebug() << "ELAPSED : " << elapsed;
-
             if(elapsed>500.0) break; // time out
 
             Sleep(5); // we do not want to blow up CPU
@@ -347,8 +345,13 @@ rawData * reciever::extract_synthetic(char * msg)
     data->setSyntheticTime(atof(tokens[i++]));
     data->setSyntheticTargetsCount((short)(atoi(tokens[i++])));
 
-    float * coordinates = new float[MAX_N*2];//[data->getSyntheticTargetsCount()*2];
-    float * toas = new float[MAX_N*2];//[data->getSyntheticTargetsCount()*2];
+    #if defined MTT_ARRAY_FIT && MTT_ARRAY_FIT==1
+        float * coordinates = new float[MAX_N*2];
+        float * toas = new float[MAX_N*2];
+    #else
+        float * coordinates = new float[data->getSyntheticTargetsCount()*2];
+        float * toas = new float[data->getSyntheticTargetsCount()*2];
+    #endif
 
     // conversion of coordinates
     int a, b, c;

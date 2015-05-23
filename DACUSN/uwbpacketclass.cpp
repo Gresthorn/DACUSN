@@ -286,7 +286,14 @@ int uwbPacketRx::readPacket()
 
     // create data array as long as needed
     dataCount = packetLength-10; // packet length contains CRC, radarID, radarTime, packetCount bytes
-    data = new float[dataCount];
+
+    // if MTT_ARRAY_FIT macro is 1 then we want to allocate array for maximum allowable coordinates possible, not exactly for recieved coordinates
+    #if defined MTT_ARRAY_FIT && MTT_ARRAY_FIT==1
+        data = new float[MAX_N*2];
+    #else
+        data = new float[dataCount];
+    #endif
+
     dataCount /= 3; // since real data are represented by 3 chars, real data count is 3 times smaller as character count
 
     while(stack_pointer<(packetLength-4)) // last four bytes are not values, but CRC. StackPointer holds index position!

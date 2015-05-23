@@ -2,6 +2,12 @@
 
 uwbSettings::uwbSettings()
 {
+    /*
+     * SEE UWBSETTINGS.H FOR MORE INFORMATION ABOUT VARIABLES AND THEIR DESCRIPTION.
+     * CONSTRUCTOR ONLY SETS A DEFAULT VALUES FOR EACH VARIABLE.
+     *
+     * */
+
     recieverMethod = RS232;
 
     maximumRecieverErrorCount = 13;
@@ -84,8 +90,8 @@ uwbSettings::uwbSettings()
     comPortMode[2] = '1';
     comPortMode[3] = '\0';
 
-    enableSingleRadarMTT = true;
-    enableGlobalRadarMTT = true;
+    enableSingleRadarMTT = false;
+    enableGlobalRadarMTT = false;
 }
 
 uwbSettings::uwbSettings(char *config)

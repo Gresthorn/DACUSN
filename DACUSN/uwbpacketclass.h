@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string>
 #include "rs232.h"
+#include "stddefs.h"
 
 #define P_16 0xA001
 
