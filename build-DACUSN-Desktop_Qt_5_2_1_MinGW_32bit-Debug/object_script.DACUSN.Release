@@ -17,6 +17,7 @@ INPUT(
 ./release\backupoptionsdialog.o
 ./release\uwbpacketclass.o
 ./release\rs232.o
+./release\mttsettingsdialog.o
 ./release\qrc_icons.o
 ./release\moc_mainwindow.o
 ./release\moc_datainputthreadworker.o
@@ -29,4 +30,5 @@ INPUT(
 ./release\moc_coordinatesinputdialog.o
 ./release\moc_radarsubwindow.o
 ./release\moc_backupoptionsdialog.o
+./release\moc_mttsettingsdialog.o
 );

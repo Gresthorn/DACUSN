@@ -45,9 +45,10 @@ bool radarUnit::processNewData(rawData *data, bool enableMTT)
             zeroEmptyPositions(data);
         #endif
 
-        qDebug() << "Running MTT";
         if(enableMTT)
         {
+            qDebug() << "Running MTT";
+
             if(data->getRecieverMethod()==SYNTHETIC)
                 this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
             else if(data->getRecieverMethod()==RS232)

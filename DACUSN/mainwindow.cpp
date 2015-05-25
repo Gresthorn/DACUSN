@@ -375,10 +375,9 @@ void MainWindow::destroyDataInputThreadSlot()
     // closing thread
     if(dataInputThread!=NULL) dataInputThread->terminate();
 
-    // deleting objects
-
-    if(dataInputWorker!=NULL) delete dataInputWorker;
+    // deleting objects (DELETING only thread seems to be enough since, worker object is a child of thread object and in Qt by deleting parent, also child objects are deleted)
     if(dataInputThread!=NULL) delete dataInputThread;
+    if(dataInputWorker!=NULL) delete dataInputWorker;
 
     dataInputWorker = NULL;
     dataInputThread = NULL;
@@ -455,8 +454,8 @@ void MainWindow::destroyStackManagementThread()
     if(stackManagerThread!=NULL) stackManagerThread->terminate();
 
     // deleting objects
-    if(stackManagerWorker!=NULL) delete stackManagerWorker;
     if(stackManagerThread!=NULL) delete stackManagerThread;
+    if(stackManagerWorker!=NULL) delete stackManagerWorker;
 
     stackManagerWorker = NULL;
     stackManagerThread = NULL;

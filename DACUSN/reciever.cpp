@@ -45,7 +45,7 @@ reciever::~reciever()
 
     if(r_method==RS232 && comPortCallibration) RS232_CloseComport(comPort);
 
-    cancel_previous_method();
+    //cancel_previous_method();
 }
 
 void reciever::set_msg(const char *msg)
