@@ -562,7 +562,12 @@ void MainWindow::sceneMoveToXYSlot()
 {
     // calculate the line between current center and target center
     QPointF currCenter = visualizationView->mapToScene(visualizationView->viewport()->rect().center());
+    // convert pixel to meter interpretation
+    currCenter.setX(currCenter.x()/METER_TO_PIXEL_RATIO);
+    currCenter.setY(currCenter.y()/METER_TO_PIXEL_RATIO);
+
     QPointF targetCenter;
+
     bool userDecision = false;
 
     // after user confirms dialog new center will be stored in targetCenter object
@@ -572,6 +577,9 @@ void MainWindow::sceneMoveToXYSlot()
     // if user cancelled dialog
     if(!userDecision) return;
 
+    // convert meter to pixels interpretation
+    targetCenter.setX(targetCenter.x()*METER_TO_PIXEL_RATIO);
+    targetCenter.setY(targetCenter.y()*METER_TO_PIXEL_RATIO);
 
     bool smoothTransitionEnabled;
     settingsMutex->lock();

@@ -39,13 +39,10 @@ reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate,
 
 reciever::~reciever()
 {
+    cancel_previous_method();
+
     if(comPortMode!=NULL) delete comPortMode;
-    if(statusMsg != NULL) delete statusMsg;
-    if(packetReciever!=NULL) delete packetReciever;
-
-    if(r_method==RS232 && comPortCallibration) RS232_CloseComport(comPort);
-
-    //cancel_previous_method();
+    if(statusMsg!=NULL) delete statusMsg;
 }
 
 void reciever::set_msg(const char *msg)
