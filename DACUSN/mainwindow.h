@@ -107,6 +107,16 @@ public slots:
     void destroyStackManagementThread(void);
 
     /**
+     * @brief Starts new thread and begin the infinite recieving loop.
+     */
+    void establishDataInputRutineSlot(void);
+
+    /**
+     * @brief Destroys currently running infinite loop for data recieving from UWB sensor network
+     */
+    void destroyDataInputRutineSlot(void);
+
+    /**
      * @brief This slot is run periodically to update visual scene with updated positions.
      */
     void visualizationSlot(void);

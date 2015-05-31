@@ -1,6 +1,9 @@
 #include "reciever.h"
 
-reciever::reciever(reciever_method recieveMethod) : maximum_pipe_size(512)
+reciever::reciever(reciever_method recieveMethod)
+    #if defined (__WIN32__)
+    : maximum_pipe_size(512)
+    #endif
 {
     r_method = UNDEFINED;
     last_data_pt = NULL;
@@ -19,7 +22,10 @@ reciever::reciever(reciever_method recieveMethod) : maximum_pipe_size(512)
     else set_msg("An error occured when trying to set up selected method.");
 }
 
-reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char *comport_mode) : maximum_pipe_size(0)
+reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char *comport_mode)
+    #if defined (__WIN32__)
+    : maximum_pipe_size(0)
+    #endif
 {
     r_method = UNDEFINED;
     last_data_pt = NULL;
@@ -68,6 +74,7 @@ rawData * reciever::listen()
         set_msg("The method specified is undefined. Please select new method.");
         return NULL;
     }
+    #if defined (__WIN32__)
     else if(r_method==SYNTHETIC)
     {
         // creating buffer
@@ -85,6 +92,7 @@ rawData * reciever::listen()
         data = extract_synthetic(message);
         last_data_pt = data; // replacing last known data object pointer
     }
+    #endif
     else if(r_method==RS232)
     {
 
@@ -106,7 +114,13 @@ rawData * reciever::listen()
 
             if(elapsed>500.0) break; // time out
 
-            Sleep(5); // we do not want to blow up CPU
+            // we do not want to blow up CPU
+            #if defined (__WIN32__)
+            Sleep(5);
+            #endif
+            #if defined(__linux__) || defined(__FreeBSD__)
+            usleep(5000);
+            #endif
         }
 
         if(!success) {
@@ -156,6 +170,8 @@ bool reciever::set_new_method_code(reciever_method recieveMethod, bool kill)
         case UNDEFINED:
             r_method = UNDEFINED;
             set_msg("New method is set up as undefined. No data can be get.");
+
+        #if defined (__WIN32__)
         case SYNTHETIC:
             // settings for synthetic data obtaining
             calibrationStatus = calibrate(recieveMethod);
@@ -166,6 +182,7 @@ bool reciever::set_new_method_code(reciever_method recieveMethod, bool kill)
             return calibrationStatus;
 
             break;
+        #endif
 
         case RS232:
             calibrationStatus = calibrate(recieveMethod);
@@ -194,6 +211,7 @@ bool reciever::calibrate(reciever_method recieveMethod)
         r_method = recieveMethod;
         return true;
     }
+    #if defined (__WIN32__)
     else if(recieveMethod==SYNTHETIC)
     {
         // doing calibration for pipe communication
@@ -204,6 +222,7 @@ bool reciever::calibrate(reciever_method recieveMethod)
             return true; // everything is ok and done
         }
     }
+    #endif
     else if(recieveMethod==RS232)
     {
         // do callibration for RS232 communication
@@ -232,12 +251,14 @@ bool reciever::calibrate(reciever_method recieveMethod)
 bool reciever::cancel_previous_method()
 {
     if(r_method==UNDEFINED) return true; // nothing special is required
+    #if defined (__WIN32__)
     else if(r_method==SYNTHETIC)
     {
         // closing pipe channel
         closeConnection(pipe_connection_handler);
         return true;
     }
+    #endif
     else if(r_method==RS232)
     {
         if(comPortCallibration)
@@ -260,6 +281,7 @@ bool reciever::cancel_previous_method()
     return true;
 }
 
+#if defined (__WIN32__)
 HANDLE reciever::connectToPipe(void)
 {
     // trying to connect to the pipe
@@ -368,6 +390,7 @@ rawData * reciever::extract_synthetic(char * msg)
 
     return data;
 }
+#endif
 
 rawData * reciever::extract_RS232_radar_packet()
 {

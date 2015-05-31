@@ -9,6 +9,10 @@
 #include "stddefs.h"
 
 #define P_16 0xA001
+#if defined(__linux__) || defined(__FreeBSD__)
+#define FALSE 0 // because of CRC functions
+#define TRUE 1 // because of CRC functions
+#endif
 
 #include <iostream>
 

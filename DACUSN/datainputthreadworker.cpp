@@ -20,10 +20,13 @@ dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack,
     stoppedMutex = new QMutex;
     stoppedCheckMutex = new QMutex;
 
+
     // create approprate reciever -> need to choose appropriate constructor
     settingsMutex->lock();
-    if(settings->getRecieverMethod()==SYNTHETIC) recieverHandler = new reciever(settings->getRecieverMethod());
-    else if(settings->getRecieverMethod()==RS232) recieverHandler = new reciever(settings->getRecieverMethod(), settings->getComPortNumber(), settings->getComPortBaudRate(), settings->getComPortMode());
+    if(settings->getRecieverMethod()==RS232) recieverHandler = new reciever(settings->getRecieverMethod(), settings->getComPortNumber(), settings->getComPortBaudRate(), settings->getComPortMode());
+    #if defined (__WIN32__)
+    else if(settings->getRecieverMethod()==SYNTHETIC) recieverHandler = new reciever(settings->getRecieverMethod());
+    #endif
     settingsMutex->unlock();
 
     // checking if the selected method was successfully established
@@ -83,7 +86,12 @@ void dataInputThreadWorker::runWorker()
                 settingsMutex->lock();
                 idle = settings->getRecieverIdleTime();
                 settingsMutex->unlock();
+                #if defined (__WIN32__)
                 Sleep(idle);
+                #endif
+                #if defined(__linux__) || defined(__FreeBSD__)
+                usleep(idle*1000);
+                #endif
             }
             else
             {
@@ -99,8 +107,13 @@ void dataInputThreadWorker::runWorker()
                 maxErrorCount = settings->getMaximumRecieverErrorCount();
                 idle = settings->getRecieverIdleTime();
                 settingsMutex->unlock();
-                if(errorCounter>=((int)(maxErrorCount))) Sleep(idle);
-
+                if(errorCounter>=((int)(maxErrorCount)))
+                    #if defined (__WIN32__)
+                    Sleep(idle);
+                    #endif
+                    #if defined(__linux__) || defined(__FreeBSD__)
+                    usleep(idle*1000);
+                    #endif
             }
         }
         else
@@ -118,6 +131,8 @@ void dataInputThreadWorker::runWorker()
     stoppedCheckMutex->lock();
     stoppedCheck = true;
     stoppedCheckMutex->unlock();
+
+    emit finished();
 }
 
 void dataInputThreadWorker::switchPauseState()

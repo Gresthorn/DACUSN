@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined (__WIN32__)
 #include <windows.h>
+#endif
 #include <ctime>
 #include <QDebug>
 
@@ -178,6 +180,7 @@ private:
      */
     rawData * extract_RS232_radar_packet(void);
 
+    #if defined (__WIN32__)
     //------------------------------------------ PIPE METHOD --------------------------------------------------
 
     HANDLE pipe_connection_handler; ///< Handler of pipe communication if this kind of communication is desired
@@ -223,6 +226,7 @@ private:
      * retransformed into real numbers and radar data object which is created and then returned.
      */
     rawData * extract_synthetic(char * msg);
+    #endif
 
     /**
      * @brief Standard C++ 'strsep' function if it is not implemented in the standard <string.h> library

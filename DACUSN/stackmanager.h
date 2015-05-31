@@ -304,6 +304,12 @@ public slots:
      * @param[in] id New radar to be considered when filling visualizationData list with new values.
      */
     void changeActiveRadarId(int id);
+
+signals:
+    /**
+     * @brief This signal is emitted when runWorker() function will reach its end.
+     */
+    void finished(void);
 };
 
 #endif // STACKMANAGER_H

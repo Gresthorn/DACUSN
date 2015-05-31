@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>954</width>
-    <height>630</height>
+    <width>999</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -45,13 +45,13 @@
      <widget class="QWidget" name="sceneControlsWidget" native="true">
       <property name="minimumSize">
        <size>
-        <width>250</width>
+        <width>280</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>250</width>
+        <width>280</width>
         <height>16777215</height>
        </size>
       </property>
@@ -84,8 +84,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>232</width>
-            <height>258</height>
+            <width>262</width>
+            <height>255</height>
            </rect>
           </property>
           <property name="styleSheet">
@@ -464,8 +464,8 @@ QPushButton:checked{
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>232</width>
-            <height>258</height>
+            <width>271</width>
+            <height>254</height>
            </rect>
           </property>
           <attribute name="label">
@@ -745,7 +745,7 @@ QPushButton:checked{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>954</width>
+     <width>999</width>
      <height>20</height>
     </rect>
    </property>
@@ -784,7 +784,7 @@ QPushButton:checked{
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/on.png</normaloff>:/mainToolbar/icons/on.png</iconset>
    </property>
    <property name="text">
@@ -828,7 +828,7 @@ QPushButton:checked{
   </action>
   <action name="actionData_Input_Dialog">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/input.png</normaloff>:/mainToolbar/icons/input.png</iconset>
    </property>
    <property name="text">
@@ -837,7 +837,7 @@ QPushButton:checked{
   </action>
   <action name="actionStack_Manager_Dialog">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/stack.png</normaloff>:/mainToolbar/icons/stack.png</iconset>
    </property>
    <property name="text">
@@ -849,7 +849,7 @@ QPushButton:checked{
   </action>
   <action name="actionRadar_List_Dialog">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/radar_list.png</normaloff>:/mainToolbar/icons/radar_list.png</iconset>
    </property>
    <property name="text">
@@ -861,7 +861,7 @@ QPushButton:checked{
   </action>
   <action name="actionScene_renderer">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/render.png</normaloff>:/mainToolbar/icons/render.png</iconset>
    </property>
    <property name="text">
@@ -876,7 +876,7 @@ QPushButton:checked{
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/backup.png</normaloff>:/mainToolbar/icons/backup.png</iconset>
    </property>
    <property name="text">
@@ -888,7 +888,7 @@ QPushButton:checked{
   </action>
   <action name="actionMTT_Settings_Dialog">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/mainToolbar/icons/mtt.png</normaloff>:/mainToolbar/icons/mtt.png</iconset>
    </property>
    <property name="text">
@@ -897,6 +897,8 @@ QPushButton:checked{
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

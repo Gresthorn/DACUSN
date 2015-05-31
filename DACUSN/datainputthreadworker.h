@@ -102,6 +102,12 @@ private:
     bool stoppedCheck; ///< In contructor set to false. Set to true after the main function really stops.
     QMutex * stoppedMutex; ///< Lock mutex for stopped condition.
     QMutex * stoppedCheckMutex; ///< Lock mutex for check boolean value.
+
+signals:
+    /**
+     * @brief This signal is emitted when object leaves its infinite loop in runWorker() method
+     */
+    void finished(void);
 };
 
 #endif // DATAINPUTTHREAD_H

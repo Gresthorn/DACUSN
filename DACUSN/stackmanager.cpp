@@ -114,6 +114,7 @@ void stackManager::runWorker()
     stoppedCheck = true;
     stoppedCheckMutex->unlock();
 
+    emit finished();
 }
 
 void stackManager::stackControl(unsigned int * stackControlCounter)
@@ -286,8 +287,10 @@ void stackManager::dataProcessing(rawData *data)
     reciever_method method = data->getRecieverMethod();
     int radar_id = 0; // NEVER USE ID 0 SINCE IT IS RESERVED FOR OPERATOR
     // obtain radar id
-    if(method==SYNTHETIC) radar_id = data->getSyntheticRadarId();
-    else if(method==RS232) radar_id = data->getUwbPacketRadarId();
+    if(method==RS232) radar_id = data->getUwbPacketRadarId();
+    #if defined (__WIN32__)
+    else if(method==SYNTHETIC) radar_id = data->getSyntheticRadarId();
+    #endif
 
     if(radar_id<1)
     {

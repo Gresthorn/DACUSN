@@ -72,15 +72,18 @@ dataInputDialog::dataInputDialog(uwbSettings * setts, QMutex * settings_mutex, Q
     // load the reciever method and check correct radio button. If RS232 method is not set, disabe changing baudrates and COM ports
     reciever_method temp_method = settings->getRecieverMethod();
     ui->recieverSerialWidget->setDisabled(true); // initially disable com port settings
-    if(temp_method==SYNTHETIC)
-    {
-        ui->methodSyntheticRadioButton->setChecked(true);
-    }
-    else if(temp_method==RS232)
+
+    if(temp_method==RS232)
     {
         ui->methodSerialRadioButton->setChecked(true);
         ui->recieverSerialWidget->setDisabled(false);
     }
+    #if defined (__WIN32__)
+    else if(temp_method==SYNTHETIC)
+    {
+        ui->methodSyntheticRadioButton->setChecked(true);
+    }
+    #endif
     else
     {
         ui->methodUndefinedRadioButton->setChecked(true);
@@ -104,8 +107,10 @@ void dataInputDialog::accepted()
 {
     settingsMutex->lock();
 
-    if(ui->methodSyntheticRadioButton->isChecked()) settings->setRecieverMethod(SYNTHETIC);
-    else if(ui->methodSerialRadioButton->isChecked()) settings->setRecieverMethod(RS232);
+    if(ui->methodSerialRadioButton->isChecked()) settings->setRecieverMethod(RS232);
+    #if defined (__WIN32__)
+    else if(ui->methodSyntheticRadioButton->isChecked()) settings->setRecieverMethod(SYNTHETIC);
+    #endif
     else settings->setRecieverMethod(UNDEFINED);
 
     settings->setRecieverIdleTime(ui->recieverIdleTimeSpinBox->value());

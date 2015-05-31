@@ -297,15 +297,8 @@ void MainWindow::establishDataInputThreadSlot()
     ui->actionPause->setEnabled(true);
     ui->actionRestart->setEnabled(true);
 
-    // create wait for condition object so it will be able to pause thread if needed
-    dataInputWorker = new dataInputThreadWorker(dataStack, dataStackMutex, settings, settingsMutex);
-    // setting the maximum priority to ensure that data will not be lost because of processing the old one
-    dataInputThread = new QThread(this);
-    dataInputWorker->moveToThread(dataInputThread);
-    dataInputThread->start(QThread::TimeCriticalPriority);
-    QMetaObject::invokeMethod(dataInputWorker, "runWorker", Qt::QueuedConnection);
-
-    qDebug() << "Data recieving thread started...";
+    // start data recieving thread
+    establishDataInputRutineSlot();
 
     // starting stack manager thread
     establishStackManagementThread();
@@ -358,31 +351,8 @@ void MainWindow::destroyDataInputThreadSlot()
         ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
     }
 
-    // NULL condition is used, just in case
-    if(dataInputWorker!=NULL)
-    {
-        dataInputWorker->stopWorker(); // change the pauseState boolean value
-        dataInputWorker->releaseIfInPauseState(); // if in pause, wake up: must be called after stopWorker method if to stop is desired
-
-        // wait until worker is stopped properly
-        while(!dataInputWorker->checkStoppedStatus())
-        {
-            Sleep(5);
-            continue;
-        }
-    }
-
-    // closing thread
-    if(dataInputThread!=NULL) dataInputThread->terminate();
-
-    // deleting objects (DELETING only thread seems to be enough since, worker object is a child of thread object and in Qt by deleting parent, also child objects are deleted)
-    if(dataInputThread!=NULL) delete dataInputThread;
-    if(dataInputWorker!=NULL) delete dataInputWorker;
-
-    dataInputWorker = NULL;
-    dataInputThread = NULL;
-
-    qDebug() << "Data recieving thread canceled...";
+    // close data recieving loop
+    destroyDataInputRutineSlot();
 
     // cancel the stack manager thread
     destroyStackManagementThread();
@@ -419,6 +389,12 @@ void MainWindow::establishStackManagementThread()
 
     stackManagerThread = new QThread(this);
     stackManagerWorker = new stackManager(dataStack, dataStackMutex, radarList, radarListMutex, visualizationData, visualizationColor, radarSubWindowList, radarSubWindowListMutex, visualizationDataMutex, settings, settingsMutex);
+
+    // signals for safe deletion after thread has finished
+    connect(stackManagerWorker, SIGNAL(finished()), stackManagerThread, SLOT(quit()));
+    connect(stackManagerWorker, SIGNAL(finished()), stackManagerWorker, SLOT(deleteLater()));
+    connect(stackManagerThread, SIGNAL(finished()), stackManagerThread, SLOT(deleteLater()));
+
     stackManagerWorker->moveToThread(stackManagerThread);
     stackManagerThread->start(QThread::HighestPriority);
     QMetaObject::invokeMethod(stackManagerWorker, "runWorker", Qt::QueuedConnection);
@@ -442,25 +418,45 @@ void MainWindow::destroyStackManagementThread()
         stackManagerWorker->stopWorker(); // change the pauseState boolean value
         stackManagerWorker->releaseIfInPauseState(); // if in pause, wake up: must be called after stopWorker method if to stop is desired
 
-        // wait until worker is stopped properly
-        while(!stackManagerWorker->checkStoppedStatus())
-        {
-            Sleep(5);
-            continue;
-        }
+        qDebug() << "Stack manager thread canceled...";
     }
-
-    // closing thread
-    if(stackManagerThread!=NULL) stackManagerThread->terminate();
-
-    // deleting objects
-    if(stackManagerThread!=NULL) delete stackManagerThread;
-    if(stackManagerWorker!=NULL) delete stackManagerWorker;
 
     stackManagerWorker = NULL;
     stackManagerThread = NULL;
+}
 
-    qDebug() << "Stack manager thread canceled...";
+void MainWindow::establishDataInputRutineSlot()
+{
+    // create wait for condition object so it will be able to pause thread if needed
+    dataInputWorker = new dataInputThreadWorker(dataStack, dataStackMutex, settings, settingsMutex);
+    // setting the maximum priority to ensure that data will not be lost because of processing the old one
+    dataInputThread = new QThread(this);
+
+    // signals for safe deletion of thread
+    connect(dataInputWorker, SIGNAL(finished()), dataInputThread, SLOT(quit()));
+    connect(dataInputWorker, SIGNAL(finished()), dataInputWorker, SLOT(deleteLater()));
+    connect(dataInputThread, SIGNAL(finished()), dataInputThread, SLOT(deleteLater()));
+
+    dataInputWorker->moveToThread(dataInputThread);
+    dataInputThread->start(QThread::TimeCriticalPriority);
+    QMetaObject::invokeMethod(dataInputWorker, "runWorker", Qt::QueuedConnection);
+
+    qDebug() << "Data recieving thread started...";
+}
+
+void MainWindow::destroyDataInputRutineSlot()
+{
+    // NULL condition is used, just in case
+    if(dataInputWorker!=NULL)
+    {
+        dataInputWorker->stopWorker(); // change the pauseState boolean value
+        dataInputWorker->releaseIfInPauseState(); // if in pause, wake up: must be called after stopWorker method if to stop is desired
+
+        qDebug() << "Data recieving thread canceled...";
+    }
+
+    dataInputWorker = NULL;
+    dataInputThread = NULL;
 }
 
 

@@ -50,10 +50,12 @@ bool radarUnit::processNewData(rawData *data, bool enableMTT)
         {
             qDebug() << "Running MTT";
 
-            if(data->getRecieverMethod()==SYNTHETIC)
-                this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
-            else if(data->getRecieverMethod()==RS232)
+            if(data->getRecieverMethod()==RS232)
                 this->MTT(data->getUwbPacketCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+            #if defined (__WIN32__)
+            else if(data->getRecieverMethod()==SYNTHETIC)
+                this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+            #endif
             else qDebug() << "MTT could not run, because of unknown reciever method";
         }
 
@@ -87,8 +89,10 @@ int radarUnit::getNumberOfTargetsLast()
     if(dataList->isEmpty()) return -1; // default return
 
     reciever_method method = dataList->last()->getRecieverMethod();
-    if(method==SYNTHETIC) return dataList->last()->getSyntheticTargetsCount();
-    else if(method==RS232) return dataList->last()->getUwbPacketTargetsCount();
+    if(method==RS232) return dataList->last()->getUwbPacketTargetsCount();
+    #if defined (__WIN32__)
+    else if(method==SYNTHETIC) return dataList->last()->getSyntheticTargetsCount();
+    #endif
     else return 0;
     return 0;
 }
@@ -98,8 +102,10 @@ float *radarUnit::getCoordinatesLast()
     if(dataList->isEmpty()) return NULL; // default return
 
     reciever_method method = dataList->last()->getRecieverMethod();
-    if(method==SYNTHETIC) return dataList->last()->getSyntheticCoordinates();
-    else if(method==RS232) return dataList->last()->getUwbPacketCoordinates();
+    if(method==RS232) return dataList->last()->getUwbPacketCoordinates();
+    #if defined (__WIN32__)
+    else if(method==SYNTHETIC) return dataList->last()->getSyntheticCoordinates();
+    #endif
     else return NULL;
     return NULL;
 }
@@ -109,8 +115,11 @@ int radarUnit::getNumberOfTargetsAt(int index)
     if(dataList->isEmpty()) return -1; // default return
 
     reciever_method method = dataList->at(index)->getRecieverMethod();
-    if(method==SYNTHETIC) return dataList->at(index)->getSyntheticTargetsCount();
-    else if(method==RS232) return dataList->at(index)->getUwbPacketTargetsCount();
+
+    if(method==RS232) return dataList->at(index)->getUwbPacketTargetsCount();
+    #if defined (__WIN32__)
+    else if(method==SYNTHETIC) return dataList->at(index)->getSyntheticTargetsCount();
+    #endif
     else return 0;
     return 0;
 }
@@ -120,8 +129,10 @@ float *radarUnit::getCoordinatesAt(int index)
     if(dataList->isEmpty()) return NULL; // default return
 
     reciever_method method = dataList->at(index)->getRecieverMethod();
-    if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
-    else if(method==RS232) return dataList->at(index)->getUwbPacketCoordinates();
+    if(method==RS232) return dataList->at(index)->getUwbPacketCoordinates();
+    #if defined (__WIN32__)
+    else if(method==SYNTHETIC) return dataList->at(index)->getSyntheticCoordinates();
+    #endif
     else return NULL;
     return NULL;
 }
@@ -181,16 +192,18 @@ void radarUnit::zeroEmptyPositions(rawData * array)
     int count = 0;
     float * values = NULL;
 
-    if(r_method==SYNTHETIC)
-    {
-        count = array->getSyntheticTargetsCount();
-        values = array->getSyntheticCoordinates();
-    }
-    else if(r_method==RS232)
+    if(r_method==RS232)
     {
         count = array->getUwbPacketTargetsCount();
         values = array->getUwbPacketCoordinates();
     }
+    #if defined (__WIN32__)
+    else if(r_method==SYNTHETIC)
+    {
+        count = array->getSyntheticTargetsCount();
+        values = array->getSyntheticCoordinates();
+    }
+    #endif
     else return; // unknown method
 
     // catch the error pointers
