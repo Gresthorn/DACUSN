@@ -12,6 +12,12 @@ dataInputDialog::dataInputDialog(uwbSettings * setts, QMutex * settings_mutex, Q
 
     settingsMutex->lock();
 
+    // linux cannot use windows named pipes
+    #if defined (__linux__) || defined (__FreeBSD__)
+    ui->methodSyntheticRadioButton->setDisabled(true);
+    #endif
+
+
     // load availible COM ports and compare with currently set com port index
     QSerialPortInfo portInfo;
     QList<QSerialPortInfo> portList = portInfo.availablePorts();
@@ -78,12 +84,14 @@ dataInputDialog::dataInputDialog(uwbSettings * setts, QMutex * settings_mutex, Q
         ui->methodSerialRadioButton->setChecked(true);
         ui->recieverSerialWidget->setDisabled(false);
     }
-    #if defined (__WIN32__)
     else if(temp_method==SYNTHETIC)
     {
+        #if defined (__linux__) || defined (__FreeBSD__)
+        ui->methodUndefinedRadioButton->setChecked(true);
+        #else
         ui->methodSyntheticRadioButton->setChecked(true);
+        #endif
     }
-    #endif
     else
     {
         ui->methodUndefinedRadioButton->setChecked(true);

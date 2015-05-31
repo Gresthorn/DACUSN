@@ -83,7 +83,7 @@ uwbSettings::uwbSettings()
     backupMainFileHandler = NULL;
     backupFileHandler = NULL;
 
-    comPort = 3;//-1;
+    comPort = -1;
     comPortBaudRate = 9600;
     comPortMode[0] = '8';
     comPortMode[1] = 'N';

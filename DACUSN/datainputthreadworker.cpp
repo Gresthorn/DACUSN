@@ -27,6 +27,7 @@ dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack,
     #if defined (__WIN32__)
     else if(settings->getRecieverMethod()==SYNTHETIC) recieverHandler = new reciever(settings->getRecieverMethod());
     #endif
+    else recieverHandler = new reciever(UNDEFINED);
     settingsMutex->unlock();
 
     // checking if the selected method was successfully established
