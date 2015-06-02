@@ -483,7 +483,57 @@ void stackManager::applyFusion()
             int min_NT = 10;
             int min_OLGI = 10;
 
-            //this->MTT(global_mtt_array, r, q, diff_d, diff_fi, min_OLGI, min_NT);
+            /* THE FOLLOWING CODE IS ONLY FOR TEST PURPOSES */
+            /* -------------------------------------------- */
+            /* -------------------------------------------- */
+
+            for(int i=0; i<MAX_N; i++)
+            {
+                // copy array
+                float * temp_array = new float[MAX_N*2];
+                // zero all values except the considered one
+                for(int a=0; a<MAX_N; a++)
+                {
+                    if(a==i)
+                    {
+                        temp_array[a*2] = global_mtt_array[a*2];
+                        temp_array[a*2+1] = global_mtt_array[a*2+1];
+                    }
+                    else temp_array[a*2] = temp_array[a*2+1] = 0.0;
+                }
+
+                qDebug() << "ARRAY BEFORE MTT: ";
+
+                for(int j = 0; j<MAX_N; j++) qDebug() << "X: " << temp_array[j*2] << " Y: " << temp_array[j*2+1];
+
+                qDebug() << "ARRAY BEFORE MTT";
+
+
+                this->MTT(temp_array, r, q, diff_d, diff_fi, min_OLGI, min_NT);
+
+                qDebug() << "ARRAY AFTER MTT: ";
+
+                // find not zeroes and fill global_mtt_array
+                for(int k =0; k<MAX_N; k++)
+                {
+                    qDebug() << "X: " << temp_array[k*2] << " Y: " << temp_array[k*2+1];
+
+                    if(coordinatesAreValid(temp_array[k*2], temp_array[k*2+1]))
+                    {
+                        global_mtt_array[k*2] = temp_array[k*2];
+                        global_mtt_array[k*2+1] = temp_array[k*2+1];
+                    }
+                }
+
+                qDebug() << "ARRAY AFTER MTT END";
+
+                delete [] temp_array;
+            }
+
+            /* THE UPPER     CODE IS ONLY FOR TEST PURPOSES */
+            /* -------------------------------------------- */
+            /* -------------------------------------------- */
+
 
             float * global_mtt_array_result = global_mtt_array; // Result array of target coordinates from global MTT algorithm.
 
@@ -687,6 +737,59 @@ void stackManager::makeDataBackup(qint64 val, bool write_val, bool newline, bool
     if(write_val) (*settings->getBackupFileHandler()) << val;
 
     if(endline) (*settings->getBackupFileHandler()) << "\n";
+}
+
+void stackManager::swap(float * array, int l, int r)
+{
+    // exchange two values in array
+    float temp = array[l];
+    array[l] = array[r];
+    array[r] = temp;
+}
+
+void stackManager::quicksort(float * array, int l, int r)
+{
+    if(l>=r) return;
+
+    int bound = l;
+    for(int i = l+1; i<r; i++)
+    {
+        if(array[i]>array[l])
+        {
+            swap(array, i, ++bound);
+        }
+    }
+
+    swap(array, l, bound);
+
+    // apply recursive quicksort to left and right subarrays
+    quicksort(array, l, bound);
+    quicksort(array, bound+1, r);
+}
+
+float stackManager::median(float *array, int size)
+{
+    // create temp array so quicksort can manipulate and replace values with no effect on original array
+    float * temp_array = new float[size];
+
+    // copy array
+    for(int i = 0; i<size; i++)
+        temp_array[i] = array[i];
+
+    // sort values in array
+    quicksort(temp_array, 0, size-1);
+
+    // get median from sorted array
+    float median = 0.0;
+    int middle = size%2;
+    if(middle)
+        median = temp_array[(int)(size/2)+1];
+    else
+        median = (temp_array[size/2]+temp_array[(size/2)+1])/2.0;
+
+    delete [] temp_array;
+
+    return median;
 }
 
 

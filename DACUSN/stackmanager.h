@@ -101,6 +101,30 @@ public:
      */
     qint64 getCurrentProcessingSpeed(void);
 
+    /**
+     * @brief Function takes array and indexes of values which are to be exchanged on their positions.
+     * @param[in] array Array of values to be swapped.
+     * @param[in] l The first value for exchange.
+     * @param[in] r The second value for exchange.
+     */
+    void swap(float * array, int l, int r);
+
+    /**
+     * @brief Sorts the values of array from the largest to smallest by using 'QuickSort' algorithm.
+     * @param[in] array Input array of values to be sort.
+     * @param[in] l The starting index of array (usually 0).
+     * @param[in] r The ending index of array.
+     */
+    void quicksort(float * array, int l, int r);
+
+    /**
+     * @brief Median takes the array of values and the size of this array while it returns a median from it.
+     * @param[in] array Input array of values.
+     * @param[in] size The size of array (number of values in array).
+     * @return The return value is calculated median of values in array.
+     */
+    float median(float * array, int size);
+
 private:
     int active_radar_ID; ///< This variable holds information about, what radar data should be pumped into visualizationData list.
     int active_radar_ID_index; ///< This variable stores index of active radar specified by active_radar_ID in radarList.
