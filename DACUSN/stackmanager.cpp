@@ -449,8 +449,19 @@ void stackManager::applyFusion()
 
             // fill array with coordinates
             //qDebug() << "Total radars : " << arrays.count();
+
+            // create MTT constants
+            float r[] = {0.1, 0.01};
+            float q[] = {0.0, 0.01, 0.0, 0.0001};
+            float diff_d = 1.0;
+            float diff_fi = 0.6;
+            int min_NT = 10;
+            int min_OLGI = 10;
+
             for(j=0; j<arrays.count(); j++)
             {
+                //global_mtt_array_pointer = 0;
+
                 if(!radarList->at(j)->radar->isEnabled()) continue; // do not copy coordinates from radar unit that is not allowed by user
 
                 //qDebug() << "Running new filling of radar id : " << j << " while targets count is " << targets_count.at(j);
@@ -471,42 +482,57 @@ void stackManager::applyFusion()
                     global_mtt_array[global_mtt_array_pointer++] = x;
                     global_mtt_array[global_mtt_array_pointer++] = y;
                 }
+
+                /*qDebug() << "Running into zeroing cycle ( " << global_mtt_array_pointer << " )";
+
+                while(global_mtt_array_pointer<MAX_N*2)
+                    global_mtt_array[global_mtt_array_pointer++] = 0.0;
+
+                // kontrola pred pouzitim MTT
+                for(i=0; i<10; i++) qDebug() << "X: " << global_mtt_array[i*2] << " Y: " << global_mtt_array[i*2+1];
+
+                qDebug() << "Applying MTT";
+
+                global_mtt_array = this->MTT(global_mtt_array, r, q, diff_d, diff_fi, min_OLGI, min_NT);
+
+                // kontrola po pouziti MTT
+                for(i=0; i<10; i++) qDebug() << "X: " << global_mtt_array[i*2] << " Y: " << global_mtt_array[i*2+1];*/
             }
 
-            //qDebug() << "FILLING FINISHED";
 
-            // create MTT constants
-            float r[] = {0.1, 0.01};
-            float q[] = {0.0, 0.01, 0.0, 0.0001};
-            float diff_d = 1.0;
-            float diff_fi = 0.6;
-            int min_NT = 10;
-            int min_OLGI = 10;
+            while(global_mtt_array_pointer<MAX_N*2)
+                global_mtt_array[global_mtt_array_pointer++] = 0.0;
+
+            //qDebug() << "FILLING FINISHED";
 
             /* THE FOLLOWING CODE IS ONLY FOR TEST PURPOSES */
             /* -------------------------------------------- */
             /* -------------------------------------------- */
 
-            for(int i=0; i<MAX_N; i++)
+            /*for(int i=0; i<MAX_N; i++)
             {
                 // copy array
                 float * temp_array = new float[MAX_N*2];
                 // zero all values except the considered one
                 for(int a=0; a<MAX_N; a++)
                 {
+                    temp_array[a*2] = temp_array[a*2+1] = 0.0;
+
                     if(a==i)
                     {
-                        temp_array[a*2] = global_mtt_array[a*2];
-                        temp_array[a*2+1] = global_mtt_array[a*2+1];
+                        //temp_array[a*2] = global_mtt_array[a*2];
+                        //temp_array[a*2+1] = global_mtt_array[a*2+1];
+                        temp_array[0] = global_mtt_array[a*2];
+                        temp_array[1] = global_mtt_array[a*2+1];
                     }
-                    else temp_array[a*2] = temp_array[a*2+1] = 0.0;
+                    //else temp_array[a*2] = temp_array[a*2+1] = 0.0;
                 }
 
                 qDebug() << "ARRAY BEFORE MTT: ";
 
                 for(int j = 0; j<MAX_N; j++) qDebug() << "X: " << temp_array[j*2] << " Y: " << temp_array[j*2+1];
 
-                qDebug() << "ARRAY BEFORE MTT";
+                qDebug() << "ARRAY BEFORE MTT END";
 
 
                 this->MTT(temp_array, r, q, diff_d, diff_fi, min_OLGI, min_NT);
@@ -520,15 +546,15 @@ void stackManager::applyFusion()
 
                     if(coordinatesAreValid(temp_array[k*2], temp_array[k*2+1]))
                     {
-                        global_mtt_array[k*2] = temp_array[k*2];
-                        global_mtt_array[k*2+1] = temp_array[k*2+1];
+                        global_mtt_array[i*2] = temp_array[k*2];
+                        global_mtt_array[i*2+1] = temp_array[k*2+1];
                     }
                 }
 
                 qDebug() << "ARRAY AFTER MTT END";
 
                 delete [] temp_array;
-            }
+            }*/
 
             /* THE UPPER     CODE IS ONLY FOR TEST PURPOSES */
             /* -------------------------------------------- */

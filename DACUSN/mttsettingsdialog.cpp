@@ -29,6 +29,15 @@ void mttsettingsdialog::acceptedSlot()
 {
     settingsMutex->lock();
 
+    if(ui->mttPerSingleRadarUnitCheckBox->isChecked() && !settings->getSingleRadarMTT())
+    {
+        // If MTT is selected as enabled, but it was not, user is starting new MTT.
+        // Since this can happen in situation that MTT was configured and turned off
+        // again, we need to restart it so default values are set again. If this is not
+        // done, incorrect results may occure.
+        emit restartMTT();
+    }
+
     settings->setSingleRadarMTT(ui->mttPerSingleRadarUnitCheckBox->isChecked());
     settings->setGlobalRadarMTT(ui->mttGlobalCheckBox->isChecked());
 

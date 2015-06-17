@@ -18,6 +18,7 @@ INPUT(
 ./release\uwbpacketclass.o
 ./release\rs232.o
 ./release\mttsettingsdialog.o
+./release\mtt_pure.o
 ./release\qrc_icons.o
 ./release\moc_mainwindow.o
 ./release\moc_datainputthreadworker.o

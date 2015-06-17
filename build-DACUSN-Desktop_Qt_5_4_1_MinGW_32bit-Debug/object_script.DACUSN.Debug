@@ -18,6 +18,7 @@ INPUT(
 ./debug\uwbpacketclass.o
 ./debug\rs232.o
 ./debug\mttsettingsdialog.o
+./debug\mtt_pure.o
 ./debug\qrc_icons.o
 ./debug\moc_mainwindow.o
 ./debug\moc_datainputthreadworker.o

@@ -257,6 +257,10 @@ void MainWindow::pauseDataInputSlot()
             blinker = true;
             ui->actionPause->setIcon(QIcon(":/mainToolbar/icons/pause.png"));
 
+            // restart all MTTs since targets could be removed, replaced in the scene,
+            // or new can appear, old values of MTT can lead to incorrect results. (tested)
+            resetAllMTTs();
+
             // resuming instance time measurement
             if(instanceElapsedTimer!=NULL) instanceElapsedTimer->restart();
             // return visualization running state
@@ -296,6 +300,10 @@ void MainWindow::establishDataInputThreadSlot()
     // enabling another management buttons
     ui->actionPause->setEnabled(true);
     ui->actionRestart->setEnabled(true);
+
+    // Restart all MTTs since targets could be removed, replaced in the scene,
+    // or new can appear, old values of MTT can lead to incorrect results. (tested)
+    resetAllMTTs();
 
     // start data recieving thread
     establishDataInputRutineSlot();
@@ -956,6 +964,42 @@ void MainWindow::deleteDiskBackupDependencies()
     settingsMutex->unlock();
 }
 
+void MainWindow::resetAllMTTs()
+{
+    radarListMutex->lock();
+    for(int i=0; i<radarList->count(); i++)
+        radarList->at(i)->radar->resetMTT();
+    radarListMutex->unlock();
+}
+
+void MainWindow::resetMTTat(int id, int index)
+{
+    if(id>0)
+    {
+        // try to find radar with such ID
+        radarListMutex->lock();
+        for(int i=0; i<radarList->count(); i++)
+        {
+            if(radarList->at(i)->id==id)
+            {
+                radarList->at(i)->radar->resetMTT();
+                break; // break the loop, we are not interested in other radar units
+            }
+        }
+        radarListMutex->unlock();
+        return;
+    }
+
+    // if reset MTT at specific index is required
+    if(index>=0)
+    {
+        radarListMutex->lock();
+        // check if index is relevant
+        if(index<radarList->count()) radarList->at(index)->radar->resetMTT();
+        radarListMutex->unlock();
+    }
+}
+
 
 
 /* ------------------------------------------------- DIALOGS SLOTS ------------------------------------------- */
@@ -1002,7 +1046,7 @@ void MainWindow::openDataBackupDialog()
 void MainWindow::openMTTSettingsDialog()
 {
     mttsettingsdialog dialog(settings, settingsMutex, this);
-
+    connect(&dialog, SIGNAL(restartMTT()), this, SLOT(resetAllMTTs()));
     dialog.exec();
 }
 

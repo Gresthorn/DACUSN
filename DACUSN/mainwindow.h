@@ -189,6 +189,18 @@ public slots:
      */
     void deleteDiskBackupDependencies(void);
 
+    /**
+     * @brief Function will iterate over all radar units and restarts their MTT algorithms to initial state.
+     */
+    void resetAllMTTs(void);
+
+    /**
+     * @brief Function will reset the MTT of single radar unit. If you want to reset MTT of radar at specific index, set ID to id<=0 and give the index as second argument.
+     * @param[in] id Id of radar which MTT should be restarted.
+     * @param[in] index Index of radar unit in radarList, which MTT will be restarted.
+     */
+    void resetMTTat(int id, int index = -1);
+
 protected:
 
     void closeEvent(QCloseEvent *event);

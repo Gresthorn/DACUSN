@@ -26,6 +26,9 @@ private:
 
 public slots:
     void acceptedSlot(void);
+
+signals:
+    void restartMTT(void);
 };
 
 #endif // MTTSETTINGSDIALOG_H

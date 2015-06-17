@@ -13,6 +13,7 @@
 #include "uwbsettings.h"
 #include "stddefs.h"
 #include "rawdata.h"
+#include "mtt_pure.h"
 
 using namespace std;
 
@@ -190,8 +191,16 @@ public:
      */
     void zeroEmptyPositions(rawData * array);
 
+    /**
+     * @brief This function will delete and again create MTT object, so default values are set. This is necessary if starting new reciever or resuming after pause.
+     */
+    void resetMTT(void);
+
 
 private:
+    /* FOR TEST PURPOSES - TEST OF MTT_PURE LIBRARY */
+    mtt_pure * mtt_p;
+
     int radar_id; ///< Main radar identificator
     bool enabled; ///< Specifies if the radar is enabled/disabled by user. If set to false, this unit should not be considered during data fusion. This value is always set to false if the unit was created by application automatically.
     unsigned int max_recursion; ///< The maximum data handling at one time dataList

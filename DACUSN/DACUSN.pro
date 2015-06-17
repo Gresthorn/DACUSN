@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     backupoptionsdialog.cpp \
     uwbpacketclass.cpp \
     rs232.c \
-    mttsettingsdialog.cpp
+    mttsettingsdialog.cpp \
+    mtt_pure.cpp
 
 HEADERS  += mainwindow.h \
     reciever.h \
@@ -51,7 +52,8 @@ HEADERS  += mainwindow.h \
     backupoptionsdialog.h \
     rs232.h \
     uwbpacketclass.h \
-    mttsettingsdialog.h
+    mttsettingsdialog.h \
+    mtt_pure.h
 
 FORMS    += mainwindow.ui \
     datainputdialog.ui \

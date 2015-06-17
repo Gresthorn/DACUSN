@@ -18,6 +18,7 @@
 #include "uwbsettings.h"
 #include "radar_handler.h"
 #include "radarsubwindow.h"
+#include "mtt_pure.h"
 
 /**
  * @file reciever.h

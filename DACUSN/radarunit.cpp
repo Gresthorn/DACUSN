@@ -15,6 +15,9 @@ radarUnit::radarUnit(int radarId, double x_pos, double y_pos, double rot_Angle, 
     dataList = new QList<rawData * >;
 
     enabled = enable;
+
+    /* FOR TEST PURPOSES ONLY - TEST OF MTT_PURE LIB */
+    mtt_p = new mtt_pure;
 }
 
 radarUnit::~radarUnit()
@@ -48,13 +51,14 @@ bool radarUnit::processNewData(rawData *data, bool enableMTT)
 
         if(enableMTT)
         {
-            qDebug() << "Running MTT";
+            qDebug() << "Running MTT for radar: " << radar_id;
 
             if(data->getRecieverMethod()==RS232)
-                this->MTT(data->getUwbPacketCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+                mtt_p->MTT(data->getUwbPacketCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+                //this->MTT(data->getUwbPacketCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
             #if defined (__WIN32__)
-            else if(data->getRecieverMethod()==SYNTHETIC)
-                this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+            else if(data->getRecieverMethod()==SYNTHETIC) mtt_p->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
+                //this->MTT(data->getSyntheticCoordinates(), r, q, diff_d, diff_fi, min_OLGI, min_NT);
             #endif
             else qDebug() << "MTT could not run, because of unknown reciever method";
         }
@@ -241,6 +245,12 @@ void radarUnit::zeroEmptyPositions(rawData * array)
         */
     }
 
+}
+
+void radarUnit::resetMTT()
+{
+    delete mtt_p;
+    mtt_p = new mtt_pure;
 }
 
 /********************************************************************************************************/
