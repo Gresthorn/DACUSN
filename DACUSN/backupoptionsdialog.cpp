@@ -1,3 +1,18 @@
+/**
+ * @file backupoptionsdialog.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definition of backupOptionsDialog class methods is placed here
+ *
+ * @section DESCRIPTION (see backupoptionsdialog.h)
+ *
+ * The following dialog is using the uwbSettings based object to load all settings needed for backup
+ * sequence to store data in text file on disk. Dialog provides graphical interface for setting up
+ * paths and filename of target txt. Availible is also checkbox for allowing or disabling this functionality.
+ *
+ */
+
+
 #include "backupoptionsdialog.h"
 #include "ui_backupoptionsdialog.h"
 

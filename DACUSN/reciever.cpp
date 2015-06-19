@@ -1,3 +1,24 @@
+/**
+ * @file reciever.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of reciever class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * The reciever class provides the interface for recieving data from
+ * UWB sensor network. Its used to get data depending on protocol
+ * used for communication. Supported protocols/methods have their internal
+ * codes. code must be specified manually as well as method for data
+ * parsing. This is possible from the external approach by public
+ * methods. Data are saved into structure in needed format which pointer
+ * can be retrieved by public methods. Reciever class does not free
+ * allocated memory of structures and relies on higher functions.
+ * New data are automatically saved into structures and returned to higher
+ * functions. After that, new data can be obtained.
+ *
+ */
+
 #include "reciever.h"
 
 reciever::reciever(reciever_method recieveMethod)

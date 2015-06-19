@@ -1,3 +1,20 @@
+/**
+ * @file uwbpacketclass.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of uwbPacketClass class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * Data in UWB sensor network are being sent into central unit via wireless connection. Central unit has
+ * device (modul) for recieving such communication and sending recieved bytes through serial link into
+ * computer. The software must be able read and write into such packets as well as send them via RS232.
+ *
+ * This class provides functionality for both, recieving and sending packets. You can comment one of that
+ * functionality to reduce the size of compiled program if you do not need it.
+ *
+ */
+
 #include "uwbpacketclass.h"
 
 /*****************************************************************************************************************/

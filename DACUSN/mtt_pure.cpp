@@ -1,3 +1,17 @@
+/**
+ * @file mtt_pure.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief This class provides all MTT functionality packed in one object. (mtt_pure provides all )
+ *
+ * @section DESCRIPTION
+ *
+ * Class mtt_pure is aimed to pack all MTT functionality on one place and interpret
+ * it in style of C++. Any change here will have automatical impact on all MTT implementations
+ * in program. Also provides simple enhancement possibilities. _pure stands for no fusion
+ * or association algorithms present so far.
+ */
+
 #include "mtt_pure.h"
 
 mtt_pure::mtt_pure()

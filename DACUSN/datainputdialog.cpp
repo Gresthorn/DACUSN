@@ -1,3 +1,18 @@
+/**
+ * @file dataInputDialog.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of coordinatesInputDialog class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * The dataInputDialog class inherits a QDialog class so it is able to build a graphical interface
+ * for dialog window. This dialog provides interface for changing/setting up parameters of data
+ * input sequence. Note that all data must be loaded first from the uwbSettings based object and
+ * after confirmation of changes save them back into the settings object. Since that is used accross
+ * the application, mutex is neccessary to be locked.
+ */
+
 #include "datainputdialog.h"
 #include "ui_datainputdialog.h"
 

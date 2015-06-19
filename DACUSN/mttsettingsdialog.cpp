@@ -1,3 +1,16 @@
+/**
+ * @file mttsettingsdialog.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of mttSettingsDialog class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * Class mttsettingsdialog is simple class for establishing GUI allowing user to
+ * allow or disable MTT algorithms in program. This dialog can be enhanced of some
+ * other options/edit abilities later if needed.
+ */
+
 #include "mttsettingsdialog.h"
 #include "ui_mttsettingsdialog.h"
 

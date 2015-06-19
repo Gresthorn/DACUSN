@@ -1,3 +1,19 @@
+/**
+ * @file visualization.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of visualization class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * The 'animationManager' is class which provides possibility of universal management
+ * of different animation schemes selected by user end ensures deletion and creation
+ * of new graphics objects safely. 'VisualizationSchema' variable tells what visualization
+ * is selected and appropriate algorithms are running. All schemes are availible
+ * through enumeration types and user may modify this settings via GUI.
+ *
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "visualization.h"
@@ -620,7 +636,7 @@ void radarScene::drawBackground(QPainter *painter, const QRectF &rect)
             // y - coordinates
             for (qreal y = (-1.0)*top; y > (-1.0)*rect.bottom(); y -= middleDetailedGridSize)
             {
-                if(qFuzzyCompare(0.0, first_bottom)) {
+                if(qFuzzyCompare(0.0, (double)(first_bottom))) {
                     first_bottom+=step;
                     continue;
                 }
@@ -1074,6 +1090,9 @@ QRectF crossItem::boundingRect() const
 
 void crossItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
     painter->setBrush(Qt::NoBrush);
     painter->setPen(QPen(QBrush(crossColor), 1.0));
 
@@ -1110,6 +1129,9 @@ radarMarker::~radarMarker()
 
 void radarMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
     //QGraphicsPixmapItem::paint(painter, option, widget);
 
     painter->setRenderHint(QPainter::Antialiasing);

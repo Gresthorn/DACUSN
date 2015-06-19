@@ -1,3 +1,18 @@
+/**
+ * @file rawdata.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of rawData class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * The 'rawData' class is very simple class that serves as a data storage for all kinds
+ * of 'reciever' methods/algorithms. It contains all types of structures that can be
+ * required by program and have methods for manupulating with those data. As the only
+ * class for data concentrating it is very easy to migrate these across the higher classes
+ * if needed and represents the only base return value of 'reciever' class.
+ */
+
 #include "rawdata.h"
 
 rawData::rawData()

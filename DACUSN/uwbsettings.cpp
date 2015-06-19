@@ -1,3 +1,19 @@
+/**
+ * @file uwbsettings.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of uwbSettings class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * This class is created automatically when the program starts, in mainWindow constructor.
+ * It is a very simple class with all variables needed to store a basic settings required
+ * by application to work properly. Because it is used cross the application by different
+ * threads, the mutex are needed to protect the class from being accessed by more threads
+ * at the same time. Class provides simple functions for settings modification and maintenance.
+ *
+ */
+
 #include "uwbsettings.h"
 
 uwbSettings::uwbSettings()

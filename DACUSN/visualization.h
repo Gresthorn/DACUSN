@@ -1,3 +1,19 @@
+/**
+ * @file visualization.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Class which is responsible for all visual effects in the graphics scene.
+ *
+ * @section DESCRIPTION
+ *
+ * The 'animationManager' is class which provides possibility of universal management
+ * of different animation schemes selected by user end ensures deletion and creation
+ * of new graphics objects safely. 'VisualizationSchema' variable tells what visualization
+ * is selected and appropriate algorithms are running. All schemes are availible
+ * through enumeration types and user may modify this settings via GUI.
+ *
+ */
+
 #ifndef VISUALIZATION
 #define VISUALIZATION
 
@@ -23,23 +39,6 @@
 
 #include "uwbsettings.h"
 #include "radar_handler.h"
-
-
-/**
- * @file visualization.h
- * @author  Peter Mikula <mikula.ptr@gmail.com>
- * @version 1.0
- * @brief Class which is responsible for all visual effects in the graphics scene.
- *
- * @section DESCRIPTION
- *
- * The 'animationManager' is class which provides possibility of universal management
- * of different animation schemes selected by user end ensures deletion and creation
- * of new graphics objects safely. 'VisualizationSchema' variable tells what visualization
- * is selected and appropriate algorithms are running. All schemes are availible
- * through enumeration types and user may modify this settings via GUI.
- *
- */
 
 /******************************************* CUSTOM GRAPHICS ITEMS *******************************************/
 

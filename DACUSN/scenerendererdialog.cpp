@@ -1,3 +1,25 @@
+/**
+ * @file scenerendererdialog.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of sceneRendererDialog class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * All visualizations settings are stored in uwbSettings based object. This dialog is responsible
+ * for extracting them out and display for the user. Since some of settings changes need to
+ * run some special operations, dialog can inform about the changes via signals like:
+ *
+ * void renderingEngineChanged(rendering_engine);
+ * void periodicalImgBackup(bool);
+ * void realTimeRecordingStatus(bool);
+ *
+ * By default options for setting up OpenGL buffers is hidden, since default Qt values are usualy
+ * acceptable. However, dialog must allow to unhide these and consider their modifications
+ * during saving settings as well.
+ *
+ */
+
 #include "scenerendererdialog.h"
 #include "ui_scenerendererdialog.h"
 

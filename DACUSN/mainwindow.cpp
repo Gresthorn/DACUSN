@@ -1,3 +1,25 @@
+/**
+ * @file MainWindow.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of MainWindow class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * Class MainWindow provides complex interface for creating and displaying main window
+ * evoked immediately after the program starts. The 'show()' function is called in main.cpp
+ * before the QApplication object enters its infinite loop in its 'exec()' function.
+ *
+ * Class also provides signals and slots for communication with other objects in program.
+ * Full GUI is defined in mainwindow.ui. From this window, all dialogs are initiated, so
+ * class provides appropriately named slots for doing so. Class holds pointers to all worker
+ * objects (later passed into separate threads) during their existance. After stopping input
+ * algorithms, these pointers should be NULL.
+ *
+ * EstablishDataInputThreadSlot() initializes/starts the data recieving thread according to
+ * availible settings. DestroyDataInputThreadSlot() does the inverse operation.
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -188,6 +210,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
+
     // destroy all subwindows if exist
     radarSubWindowListMutex->lock();
     while(!radarSubWindowList->isEmpty())
@@ -980,7 +1004,7 @@ void MainWindow::resetMTTat(int id, int index)
         radarListMutex->lock();
         for(int i=0; i<radarList->count(); i++)
         {
-            if(radarList->at(i)->id==id)
+            if(radarList->at(i)->id==(unsigned int)(id))
             {
                 radarList->at(i)->radar->resetMTT();
                 break; // break the loop, we are not interested in other radar units
@@ -1096,7 +1120,7 @@ void MainWindow::radarListUpdated()
         // iterate over all radars and try to find such id
         for(int j = 0; j<radarList->count(); j++)
         {
-            if(radarList->at(j)->id==id)
+            if(radarList->at(j)->id==(unsigned int)(id))
             {
                 found = true;
                 break;

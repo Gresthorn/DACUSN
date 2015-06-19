@@ -1,3 +1,17 @@
+/**
+ * @file scenerendererdialog.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of sceneRendererDialog class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * This is another simple dialog window class specialized for stack management. It allows user
+ * to modify basic settings of stackmanager thread algorithms. The pointer to settings object is
+ * passed into the constructor and for accessing its methods and variables, mutex is passed as well.
+ *
+ */
+
 #include "stackmanagerdialog.h"
 #include "ui_stackmanagerdialog.h"
 

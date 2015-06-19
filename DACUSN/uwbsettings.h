@@ -1,15 +1,3 @@
-#ifndef UWBSETTINGS_H
-#define UWBSETTINGS_H
-
-#include <stdlib.h>
-#include <QColor>
-#include <QTextStream>
-#include <QDateTime>
-#include <QDir>
-#include <QFile>
-
-#include "stddefs.h"
-
 /**
  * @file uwbsettings.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -24,6 +12,18 @@
  * threads, the mutex are needed to protect the class from being accessed by more threads
  * at the same time. Class provides simple functions for settings modification and maintenance.
  */
+
+#ifndef UWBSETTINGS_H
+#define UWBSETTINGS_H
+
+#include <stdlib.h>
+#include <QColor>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+
+#include "stddefs.h"
 
 class uwbSettings
 {

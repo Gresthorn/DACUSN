@@ -1,11 +1,3 @@
-#ifndef RAWDATA_H
-#define RAWDATA_H
-
-#include <stdlib.h>
-#include <QDebug>
-
-#include "stddefs.h"
-
 /**
  * @file rawdata.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -20,6 +12,14 @@
  * class for data concentrating it is very easy to migrate these across the higher classes
  * if needed and represents the only base return value of 'reciever' class.
  */
+
+#ifndef RAWDATA_H
+#define RAWDATA_H
+
+#include <stdlib.h>
+#include <QDebug>
+
+#include "stddefs.h"
 
 class rawData
 {

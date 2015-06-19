@@ -1,3 +1,19 @@
+/**
+ * @file datainputthread.cpp
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Definitions of dataInputThread class methods.
+ *
+ * @section DESCRIPTION
+ *
+ * The dataInputThread class inherits a QObject class so it is able to run as a 'worker' object
+ * in a separate thread which purpose is to obtain new data from UWB radar network
+ * and push the data on the stack and wait for another data. This thread has the
+ * highest priority because we require no data loss. It uses the 'reciever' class
+ * for obtaining data by the correct way.
+ *
+ */
+
 #include "datainputthreadworker.h"
 
 dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack, QMutex *raw_data_stack_mutex, uwbSettings *setts, QMutex *settings_mutex)

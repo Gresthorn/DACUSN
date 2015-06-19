@@ -1,18 +1,3 @@
-#ifndef DATAINPUTTHREAD_H
-#define DATAINPUTTHREAD_H
-
-#include <QObject>
-#include <QList>
-#include <QMutex>
-#include <QWaitCondition>
-
-#include <QDebug>
-
-#include "stddefs.h"
-#include "reciever.h"
-#include "rawdata.h"
-#include "uwbsettings.h"
-
 /**
  * @file datainputthread.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -27,6 +12,21 @@
  * highest priority because we require no data loss. It uses the 'reciever' class
  * for obtaining data by the correct way.
  */
+
+#ifndef DATAINPUTTHREAD_H
+#define DATAINPUTTHREAD_H
+
+#include <QObject>
+#include <QList>
+#include <QMutex>
+#include <QWaitCondition>
+
+#include <QDebug>
+
+#include "stddefs.h"
+#include "reciever.h"
+#include "rawdata.h"
+#include "uwbsettings.h"
 
 class dataInputThreadWorker : public QObject
 {

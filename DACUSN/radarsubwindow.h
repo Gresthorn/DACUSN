@@ -1,17 +1,3 @@
-#ifndef RADARSUBWINDOW_H
-#define RADARSUBWINDOW_H
-
-#include <QDialog>
-#include <QVector>
-#include <QList>
-#include <QMutex>
-#include <QDebug>
-
-#include "uwbsettings.h"
-#include "stddefs.h"
-#include "radar_handler.h"
-#include "visualization.h"
-
 /**
  * @file radarsubwindow.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -33,6 +19,20 @@
  * radar unit can see.
  *
  */
+
+#ifndef RADARSUBWINDOW_H
+#define RADARSUBWINDOW_H
+
+#include <QDialog>
+#include <QVector>
+#include <QList>
+#include <QMutex>
+#include <QDebug>
+
+#include "uwbsettings.h"
+#include "stddefs.h"
+#include "radar_handler.h"
+#include "visualization.h"
 
 namespace Ui {
 class radarSubWindow;
@@ -117,7 +117,7 @@ public:
 
 protected:
 
-    void closeEvent(QCloseEvent *event) { emit radarSubWindowClosed(this); }
+    void closeEvent(QCloseEvent *event) { Q_UNUSED(event); emit radarSubWindowClosed(this); }
 
 private:
     Ui::radarSubWindow *ui;

@@ -1,3 +1,18 @@
+/**
+ * @file dataInputDialog.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Class for establishing object allowing user to set up new parameters of input sequence.
+ *
+ * @section DESCRIPTION
+ *
+ * The dataInputDialog class inherits a QDialog class so it is able to build a graphical interface
+ * for dialog window. This dialog provides interface for changing/setting up parameters of data
+ * input sequence. Note that all data must be loaded first from the uwbSettings based object and
+ * after confirmation of changes save them back into the settings object. Since that is used accross
+ * the application, mutex is neccessary to be locked.
+ */
+
 #ifndef DATAINPUTDIALOG_H
 #define DATAINPUTDIALOG_H
 

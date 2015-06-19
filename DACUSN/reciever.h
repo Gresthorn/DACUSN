@@ -1,20 +1,3 @@
-#ifndef RECIEVER_H
-#define RECIEVER_H
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#if defined (__WIN32__)
-#include <windows.h>
-#endif
-#include <ctime>
-#include <QDebug>
-
-#include "stddefs.h"
-#include "rawdata.h"
-#include "rs232.h"
-#include "uwbpacketclass.h"
-
 /**
  * @file reciever.h
  * @author  Peter Mikula <mikula.ptr@gmail.com>
@@ -35,6 +18,23 @@
  * functions. After that, new data can be obtained.
  *
  */
+
+#ifndef RECIEVER_H
+#define RECIEVER_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#if defined (__WIN32__)
+#include <windows.h>
+#endif
+#include <ctime>
+#include <QDebug>
+
+#include "stddefs.h"
+#include "rawdata.h"
+#include "rs232.h"
+#include "uwbpacketclass.h"
 
 class reciever
 {

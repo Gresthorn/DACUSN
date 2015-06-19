@@ -1,3 +1,16 @@
+/**
+ * @file backupOptionsDialog.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Class for establishing object allowing user to set new target directory, name of backup file and allow backup operations.
+ *
+ * @section DESCRIPTION
+ *
+ * The following dialog is using the uwbSettings based object to load all settings needed for backup
+ * sequence to store data in text file on disk. Dialog provides graphical interface for setting up
+ * paths and filename of target txt. Availible is also checkbox for allowing or disabling this functionality.
+ */
+
 #ifndef BACKUPOPTIONSDIALOG_H
 #define BACKUPOPTIONSDIALOG_H
 

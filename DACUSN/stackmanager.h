@@ -1,3 +1,24 @@
+/**
+ * @file stackmanager.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief Class which provides interface for data stack management
+ *
+ * @section DESCRIPTION
+ *
+ * The 'stackManager' class provides a basic interface for manipulation with the stack.
+ * After the data are recieved by 'reciever', they are pushed onto the stack which then
+ * must be protected by mutex. This stack, however can obtain more data, than this class
+ * may be able to process. Reasons may differ (too many input data, very complex processing
+ * algorithms, time consuming rendering session etc.). In such cases some of special methods
+ * are needed to solve this issue. The stack must free memory in time and 'rawData' objects
+ * must be deleted after processing. The instance based on this class serves as a worker
+ * object for stack management thread. This thread is never deleted and remains active
+ * during the application run. Only actions applied on the reciever thread as pause, stop will
+ * pause/unpause the thread.
+ *
+ */
+
 #ifndef STACKMANAGER_H
 #define STACKMANAGER_H
 
@@ -19,27 +40,6 @@
 #include "radar_handler.h"
 #include "radarsubwindow.h"
 #include "mtt_pure.h"
-
-/**
- * @file reciever.h
- * @author  Peter Mikula <mikula.ptr@gmail.com>
- * @version 1.0
- * @brief Class which provides interface for data stack management
- *
- * @section DESCRIPTION
- *
- * The 'stackManager' class provides a basic interface for manipulation with the stack.
- * After the data are recieved by 'reciever', they are pushed onto the stack which then
- * must be protected by mutex. This stack, however can obtain more data, than this class
- * may be able to process. Reasons may differ (too many input data, very complex processing
- * algorithms, time consuming rendering session etc.). In such cases some of special methods
- * are needed to solve this issue. The stack must free memory in time and 'rawData' objects
- * must be deleted after processing. The instance based on this class serves as a worker
- * object for stack management thread. This thread is never deleted and remains active
- * during the application run. Only actions applied on the reciever thread as pause, stop will
- * pause/unpause the thread.
- *
- */
 
 class stackManager : public QObject
 {
@@ -165,6 +165,8 @@ private:
     qint64 currentProcessingSpeed; ///< Holds the last processing time in nanoseconds.
     qint64 processingIterator; ///< Counts how many processing iterations there were so far.
 
+    mtt_pure * mtt_p_g; ///< MTT object with all MTT functionality amied to process data globally.
+
     /**
      * @brief Function is used to check values that come from MTT. Sometimes they can be NaN or +-infinite. These values should not be considered
      * @param[in] x X-coordinate of target.
@@ -232,89 +234,6 @@ private:
      * @param[in] endline If end line is true, '\n' will be appended.
      */
     void makeDataBackup(qint64 val, bool write_val=true, bool newline=false, bool endline=false);
-
-
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /**************************************** DATA PROCESSING FUNCTIONS *************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-
-    void matrix_mul_4x2( real c[][2], real a[][2], real b[][2] );
-    void matrix_mul_4x4( real c[][4], real a[][4], real b[][4] );
-    void matrix_transpose_4x4( real out[][4], real in[][4] );
-    void matrix_add_4x4( real c[][4], real a[][4], real b[][4] );
-    void prediction ( real Y_e_p[], real *P_e_p, real Q[][4], real Y_p[], real *P_p );
-    void init_estimation (real r, real fi, real Y_e_2_init,real Y_e_4_init,real P_init[][4], real Y_e[], real *P_e);
-    void cartesian2polar( real x, real y, real *r, real *fi);
-    void polar2cartesian ( real Y_e[], real *x, real *y);
-    void gate_checker ( real r, real fi, real Y_p[], real R[][2], real *P_p, word *m, real *c);
-    void obs_less_gate_ident (word *OLGI_last,word track, word nn_track, real Y_e_last[], real *P_e_last,
-                              real Y_e[], real *P_e, word *OLGI);
-    void munkres( real costMat[][MAX_N], word rows, word cols, real *cost, word assign[][MAX_N] );
-    void insert_to_valid( word in[][MAX_N], word m, word n, word out[][MAX_N], word row_sel[], word col_sel[] );
-    void insert_to_not_valid( real in[][MAX_N], word m, word n, real out[][MAX_N], word row_sel[], word col_sel[] );
-    void extract_not_valid( real in[][MAX_N], word row_sel[], word col_sel[], word m, word n, real out[][MAX_N], word *r, word *c);
-    void extract_valid( real in[][MAX_N], word row_sel[], word col_sel[], real out[][MAX_N], word m, word n);
-    real find_min ( real in[][MAX_N], word m, word n );
-    word find_max ( word in[][MAX_N], word row );
-    void copy_col ( word in[][MAX_N], word m, word n, word out[] );
-    void copy_row ( word in[][MAX_N], word m, word n, word out[] );
-    void find( word in[][MAX_N], word m, word n, word *r, word *s );
-    void any_col( word in[][MAX_N], word m, word n, word out[]  );
-    word any_vector_not_selected ( word in[], word m );
-    word any_not_selected ( word in[][MAX_N], word row_sel[], word col_sel[], word m, word n );
-    word any_vector( word in[], word n );
-    word any( word in[][MAX_N], word m, word n );
-    void falses_vector( word in[], word n );
-    void falses( word in[][MAX_N], word m, word n );
-    void log_negate( real in[][MAX_N], word m, word n, word out[][MAX_N]  );
-    void zeros( real in[][MAX_N], word m, word n );
-    word find_vec( word in[], word n );
-    void correction ( real Y_e[], real *P_e, real Y_p[], real *P_p, real r, real fi, real R[][2]);
-    void new_tg_ident ( word nn_NTI, word min_NTI, word NTI[], real r_last_obs[], real fi_last_obs[],
-                        real r, real fi, real dif_d, real dif_fi, word nn_track, word cl[], word max_nn_tr,
-                        word *new_track, word clearing[]
-                      );
-
-    // MTT functions
-    float* MTT(float* P_mem,float r[], float q[],float dif_d,float dif_fi, int min_OLGI,int min_NTI);
-    void MTT2 (real P[][MAX_N], real r[], real q[], real dif_d, real dif_fi, word min_OLGI, word min_NTI, real T[][MAX_N], word *start );
-
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /**************************************** DATA PROCESSING VARIABLES *************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-    /********************************************************************************************************/
-
-    real P_init[4][4];
-    real Y_e_2_init;
-    real Y_e_4_init;
-    real R[2][2];
-    real Q[4][4];
-
-
-    real Z[MAX_N][2];
-    real Y_p[MAX_N][4];
-    real P_p[MAX_N][4][4];
-    real K[MAX_N][4][2];
-    real Y_e[MAX_N][4];
-    real P_e[MAX_N][4][4];
-    word M[MAX_N][MAX_N];
-    word MA[MAX_N][MAX_N];
-    real C[MAX_N][MAX_N];
-    real P[2][MAX_N];
-    real T[2][MAX_N];
-
-    word NTI[3];
-    real last_obs[2][3];
-    word OLGI[MAX_N];
-    word nn_obs, obs, start_im, nn_track;
-    word start;
 
 
 

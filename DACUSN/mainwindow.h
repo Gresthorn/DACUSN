@@ -1,3 +1,25 @@
+/**
+ * @file MainWindow.h
+ * @author  Peter Mikula <mikula.ptr@gmail.com>
+ * @version 1.0
+ * @brief This is the MAIN class of basic GUI window displayed after the program starts.
+ *
+ * @section DESCRIPTION
+ *
+ * Class MainWindow provides complex interface for creating and displaying main window
+ * evoked immediately after the program starts. The 'show()' function is called in main.cpp
+ * before the QApplication object enters its infinite loop in its 'exec()' function.
+ *
+ * Class also provides signals and slots for communication with other objects in program.
+ * Full GUI is defined in mainwindow.ui. From this window, all dialogs are initiated, so
+ * class provides appropriately named slots for doing so. Class holds pointers to all worker
+ * objects (later passed into separate threads) during their existance. After stopping input
+ * algorithms, these pointers should be NULL.
+ *
+ * EstablishDataInputThreadSlot() initializes/starts the data recieving thread according to
+ * availible settings. DestroyDataInputThreadSlot() does the inverse operation.
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
