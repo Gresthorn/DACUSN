@@ -140,6 +140,15 @@ void dataInputDialog::accepted()
     settings->setMaximumRecieverErrorCount(ui->recieverMaxErrorCountSpinBox->value());
     settings->setComPortBaudRate(ui->recieverSerialBaudRateComboBox->currentData().toInt());
     settings->setComPortNumber(ui->recieverSerialComPortComboBox->currentData().toInt());
+    #if defined(__linux__) || defined(__FreeBSD__)
+        const char * temp_str = (ui->recieverSerialComPortComboBox->currentText().prepend("/dev/")).toStdString().c_str();
+    #else
+        const char * temp_str = ui->recieverSerialComPortComboBox->currentText().toStdString().c_str();
+    #endif
+    char * port_name_str = new char[strlen(temp_str)+1];
+    strcpy(port_name_str, temp_str);
+
+    settings->setComPortName(port_name_str);
 
     settingsMutex->unlock();
 

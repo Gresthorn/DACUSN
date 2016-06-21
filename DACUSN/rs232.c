@@ -9,27 +9,24 @@
 *
 ***************************************************************************
 *
-* This program is free software; you can redistribute it and/or modify
+* This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
-* the Free Software Foundation version 2 of the License.
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
-* You should have received a copy of the GNU General Public License along
-* with this program; if not, write to the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-***************************************************************************
-*
-* This version of GPL is at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 ***************************************************************************
 */
 
-/* Last revision: January 10, 2015 */
+
+/* Last revision: December 19, 2015 */
 
 /* For more info and how to use this library, visit: http://www.teuniz.net/RS-232/ */
 
@@ -203,6 +200,14 @@ http://man7.org/linux/man-pages/man3/termios.3.html
     return(1);
   }
 
+  /* lock access so that another process can't also use the port */
+  if(flock(Cport[comport_number], LOCK_EX | LOCK_NB) != 0)
+  {
+    close(Cport[comport_number]);
+    perror("Another process has locked the comport.");
+    return(1);
+  }
+
   error = tcgetattr(Cport[comport_number], old_port_settings + comport_number);
   if(error==-1)
   {
@@ -295,6 +300,8 @@ void RS232_CloseComport(int comport_number)
 
   tcsetattr(Cport[comport_number], TCSANOW, old_port_settings + comport_number);
   close(Cport[comport_number]);
+
+  flock(Cport[comport_number], LOCK_UN); /* free the port so that others can use it. */
 }
 
 /*
@@ -324,6 +331,7 @@ int RS232_IsDCDEnabled(int comport_number)
   else return(0);
 }
 
+
 int RS232_IsCTSEnabled(int comport_number)
 {
   int status;
@@ -334,6 +342,7 @@ int RS232_IsCTSEnabled(int comport_number)
   else return(0);
 }
 
+
 int RS232_IsDSREnabled(int comport_number)
 {
   int status;
@@ -343,6 +352,7 @@ int RS232_IsDSREnabled(int comport_number)
   if(status&TIOCM_DSR) return(1);
   else return(0);
 }
+
 
 void RS232_enableDTR(int comport_number)
 {
@@ -361,6 +371,7 @@ void RS232_enableDTR(int comport_number)
   }
 }
 
+
 void RS232_disableDTR(int comport_number)
 {
   int status;
@@ -377,6 +388,7 @@ void RS232_disableDTR(int comport_number)
     perror("unable to set portstatus");
   }
 }
+
 
 void RS232_enableRTS(int comport_number)
 {
@@ -395,6 +407,7 @@ void RS232_enableRTS(int comport_number)
   }
 }
 
+
 void RS232_disableRTS(int comport_number)
 {
   int status;
@@ -410,6 +423,24 @@ void RS232_disableRTS(int comport_number)
   {
     perror("unable to set portstatus");
   }
+}
+
+
+void RS232_flushRX(int comport_number)
+{
+  tcflush(Cport[comport_number], TCIFLUSH);
+}
+
+
+void RS232_flushTX(int comport_number)
+{
+  tcflush(Cport[comport_number], TCOFLUSH);
+}
+
+
+void RS232_flushRXTX(int comport_number)
+{
+  tcflush(Cport[comport_number], TCIOFLUSH);
 }
 
 
@@ -680,6 +711,28 @@ void RS232_enableRTS(int comport_number)
 void RS232_disableRTS(int comport_number)
 {
   EscapeCommFunction(Cport[comport_number], CLRRTS);
+}
+
+/*
+https://msdn.microsoft.com/en-us/library/windows/desktop/aa363428%28v=vs.85%29.aspx
+*/
+
+void RS232_flushRX(int comport_number)
+{
+  PurgeComm(Cport[comport_number], PURGE_RXCLEAR | PURGE_RXABORT);
+}
+
+
+void RS232_flushTX(int comport_number)
+{
+  PurgeComm(Cport[comport_number], PURGE_TXCLEAR | PURGE_TXABORT);
+}
+
+
+void RS232_flushRXTX(int comport_number)
+{
+  PurgeComm(Cport[comport_number], PURGE_RXCLEAR | PURGE_RXABORT);
+  PurgeComm(Cport[comport_number], PURGE_TXCLEAR | PURGE_TXABORT);
 }
 
 

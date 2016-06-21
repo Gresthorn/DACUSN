@@ -100,6 +100,7 @@ uwbSettings::uwbSettings()
     backupFileHandler = NULL;
 
     comPort = -1;
+    comPortName = NULL;
     comPortBaudRate = 9600;
     comPortMode[0] = '8';
     comPortMode[1] = 'N';

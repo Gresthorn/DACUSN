@@ -63,8 +63,20 @@ public:
     void setMaximumRecieverErrorCount(unsigned int error_count) { maximumRecieverErrorCount = error_count; }
 
     /**
-     * @brief Sets the new comport ID which will be used for communication initialization. Note that in Linux and Windows comport indexing is different.
-     * @param[in] com_port_id COM port ID (e. g. COM5 in windows has index 4)
+     * @brief Sets the new comport ID which will be used for communication initialization. Note that array is already supposed to be preallocated.
+     * @param[in] new_comport_name Pointer to preallocated array filled with port name.
+     */
+    void setComPortName(char * new_comport_name) { comPortName = new_comport_name; }
+
+    /**
+     * @brief Sets the new comport ID which will be used for communication initialization.
+     * @return Pointer to the array with port name.
+     */
+    char * getComPortName(void) { return comPortName; }
+
+    /**
+     * @brief Sets the new comport ID which will be used for communication initialization. Note that this index is meant as index of internal array of comports in program.
+     * @param[in] com_port_id COM port ID in current program instance.
      */
     void setComPortNumber(int com_port_id = -1) { comPort = com_port_id; }
 
@@ -81,8 +93,8 @@ public:
     void setComPortMode(char * mode) { comPortMode[0] = mode[0]; comPortMode[1] = mode[1]; comPortMode[2] = mode[2]; }
 
     /**
-     * @brief Returns currently used COM port index.
-     * @return The return value is COM port number.
+     * @brief Returns currently used COM port index. Note that this index is meant as index of internal array of comports in program.
+     * @return The return value is COM port index.
      */
     int getComPortNumber(void) { return comPort; }
 
@@ -538,6 +550,7 @@ private:
     unsigned int maxStackWarningCount; ///< Is the maximum tolarable warning count when doing the speed of stack filling revision
 
     int comPort; ///< Specifies the index of COM port in operating system, which is used for data recieving
+    char * comPortName; ///< Specifies the name of COM port in operating system, which is used for data recieving
     int comPortBaudRate; ///< Holds the information about speed used for serial link commuication
     char comPortMode[4]; ///< Used for serial link communication initialization with some options. See this site for more information: http://www.teuniz.net/RS-232/
 

@@ -21,6 +21,24 @@
 
 #include "reciever.h"
 
+#if defined(__linux__) || defined(__FreeBSD__)
+#define  comports_array_count 38
+char comports_list[comports_array_count][16]={"/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3","/dev/ttyS4","/dev/ttyS5",
+                       "/dev/ttyS6","/dev/ttyS7","/dev/ttyS8","/dev/ttyS9","/dev/ttyS10","/dev/ttyS11",
+                       "/dev/ttyS12","/dev/ttyS13","/dev/ttyS14","/dev/ttyS15","/dev/ttyUSB0",
+                       "/dev/ttyUSB1","/dev/ttyUSB2","/dev/ttyUSB3","/dev/ttyUSB4","/dev/ttyUSB5",
+                       "/dev/ttyAMA0","/dev/ttyAMA1","/dev/ttyACM0","/dev/ttyACM1",
+                       "/dev/rfcomm0","/dev/rfcomm1","/dev/ircomm0","/dev/ircomm1",
+                       "/dev/cuau0","/dev/cuau1","/dev/cuau2","/dev/cuau3",
+                       "/dev/cuaU0","/dev/cuaU1","/dev/cuaU2","/dev/cuaU3"};
+#else
+#define  comports_array_count 16;
+char comports_list[comports_array_count][10]={"\\\\.\\COM1",  "\\\\.\\COM2",  "\\\\.\\COM3",  "\\\\.\\COM4",
+                       "\\\\.\\COM5",  "\\\\.\\COM6",  "\\\\.\\COM7",  "\\\\.\\COM8",
+                       "\\\\.\\COM9",  "\\\\.\\COM10", "\\\\.\\COM11", "\\\\.\\COM12",
+                       "\\\\.\\COM13", "\\\\.\\COM14", "\\\\.\\COM15", "\\\\.\\COM16"};
+#endif
+
 reciever::reciever(reciever_method recieveMethod)
     #if defined (__WIN32__)
     : maximum_pipe_size(512)
@@ -31,7 +49,8 @@ reciever::reciever(reciever_method recieveMethod)
     statusMsg = NULL;
 
     // since for now we are not using serial port, default values are set
-    comPort = -1;
+    port_index = -1; // This index must be calculated according to array indexes with supported comports in RS232 library
+    comPort = NULL;
     comPortBaudRate = 9600;
     comPortMode = NULL;
     comPortCallibration = false;
@@ -43,7 +62,7 @@ reciever::reciever(reciever_method recieveMethod)
     else set_msg("An error occured when trying to set up selected method.");
 }
 
-reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char *comport_mode)
+reciever::reciever(reciever_method recieveMethod, char * comport_name, int baud_rate, char *comport_mode)
     #if defined (__WIN32__)
     : maximum_pipe_size(0)
     #endif
@@ -52,7 +71,7 @@ reciever::reciever(reciever_method recieveMethod, int comport_ID, int baud_rate,
     last_data_pt = NULL;
     statusMsg = NULL;
 
-    comPort = comport_ID;
+    comPort = comport_name;
     comPortBaudRate = baud_rate;
     comPortMode = comport_mode;
     comPortCallibration = false;
@@ -246,11 +265,25 @@ bool reciever::calibrate(reciever_method recieveMethod)
     #endif
     else if(recieveMethod==RS232)
     {
+        // find correct port index
+        port_index = -1; // This index must be calculated according to array indexes with supported comports in RS232 library
+
+        if(comPort != NULL)
+        {
+            qDebug() << "Searching index of " << comPort;
+            for(int k = 0; k < comports_array_count; k++)
+            {
+                if (strcmp(comPort, comports_list[k])==0) { port_index = k; break; }
+            }
+        }
+        qDebug() << "Trying to set up comport with index " << port_index;
+
         // do callibration for RS232 communication
-        if(RS232_OpenComport(comPort, comPortBaudRate, comPortMode)>0)
+        if(RS232_OpenComport(port_index, comPortBaudRate, comPortMode)>0)
         {
             // function returns number grater than zero if error occured
             // reasons of error may differ: invalid comport number, invalid baudrate or mode, comport in use, etc.
+            qDebug() << "Comport with index " << port_index << " could not be initialized.";
             comPortCallibration = false;
             return false;
         }
@@ -258,7 +291,8 @@ bool reciever::calibrate(reciever_method recieveMethod)
         {
             // comport opened successfuly and is ready for recieving data
             comPortCallibration = true;
-            packetReciever = new uwbPacketRx(comPort);
+            qDebug() << "Comport with index " << port_index << " was initialized correctly.";
+            packetReciever = new uwbPacketRx(port_index);
             r_method = recieveMethod;
             return true;
         }
@@ -285,7 +319,7 @@ bool reciever::cancel_previous_method()
         if(comPortCallibration)
         {
             // correclty close comport
-            RS232_CloseComport(comPort);
+            RS232_CloseComport(port_index);
             if(packetReciever!=NULL) delete packetReciever;
             packetReciever = NULL;
 

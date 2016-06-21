@@ -39,7 +39,7 @@ dataInputThreadWorker::dataInputThreadWorker(QVector<rawData *> *raw_data_stack,
 
     // create approprate reciever -> need to choose appropriate constructor
     settingsMutex->lock();
-    if(settings->getRecieverMethod()==RS232) recieverHandler = new reciever(settings->getRecieverMethod(), settings->getComPortNumber(), settings->getComPortBaudRate(), settings->getComPortMode());
+    if(settings->getRecieverMethod()==RS232) recieverHandler = new reciever(settings->getRecieverMethod(), settings->getComPortName(), settings->getComPortBaudRate(), settings->getComPortMode());
     #if defined (__WIN32__)
     else if(settings->getRecieverMethod()==SYNTHETIC) recieverHandler = new reciever(settings->getRecieverMethod());
     #endif
@@ -58,6 +58,7 @@ dataInputThreadWorker::~dataInputThreadWorker()
 
     delete stoppedMutex;
 
+    qDebug() << "Deleting recieve handler from worker object";
     delete recieverHandler;
 }
 

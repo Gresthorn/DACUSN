@@ -59,7 +59,7 @@ public:
      * @param[in] baud_rate         New baudrate for serial link communication
      * @param[in] comport_mode      Mode for comport communication (parity, stop bits, one send word length)
      */
-    reciever(reciever_method recieveMethod, int comport_ID, int baud_rate, char * comport_mode);
+    reciever(reciever_method recieveMethod, char * comport_name, int baud_rate, char * comport_mode);
 
     ~reciever();
 
@@ -125,6 +125,8 @@ private:
 
     rawData * last_data_pt; ///< The object for storing data
 
+    int port_index; ///< Comport index used by RS232 library
+
     reciever_method r_method; ///< The code of currently used method.
 
     char * statusMsg; ///< The pointer to the last message produced by object
@@ -164,7 +166,7 @@ private:
 
     //------------------------------------------ SERIAL LINK METHOD -------------------------------------------
 
-    int comPort; ///< Specifies the index of COM port in operating system, which is used for data recieving
+    char * comPort; ///< Specifies the name of COM port in operating system, which is used for data recieving
 
     int comPortBaudRate; ///< Holds the information about speed used for serial link commuication
 

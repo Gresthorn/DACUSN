@@ -242,7 +242,7 @@ MainWindow::~MainWindow()
 void MainWindow::pauseDataInputSlot()
 {
     // if the pointers are NULL, no thread or object was created what means either error or no running thread
-    if(dataInputWorker==NULL || dataInputWorker==NULL)
+    if(dataInputWorker==NULL || dataInputThread==NULL)
     {
         qDebug() << "The data recieving thread seems not running. Nothing to pause.";
     }
@@ -310,6 +310,14 @@ void MainWindow::restartDataInputSlot()
 
 void MainWindow::establishDataInputThreadSlot()
 {
+    settingsMutex->lock();
+    if (settings->getRecieverMethod() == RS232 && settings->getComPortName() == NULL)
+    {
+        settingsMutex->unlock();
+        this->openDataInputDialog();
+    }
+    else settingsMutex->unlock();
+
     // if the pointer have no NULL value, probably the thread is still running
     if(dataInputThread!=NULL || dataInputWorker!=NULL)
     {
