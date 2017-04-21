@@ -189,8 +189,8 @@ animationManager::animationManager(QGraphicsScene * visualization_Scene, QGraphi
 /*************************************************************************************************************/
 /*************************************************************************************************************/
 
-openGLWidget::openGLWidget(QWidget *parent, const QGLWidget *shareWidget, Qt::WindowFlags f)
-    : QGLWidget(parent, shareWidget, f)
+openGLWidget::openGLWidget(QWidget *parent, Qt::WindowFlags f)
+    : QOpenGLWidget(parent, f)
 {
     // Ready to implement next stuff if needed
 }

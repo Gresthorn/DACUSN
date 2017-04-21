@@ -531,26 +531,21 @@ void MainWindow::setOglEngineFormatSlot(openGLWidget * oglwidget)
 {
     settingsMutex->lock();
 
-    QGLFormat oglformat;
+    QSurfaceFormat oglformat;
     if(settings->oglGetBufferType()==DOUBLE_BUFFERING)
     {
-        oglformat.setDoubleBuffer(true);
+        oglformat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     }
     else
     {
-        oglformat.setDoubleBuffer(false);
+        oglformat.setSwapBehavior(QSurfaceFormat::SingleBuffer);
     }
-    oglformat.setDirectRendering(settings->oglGetDirectRendering());
-    oglformat.setAccum(settings->oglGetAccumulationBuffer());
-    oglformat.setStencil(settings->oglGetStencilBuffer());
-    oglformat.setSampleBuffers(settings->oglGetMultisampleBuffer());
 
     oglformat.setRedBufferSize(settings->oglGetRedBufferSize());
     oglformat.setGreenBufferSize(settings->oglGetGreenBufferSize());
     oglformat.setBlueBufferSize(settings->oglGetBlueBufferSize());
     oglformat.setAlphaBufferSize(settings->oglGetAlphaBufferSize());
     oglformat.setDepthBufferSize(settings->oglGetDepthBufferSize());
-    oglformat.setAccumBufferSize(settings->oglGetAccumulationBufferSize());
     oglformat.setStencilBufferSize(settings->oglGetStencilBufferSize());
     oglformat.setSamples(settings->oglGetMultisampleBufferSize());
     oglformat.setSwapInterval(settings->oglGetSwapInterval());

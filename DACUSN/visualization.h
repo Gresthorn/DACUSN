@@ -30,7 +30,7 @@
 #include <QGraphicsLineItem>
 #include <QMouseEvent>
 #include <QWheelEvent>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QRadialGradient>
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneHoverEvent>
@@ -327,13 +327,13 @@ public slots:
 
 /******************************************* CUSTOM OPENGL WIDGET ********************************************/
 
-class openGLWidget : public QGLWidget
+class openGLWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
 public:
     /**
-     * @brief The 'openGLwidget' class is derived from original QGLWidget
+     * @brief The 'openGLwidget' class is derived from original QOpenGLWidget
      *
      * By setting the viewport to this widget allows using openGL rendering engine and therefore may
      * improve performance capabilities of application. Also allows to use many features related with
@@ -341,7 +341,7 @@ public:
      * improvements can be achieved. Class is now prepared for future use.
      *
      */
-    openGLWidget(QWidget *parent = 0, const QGLWidget *shareWidget = 0, Qt::WindowFlags f = 0);
+    openGLWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
 };
 
 /******************************************* CUSTOM GRAPHICS VIEW ********************************************/
@@ -360,8 +360,8 @@ public:
     radarView(class radarScene * scene, uwbSettings * setts, QMutex * settings_mutex, QWidget * parent = 0);
 
     /**
-     * @brief Returns the pointer to 'QGLWidget', usually 'openGLWidget' if is present. Else returns NULL.
-     * @return The pointer to 'QGLWidget' or 'openGLWidget'.
+     * @brief Returns the pointer to 'QOpenGLWidget', usually 'openGLWidget' if is present. Else returns NULL.
+     * @return The pointer to 'QOpenGLWidget' or 'openGLWidget'.
      */
     openGLWidget * getOpenGLWidget(void) { return openGLW; }
 
